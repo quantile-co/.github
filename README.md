@@ -6,7 +6,7 @@
     <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/quantile-co/brand/main/assets/logo/logo-dark.png">
     <img src="https://raw.githubusercontent.com/quantile-co/brand/main/assets/logo/logo.png" alt=":quantile organization" width="250">
   </picture>
-  <p><em>Organization profile and settings</em></p>
+  <p><em>GitHub organization profile</em></p>
   <p>
     <a href="#prerequisites">Prerequisites</a> ·
     <a href="#setup">Setup</a>
