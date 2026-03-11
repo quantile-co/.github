@@ -1,4 +1,4 @@
-<!-- markdownlint-disable MD041 -->
+<!-- markdownlint-disable MD041 MD013 -->
 <br>
 
 <div align="center">
@@ -14,7 +14,7 @@
 </div>
 
 <br>
-<!-- markdownlint-enable MD041 -->
+<!-- markdownlint-enable MD041 MD013 -->
 
 ## Prerequisites
 
