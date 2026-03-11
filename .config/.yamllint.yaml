@@ -1,0 +1,25 @@
+---
+extends: default
+
+rules:
+  line-length:
+    max: 120
+    level: warning
+  document-start:
+    present: true
+  indentation:
+    spaces: 2
+  truthy:
+    allowed-values: ['true', 'false', 'on', 'off']
+
+ignore: |
+  pnpm-lock.yaml
+  pnpm-workspace.yaml
+  **/node_modules/**
+  **/vendor/**
+  **/.git/**
+  **/build/**
+  **/dist/**
+  *.min.yaml
+  *.min.yml
+  .config/vale/styles/Google/**

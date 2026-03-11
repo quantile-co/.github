@@ -1,0 +1,158 @@
+---
+min_version: "1.10.0"
+
+commit-msg:
+  commands:
+    commitizen:
+      run: cz --config .config/cz.toml check --commit-msg-file {1}
+
+pre-push:
+  parallel: true
+  env:
+    TERM: dumb
+  commands:
+    # === File/Git Sanity Checks ===
+    check-case-conflict:
+      run: |
+        # Detect files that would conflict on case-insensitive filesystems
+        git ls-files | sort -f | uniq -di | while read -r file; do
+          echo "Case conflict: $file"
+          exit 1
+        done
+
+    check-merge-conflict:
+      run: |
+        # Detect unresolved merge conflict markers
+        if git grep -l -E '^(<{7}|={7}|>{7})' -- ':(exclude)lefthook.yml' {push_files} 2>/dev/null; then
+          echo "Merge conflict markers found"
+          exit 1
+        fi
+
+    check-symlinks:
+      run: |
+        # Check that symlinks point to valid targets
+        git ls-files -s | grep '^120000' | cut -f2 | while read -r link; do
+          if [ -L "$link" ] && [ ! -e "$link" ]; then
+            echo "Broken symlink: $link"
+            exit 1
+          fi
+        done
+
+    destroyed-symlinks:
+      run: |
+        # Detect files that look like destroyed symlinks (contain just a path)
+        for f in {push_files}; do
+          if [ -f "$f" ] && [ ! -L "$f" ]; then
+            # Skip binary files (grep -I returns 1 for binary, 0 for text)
+            if grep -qI . "$f" 2>/dev/null; then
+              content=$(head -c 1000 "$f" 2>/dev/null | tr -d '\n')
+              if [[ "$content" =~ ^[a-zA-Z0-9_./-]+$ ]] && [ -e "$content" ]; then
+                echo "Possible destroyed symlink: $f -> $content"
+                exit 1
+              fi
+            fi
+          fi
+        done
+
+    check-vcs-permalinks:
+      run: |
+        # Check for non-permanent GitHub links (should use commit SHA, not branch)
+        if grep -rE 'github\.com/[^/]+/[^/]+/(blob|tree)/[^/]+/' {push_files} 2>/dev/null | \
+          grep -vE '/(blob|tree)/[a-f0-9]{40}/' | grep -v '^Binary'; then
+          echo "Found non-permanent VCS links (use commit SHA instead of branch)"
+          exit 1
+        fi
+
+    check-added-large-files:
+      run: |
+        max_kb=1200
+        for f in {push_files}; do
+          if [ -f "$f" ]; then
+            size=$(stat -c%s "$f" 2>/dev/null || stat -f%z "$f" 2>/dev/null)
+            if [ "$size" -gt $((max_kb * 1024)) ]; then
+              echo "File $f is too large ($(($size / 1024))KB > ${max_kb}KB)"
+              exit 1
+            fi
+          fi
+        done
+
+    gitleaks:
+      run: gitleaks protect --no-banner --redact --verbose
+
+    # === Shell ===
+    shfmt:
+      glob: "*.sh"
+      run: shfmt -d -i 4 -ci {push_files}
+
+    shellcheck:
+      glob: "*.sh"
+      run: shellcheck {push_files}
+
+    # === Docs ===
+    markdownlint:
+      glob: "*.md"
+      run: markdownlint-cli2 --config .config/.markdownlint-cli2.yaml {push_files}
+
+    vale:
+      glob: "**/*.md"
+      run: |
+        output=$(vale --config .config/.vale.ini --minAlertLevel suggestion {push_files} 2>&1)
+        echo "$output"
+        if echo "$output" | grep -E "✖ [0-9]+ error|[1-9][0-9]* (warning|suggestion)" >/dev/null; then
+          exit 1
+        fi
+
+    # === Data formats ===
+    yamllint:
+      glob: "*.{yaml,yml}"
+      run: yamllint -c .config/.yamllint.yaml -s {push_files}
+
+    taplo:
+      glob: "*.toml"
+      run: taplo check {push_files}
+
+    # === Nix ===
+    nixfmt:
+      glob: "*.nix"
+      run: nixfmt --check {push_files}
+
+    statix:
+      glob: "*.nix"
+      run: |
+        for f in {push_files}; do
+          statix check "$f" || exit 1
+        done
+
+    deadnix:
+      glob: "*.nix"
+      run: deadnix --fail {push_files}
+
+    # === Other ===
+    keep-sorted:
+      run: keep-sorted --mode lint {push_files}
+
+    editorconfig-checker:
+      run: editorconfig-checker --config .config/.editorconfig-checker.json {push_files}
+
+# Manual fix hook - invoked via `lefthook run fix`
+fix:
+  parallel: true
+  commands:
+    shfmt-fix:
+      glob: "*.sh"
+      run: shfmt -w -i 4 -ci {all_files}
+
+    markdownlint-fix:
+      glob: "*.md"
+      run: markdownlint-cli2 --config .config/.markdownlint-cli2.yaml --fix {all_files}
+
+    taplo-fix:
+      glob: "*.toml"
+      run: taplo format {all_files}
+
+    nixfmt-fix:
+      glob: "*.nix"
+      run: nixfmt {all_files}
+
+    keep-sorted-fix:
+      run: keep-sorted {all_files}

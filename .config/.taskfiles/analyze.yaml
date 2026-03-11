@@ -1,0 +1,23 @@
+---
+version: "3"
+
+tasks:
+  check:
+    desc: Run static analysis on staged files
+    cmds:
+      - lefthook run pre-push
+
+  check:all:
+    desc: Run static analysis on all files
+    cmds:
+      - lefthook run pre-push --all-files
+
+  fix:
+    desc: Auto-fix static analysis issues
+    cmds:
+      - lefthook run fix
+
+  fix:all:
+    desc: Auto-fix static analysis issues on all files
+    cmds:
+      - lefthook run fix --all-files

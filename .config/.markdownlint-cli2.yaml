@@ -1,0 +1,22 @@
+---
+# Markdownlint-cli2 configuration
+# See: https://github.com/DavidAnson/markdownlint-cli2
+
+config:
+  # MD003/heading-style - Heading style
+  MD003:
+    style: atx
+
+  # MD013/line-length - Line length
+  MD013:
+    line_length: 120
+
+  # MD024/no-duplicate-heading - Multiple headings with the same content
+  MD024:
+    siblings_only: true
+
+  # MD029/ol-prefix - Ordered list item prefix
+  MD029: false
+
+  # MD033/no-inline-html - Inline HTML
+  MD033: false

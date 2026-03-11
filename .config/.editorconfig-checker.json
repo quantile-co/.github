@@ -1,0 +1,7 @@
+{
+  "Exclude": [
+    "internal/sql/.*\\.sql\\.go$",
+    "internal/ui/templui/components/icon/icon_data\\.go$",
+    "internal/banner/banner\\.go$"
+  ]
+}
