@@ -8,7 +8,7 @@ resource "random_id" "state" {
 resource "google_project" "state" {
   name                = "github-${random_id.state.hex}"
   project_id          = "github-${random_id.state.hex}"
-  folder_id           = var.gcp_co_folder_id
+  folder_id           = var.gcp_quantile_co_folder_id
   billing_account     = var.gcp_billing_account
   auto_create_network = false
   deletion_policy     = "PREVENT"
