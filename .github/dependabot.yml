@@ -6,3 +6,10 @@ updates:
       interval: weekly
     commit-message:
       prefix: chore
+
+  - package-ecosystem: terraform
+    directory: /.github/tf
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: chore
