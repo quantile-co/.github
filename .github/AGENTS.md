@@ -28,8 +28,10 @@ Cachix action scans this isolated store at job end instead of installing a
 second live upload hook. Manual deployment uses FlakeHub but only pulls from
 public Cachix. No deploy-profile secrets may enter the public cache. The
 organization manages the platform connections. Define workflow runner labels
-and pinned action references here. Never invent Terraform resources for
-platform-wide account setup in this repo.
+and pinned action references here. This repository's `tf/` owns its selected-
+action policy. `quantile-q0/q0` owns the `quantile-co` organization policy.
+Import existing settings before the first apply and update both allowlists
+when action SHAs change. Never invent platform-wide Terraform resources here.
 
 Dependabot updates GitHub Actions and Terraform dependencies with conventional
 commit prefixes. `dependencies.yaml` keeps Dependabot auto-merge and scheduled
@@ -46,8 +48,10 @@ before filing a review-only PR. The Dependabot job calls
 `main`, never the PR head.
 The nixpkgs/OpenTofu 1.12.3 pin and CI's pinned Devenv revision remain manual.
 The scheduled job uses its own Namespace cache tag. The checkout drops
-persisted credentials before evaluating updated Nix inputs. The default GitHub
-token can open a PR only if repository settings permit Actions to create PRs.
+persisted credentials before evaluating updated Nix inputs. Set and rotate
+`DEPENDENCY_PR_TOKEN` with `gh secret set`, not Terraform, to keep its value out
+of state. The default GitHub token can open a PR only if repository settings
+permit Actions to create PRs.
 It can't trigger PR validation. The current repository
 setting disallows Actions-created PRs. Use a scoped `DEPENDENCY_PR_TOKEN` for
 automatic checks or ask an administrator to enable that setting, then close
