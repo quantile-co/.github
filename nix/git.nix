@@ -16,10 +16,11 @@
 
   tasks = {
     "check:git" = {
-      description = "Scan Git history for committed secrets.";
+      description = "Scan Git history and the working tree for secrets.";
       exec = ''
         set -euo pipefail
         gitleaks git --no-banner --redact .
+        gitleaks dir --no-banner --redact .
       '';
     };
 

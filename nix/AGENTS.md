@@ -13,7 +13,7 @@ The gate covers OpenTofu formatting, backend-free initialization and TFLint,
 Markdown, YAML, actionlint for GitHub Actions, and Nix formatting and static
 checks. It also runs typos, Open Policy Agent deployment guardrails, tested Semgrep rules,
 Trivy filesystem scanning, Vale prose and AI-writing detection, Git-history
-secret scanning, and `devenv test` shell smoke tests. Every declared check runs
+and working-tree secret scanning, and `devenv test` shell smoke tests. Every declared check runs
 in this gate. Each domain stays in its own module. A shared file format does
 not make different tools one domain. Keep these tasks usable without GitHub or
 Google Cloud credentials or remote Cloud Storage access. `check:tf` uses
