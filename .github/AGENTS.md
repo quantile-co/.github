@@ -39,13 +39,13 @@ selected-action list. Update Q0's list when action commits change. Never add
 platform-wide resources here.
 
 Dependabot updates GitHub Actions and Terraform dependencies with conventional
-commit prefixes. `dependencies.yaml` runs scheduled and manual review-only
-updates. `dependabot.yaml` handles bot PRs. Its `pull_request_target` job
-never checks out PR code. It requests auto-merge only for stable minor/patch
-updates from the Dependabot bot. Non-bot PRs may display one skipped
-Dependabot job, but no scheduled dependency jobs. Required status checks and
-branch protection still gate merges. Maintain review requirements when
-adding maintainers.
+commit prefixes. `dependencies.yaml` runs scheduled review-only updates and
+Dependabot auto-merge as separate, event-guarded jobs. Its
+`pull_request_target` job never checks out PR code. It requests auto-merge
+only for stable minor/patch updates from the Dependabot bot. Non-bot PRs show
+both dependency jobs as skipped because GitHub starts the workflow for each PR.
+Required checks and branch protection still gate merges. Maintain review
+requirements when adding maintainers.
 
 The dependency matrix runs `git:update-hooks`, `nix:update-nixpkgs`, and
 `devenv:update-ci` from their owning Nix modules. Each matrix entry has an

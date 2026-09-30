@@ -25,15 +25,3 @@ jobs:
           nix run --accept-flake-config
           github:cachix/devenv/b904dcb51fe48c30db250038241507f60752f222
           -- tasks run --show-output check:all
-
-  # Preserve the currently required status until Plan/Apply changes it to All.
-  legacy-status:
-    name: All checks
-    needs: all-checks
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
-      - name: Require the full gate
-        env:
-          CHECK_RESULT: ${{ needs.all-checks.result }}
-        run: test "$CHECK_RESULT" = success
