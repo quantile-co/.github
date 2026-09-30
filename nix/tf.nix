@@ -43,6 +43,9 @@
         tofu -chdir=tf plan -input=false -out=plan.tfplan >/dev/null
         tofu -chdir=tf show -json plan.tfplan |
           jq -r '[.resource_changes[]? | select(.change.actions != ["no-op"]) | "\(.address): \(.change.actions | join(","))"] | if length == 0 then "No changes." else .[] end'
+        # Attribute names, not values: safe to print in public workflow logs.
+        tofu -chdir=tf show -json plan.tfplan |
+          jq -r '.resource_changes[]? | select(.address == "github_repository.self") | (.change.before // {}) as $before | (.change.after // {}) as $after | ($before + $after | keys[]) | select($before[.] != $after[.]) | "  repository attribute: \(.)"'
       '';
     };
 
