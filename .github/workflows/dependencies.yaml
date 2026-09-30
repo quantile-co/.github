@@ -34,8 +34,8 @@ jobs:
     steps:
       - name: Require the dedicated pull request token
         env:
-          DEPENDENCY_PR_TOKEN: ${{ secrets.DEPENDENCY_PR_TOKEN }}
-        run: test -n "$DEPENDENCY_PR_TOKEN"
+          GITHUB_DEPENDENCY_PR_TOKEN: ${{ secrets.GITHUB_DEPENDENCY_PR_TOKEN || secrets.DEPENDENCY_PR_TOKEN }}
+        run: test -n "$GITHUB_DEPENDENCY_PR_TOKEN"
 
       - name: Check out trusted main
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
@@ -66,7 +66,7 @@ jobs:
       - name: File a review-only pull request
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
         with:
-          token: ${{ secrets.DEPENDENCY_PR_TOKEN }}
+          token: ${{ secrets.GITHUB_DEPENDENCY_PR_TOKEN || secrets.DEPENDENCY_PR_TOKEN }}
           add-paths: |
             devenv.yaml
             devenv.lock

@@ -53,8 +53,12 @@ isolated Namespace cache, runs `check:all`, and files a separate review-only
 PR. No toolchain PR auto-merges. The Dependabot job calls
 `dependabot:automerge` from `nix/dependabot.nix`. Both jobs check out trusted
 `main`, never the PR head. Checkout drops persisted credentials before
-updating inputs. Set and rotate `DEPENDENCY_PR_TOKEN` with `gh secret set`,
-not Terraform, to keep its value out of state. A missing token fails closed.
+updating inputs. Store the dedicated pull request token as
+`GITHUB_DEPENDENCY_PR_TOKEN` with `gh secret set`, not Terraform. The workflow
+temporarily accepts the existing `DEPENDENCY_PR_TOKEN`. GitHub won't let you
+read back or rename stored secret values, so copy the token from its secure
+source. Remove the fallback only after a run files a PR with the new name. A
+missing token fails closed.
 `GITHUB_TOKEN`-created PRs would not trigger validation.
 
 Plan and Apply set `SECRETSPEC_PROFILE=prod` before Devenv runs. Devenv
