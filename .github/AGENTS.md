@@ -30,8 +30,8 @@ public Cachix. No deploy-profile secrets may enter the public cache. The
 organization manages the platform connections. Define workflow runner labels
 and pinned action references here. This repository's `tf/` owns its selected-
 action policy. `quantile-q0/q0` owns the `quantile-co` organization policy.
-Import existing settings before the first apply and update both allowlists
-when action SHAs change. Never invent platform-wide Terraform resources here.
+The pinned provider updates existing Actions policies directly. Update both
+allowlists when action SHAs change. Never add platform-wide resources here.
 
 Dependabot updates GitHub Actions and Terraform dependencies with conventional
 commit prefixes. `dependencies.yaml` keeps Dependabot auto-merge and scheduled

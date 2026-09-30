@@ -23,8 +23,6 @@ printf 'terraform { backend "local" {} }\n' > tf/backend_override.tf
 tofu -chdir=tf init -input=false
 # The GitHub repository already exists. Import ONLY if no state manages it.
 tofu -chdir=tf import github_repository.self .github
-# Import the existing Actions policy. Q0 owns the organization policy.
-tofu -chdir=tf import github_actions_repository_permissions.self .github
 tofu -chdir=tf plan
 # Review existing settings and import any other existing objects before apply.
 tofu -chdir=tf apply
@@ -50,8 +48,6 @@ gh variable set GCP_PROJECT_ID --repo "$repo" --body "$project"
 gh variable set TF_STATE_BUCKET --repo "$repo" --body "$bucket"
 printf '%s' "$TF_VAR_github_quantile_co_token" | \
   gh secret set TERRAFORM_GITHUB_QUANTILE_CO_TOKEN --repo "$repo" --env prod
-# Existing state: import only missing resources using its remote backend.
-# Update both allowlists when action SHAs change. Rotate secrets via gh, not state.
 # Verify protected main/prod and run the manual deploy workflow plan-only.
 # Never commit credentials, local state, .terraform/, or saved plans.
 ```
