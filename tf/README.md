@@ -37,7 +37,7 @@ tofu -chdir=tf init -migrate-state \
 tofu -chdir=tf state list
 tofu -chdir=tf plan # confirm no unexpected changes
 
-# Configure the values consumed by .github/workflows/deploy.yaml.
+# Configure the values used by the manual Plan and Apply workflows.
 repo=quantile-co/.github
 gh variable set GCP_BILLING_ACCOUNT --repo "$repo" --body "$TF_VAR_gcp_billing_account"
 gh variable set GCP_QUANTILE_CO_FOLDER_ID --repo "$repo" --body "$TF_VAR_gcp_quantile_co_folder_id"
@@ -48,6 +48,8 @@ gh variable set GCP_PROJECT_ID --repo "$repo" --body "$project"
 gh variable set TF_STATE_BUCKET --repo "$repo" --body "$bucket"
 printf '%s' "$TF_VAR_github_quantile_co_token" | \
   gh secret set TERRAFORM_GITHUB_QUANTILE_CO_TOKEN --repo "$repo" --env prod
-# Verify protected main/prod and run the manual deploy workflow plan-only.
+# Verify protected main/prod, then run the manual Plan workflow.
+gh workflow run plan.yaml --repo "$repo" --ref main
+# Run Apply only after reviewing the plan; Apply replans in its own job.
 # Never commit credentials, local state, .terraform/, or saved plans.
 ```

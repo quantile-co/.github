@@ -6,7 +6,7 @@ approved copy and the root README's centered header and horizontal navigation.
 
 Read the scoped guides before changing their areas:
 
-- [`.github/AGENTS.md`](.github/AGENTS.md): CI runner, cache, and deployment boundaries.
+- [`.github/AGENTS.md`](.github/AGENTS.md): workflow runners, cache, and protected Apply.
 - [`nix/AGENTS.md`](nix/AGENTS.md): local development and checks.
 - [`tf/AGENTS.md`](tf/AGENTS.md): repository settings and state infrastructure.
 
