@@ -16,9 +16,10 @@ merely to allow a push.
 Validation, deployment, and Dependabot maintenance use Namespace runners.
 Separate Namespace cache tags for PR checks, main checks, publishing,
 Dependabot, scheduled updates, and deployment form a trust boundary.
-Untrusted PR code must never write to the publishing or deployment caches. The Namespace `nix` cache action mounts the
-persistent `/nix` store before Determinate Nix installs. PR validation only
-pulls from the public `quantile-co` Cachix cache and retains `contents: read`.
+Untrusted PR code must never write to the publishing or deployment caches.
+Namespace caches `/nix/store` and `/nix/var/nix/db` before installation, but
+not `/nix/receipt.json`: every runner must install and start its own daemon.
+PR validation only pulls from public Cachix and retains `contents: read`.
 
 After the main-branch gate passes, a separate trusted job builds and publishes
 to both Cachix and FlakeHub Cache. A separate job reads a reference-free
