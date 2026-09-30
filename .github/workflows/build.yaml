@@ -1,0 +1,62 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Check trusted main
+    runs-on:
+      - nscloud-ubuntu-24.04-amd64-4x8-with-cache
+      - nscloud-cache-tag-quantile-co-dot-github-build-checks
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Set up Nix
+        uses: ./.github/actions/setup-nix
+
+      - name: Check repository
+        run: >-
+          nix run --accept-flake-config
+          github:cachix/devenv/b904dcb51fe48c30db250038241507f60752f222
+          -- tasks run --show-output check:all
+
+  publish-caches:
+    name: Build and publish trusted main outputs
+    needs: check
+    permissions:
+      contents: read
+      id-token: write
+    # Never upload store paths from a PR's persistent /nix volume.
+    runs-on:
+      - nscloud-ubuntu-24.04-amd64-4x8-with-cache
+      - nscloud-cache-tag-quantile-co-dot-github-publish
+    steps:
+      - name: Require the public cache upload token
+        env:
+          CACHIX_AUTH_TOKEN: ${{ secrets.CACHIX_AUTH_TOKEN }}
+        run: |
+          if [[ -z "$CACHIX_AUTH_TOKEN" ]]; then
+            echo '::error::Set the quantile-co Cachix write token as CACHIX_AUTH_TOKEN.'
+            exit 1
+          fi
+
+      - name: Check out trusted main
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Set up Nix and both binary caches
+        uses: ./.github/actions/setup-nix
+        with:
+          flakehub-cache: 'true'
+          cachix-auth-token: ${{ secrets.CACHIX_AUTH_TOKEN }}
+
+      - name: Build and smoke-test the environment for caching
+        run: >-
+          nix run --accept-flake-config
+          github:cachix/devenv/b904dcb51fe48c30db250038241507f60752f222
+          -- test

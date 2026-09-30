@@ -1,0 +1,104 @@
+name: Dependencies
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+  schedule:
+    - cron: '0 5 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  dependabot-automerge:
+    if: >-
+      github.event_name == 'pull_request_target' &&
+      github.event.pull_request.user.login == 'dependabot[bot]' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.base.ref == 'main'
+    runs-on:
+      - nscloud-ubuntu-24.04-amd64-4x8-with-cache
+      - nscloud-cache-tag-quantile-co-dot-github-automerge
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      # Never check out or execute PR code in this privileged job.
+      - name: Check out trusted main
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: main
+          persist-credentials: false
+
+      - name: Set up Nix
+        uses: ./.github/actions/setup-nix
+
+      - name: Read Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3.1.0
+
+      - name: Enable auto-merge for stable minor and patch updates
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          UPDATE_TYPE: ${{ steps.metadata.outputs.update-type }}
+          PREVIOUS_VERSION: ${{ steps.metadata.outputs.previous-version }}
+          NEW_VERSION: ${{ steps.metadata.outputs.new-version }}
+        run: >-
+          nix run --accept-flake-config
+          github:cachix/devenv/b904dcb51fe48c30db250038241507f60752f222
+          -- tasks run dependabot:automerge
+
+  devenv-update:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    # Do not share writable /nix state with untrusted PR jobs or deployment.
+    runs-on:
+      - nscloud-ubuntu-24.04-amd64-4x8-with-cache
+      - nscloud-cache-tag-quantile-co-dot-github-dependencies
+    timeout-minutes: 40
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Check out trusted main
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: main
+          persist-credentials: false
+
+      - name: Set up Nix
+        uses: ./.github/actions/setup-nix
+
+      # `devenv update` cannot move a commit-pinned input on its own. Leave
+      # nixpkgs pinned to OpenTofu 1.12.3 until a maintainer reviews a bump.
+      - name: Refresh git-hooks input and devenv.lock
+        run: >-
+          nix run --accept-flake-config
+          github:cachix/devenv/b904dcb51fe48c30db250038241507f60752f222
+          -- tasks run git:update-hooks
+
+      - name: Validate the updated environment
+        run: >-
+          nix run --accept-flake-config
+          github:cachix/devenv/b904dcb51fe48c30db250038241507f60752f222
+          -- --no-tui tasks run --show-output check:all
+
+      # A GitHub App or fine-grained PAT makes the PR trigger CI. GITHUB_TOKEN
+      # opens the PR but does not trigger pull_request checks; never auto-merge it.
+      - name: File a review-only pull request
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+        with:
+          token: ${{ secrets.DEPENDENCY_PR_TOKEN || secrets.GITHUB_TOKEN }}
+          add: |
+            devenv.yaml
+            devenv.lock
+          branch: chore/devenv-git-hooks
+          commit-message: 'chore(deps): update git-hooks devenv input'
+          title: 'chore(deps): update git-hooks devenv input'
+          body: |
+            Automated pinned git-hooks refresh. `check:all` passed before filing.
+            Review this change manually; the nixpkgs/OpenTofu pin is unchanged.
+            With the default GITHUB_TOKEN, this PR does not trigger PR checks:
+            close and reopen it or supply a dedicated PR token.
+          delete-branch: true

@@ -58,25 +58,23 @@ jobs:
         run: >-
           nix run --accept-flake-config
           github:cachix/devenv/b904dcb51fe48c30db250038241507f60752f222
-          -- shell -- tofu -chdir=tf init -input=false -reconfigure
-          -backend-config="bucket=$TF_STATE_BUCKET"
-          -backend-config="prefix=repository/prod"
+          -- tasks run tf:init
 
       - name: Validate
         run: >-
           nix run --accept-flake-config
           github:cachix/devenv/b904dcb51fe48c30db250038241507f60752f222
-          -- shell -- tofu -chdir=tf validate
+          -- tasks run tf:validate
 
       - name: Plan
         run: >-
           nix run --accept-flake-config
           github:cachix/devenv/b904dcb51fe48c30db250038241507f60752f222
-          -- shell -- tofu -chdir=tf plan -input=false -out=plan.tfplan
+          -- tasks run tf:plan
 
       - name: Apply exact plan
         if: inputs.apply
         run: >-
           nix run --accept-flake-config
           github:cachix/devenv/b904dcb51fe48c30db250038241507f60752f222
-          -- shell -- tofu -chdir=tf apply -input=false -auto-approve plan.tfplan
+          -- tasks run tf:apply

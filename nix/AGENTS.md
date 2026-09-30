@@ -5,7 +5,10 @@ directory. Keep the entrypoint small and group checks with their related tools
 rather than building the old superset module/scaffold system. A new domain
 warrants a new file only when it adds meaningful behavior.
 
-Run `devenv tasks run check:all` for the same local gate as validation CI.
+Keep CI workflows as thin wrappers around these Nix-defined tasks. PR
+validation and the post-merge build both run `check:all`. Neither workflow
+should reimplement a check in YAML. Run `devenv tasks run check:all` for the
+same local gate as validation CI.
 The gate covers OpenTofu formatting, backend-free initialization and TFLint,
 Markdown, YAML, actionlint for GitHub Actions, and Nix formatting and static
 checks. It also runs typos, Open Policy Agent deployment guardrails, tested Semgrep rules,
@@ -17,6 +20,9 @@ Google Cloud credentials or remote Cloud Storage access. `check:tf` uses
 `-lockfile=readonly` so provider lock changes remain explicit. OpenTofu must
 remain at 1.12.3 until the CI/tool constraints change together.
 
+`nix/cachix.nix` configures public binary-cache pulls without credentials.
+The trusted GitHub Actions setup handles FlakeHub Cache authentication and
+Cachix uploads. No Nix module stores upload credentials.
 Entering the local shell installs a pre-push Git hook that runs `check:all`.
 Unlike the old shared module framework, it never scaffolds tracked files.
 `.editorconfig` guides editors. Domain formatters and CI checks enforce
@@ -34,8 +40,7 @@ Vale uses the pinned Google package in `.vale/styles/Google/` and a small
 `Quantile` style for rule-based AI-writing detection. Every enabled Vale finding
 has error severity and fails `check:vale`. The check tests all eight local
 AI-writing rules, two promoted Google advisories, and a clean fixture in
-`.vale/test/`. A pattern match is
-a detection signal, not proof of authorship. The first-party YAML and typos
+`.vale/test/`. A pattern match is a detection signal, not proof of authorship. The first-party YAML and typos
 checks skip vendored Google rules but cover newly added repository content.
 Workflow-specific Open Policy Agent rules and tests sit next to their workflow
 YAML in `.github/workflows/`. Local Semgrep rules and tests live in

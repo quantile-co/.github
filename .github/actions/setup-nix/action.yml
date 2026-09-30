@@ -6,6 +6,10 @@ inputs:
     description: Enable FlakeHub Cache (requires id-token write permission)
     default: 'false'
     required: false
+  cachix-auth-token:
+    description: Optional upload token for the quantile-co public cache (trusted main only)
+    default: ''
+    required: false
 runs:
   using: composite
   steps:
@@ -16,6 +20,15 @@ runs:
 
     - name: Install Determinate Nix
       uses: DeterminateSystems/determinate-nix-action@8d87e8d5e5b8a8309d4281094560f127d9a265f1 # v3.22.5
+
+    - name: Configure public Cachix cache
+      uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866 # v17
+      with:
+        name: quantile-co
+        authToken: ${{ inputs.cachix-auth-token }}
+        skipPush: ${{ inputs.cachix-auth-token == '' }}
+        # Store scan at job end avoids competing upload hooks with FlakeHub.
+        useDaemon: false
 
     - name: Enable FlakeHub Cache
       if: inputs.flakehub-cache == 'true'

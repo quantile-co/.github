@@ -1,6 +1,8 @@
 _: {
   imports = [
+    ./cachix.nix
     ./check.nix
+    ./dependabot.nix
     ./gcp.nix
     ./git.nix
     ./github.nix

@@ -2,8 +2,6 @@ name: Validate
 
 on:
   pull_request:
-  push:
-    branches: [main]
 
 permissions:
   contents: read
@@ -11,7 +9,7 @@ permissions:
 jobs:
   tofu:
     name: OpenTofu
-    # Keep the PR cache separate from the privileged deployment cache.
+    # PRs can read the public cache but never share writable publish state.
     runs-on:
       - nscloud-ubuntu-24.04-amd64-4x8-with-cache
       - nscloud-cache-tag-quantile-co-dot-github-checks
