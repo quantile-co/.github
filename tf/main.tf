@@ -83,6 +83,7 @@ resource "github_repository" "self" {
   has_projects    = false
   has_wiki        = false
 
+  allow_auto_merge       = true
   allow_merge_commit     = true
   allow_squash_merge     = true
   allow_rebase_merge     = false
@@ -93,6 +94,18 @@ resource "github_repository" "self" {
   lifecycle {
     prevent_destroy = true
   }
+}
+
+resource "github_actions_repository_permissions" "self" {
+  provider = github.quantile_co
+
+  repository           = github_repository.self.name
+  enabled              = true
+  allowed_actions      = "selected"
+  sha_pinning_required = true
+
+  # GitHub inherits selected-action patterns from the quantile-co organization.
+  # Q0 owns that list; GitHub rejects setting it again at repository level.
 }
 
 resource "github_repository_vulnerability_alerts" "self" {
