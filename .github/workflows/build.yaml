@@ -29,6 +29,8 @@ jobs:
   publish-caches:
     name: Build and publish trusted main outputs
     needs: check
+    outputs:
+      probe-path: ${{ steps.cache-probe.outputs.path }}
     permissions:
       contents: read
       id-token: write
@@ -60,3 +62,36 @@ jobs:
           nix run --accept-flake-config
           github:cachix/devenv/b904dcb51fe48c30db250038241507f60752f222
           -- test
+
+      - name: Select a store path for readback
+        id: cache-probe
+        run: >-
+          nix run --accept-flake-config
+          github:cachix/devenv/b904dcb51fe48c30db250038241507f60752f222
+          -- tasks run cache:select-probe
+
+  verify-caches:
+    name: Read back both published caches
+    needs: publish-caches
+    permissions:
+      contents: read
+      id-token: write
+    runs-on:
+      - nscloud-ubuntu-24.04-amd64-4x8-with-cache
+      - nscloud-cache-tag-quantile-co-dot-github-verify-caches
+    steps:
+      - name: Check out trusted main
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Set up Nix with both caches
+        uses: ./.github/actions/setup-nix
+        with:
+          flakehub-cache: 'true'
+
+      - name: Fetch from each cache into a fresh store
+        env:
+          CACHE_TEST_PATH: ${{ needs.publish-caches.outputs.probe-path }}
+        run: >-
+          nix run --accept-flake-config
+          github:cachix/devenv/b904dcb51fe48c30db250038241507f60752f222
+          -- tasks run --show-output cache:verify-reads

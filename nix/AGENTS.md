@@ -22,9 +22,10 @@ updates the whole pinned nixpkgs input. `nix/devenv.nix` updates only the CI
 Devenv revision. Both file review-only proposals and must pass `check:all`.
 Review the resulting tool versions before merging.
 
-`nix/cachix.nix` configures public binary-cache pulls without credentials.
-The trusted GitHub Actions setup handles FlakeHub Cache authentication and
-Cachix uploads. No Nix module stores upload credentials.
+`nix/cache.nix` configures public Cachix pulls and tests fresh reads from
+both binary caches after a trusted publish. The GitHub Actions setup handles
+FlakeHub Cache authentication and Cachix uploads. No Nix module stores upload
+credentials. Namespace cache tags separate PR, publisher, and readback stores.
 Entering the local shell installs a pre-push Git hook that runs `check:all`.
 Unlike the old shared module framework, it never scaffolds tracked files.
 `.editorconfig` guides editors. Domain formatters and CI checks enforce

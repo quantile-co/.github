@@ -16,13 +16,17 @@ merely to allow a push.
 Validation, deployment, and Dependabot maintenance use Namespace runners.
 Separate Namespace cache tags for PR checks, main checks, publishing,
 Dependabot, scheduled updates, and deployment form a trust boundary.
-Untrusted PR code must never write to the publishing or deployment caches. The Namespace `nix` cache action mounts the
-persistent `/nix` store before Determinate Nix installs. PR validation only
-pulls from the public `quantile-co` Cachix cache and retains `contents: read`.
+Untrusted PR code must never write to the publishing or deployment caches.
+Namespace mounts `/nix` before installation. Discard a restored Nix
+installation receipt so Determinate Nix installs and starts a new daemon on
+each fresh runner while reusing the persisted store and database. PR
+validation only pulls from public Cachix and retains `contents: read`.
 
 After the main-branch gate passes, a separate trusted job builds and publishes
-to both Cachix and FlakeHub Cache. This job needs `id-token: write` for
-FlakeHub. Supply a per-cache Cachix write token as the GitHub Actions secret
+to both Cachix and FlakeHub Cache. A separate job reads a reference-free
+probe from each cache into a fresh store after publishing finishes. Both jobs
+need `id-token: write` for FlakeHub. Supply a per-cache Cachix write token as
+the GitHub Actions secret
 `CACHIX_AUTH_TOKEN`. The trusted publisher alone receives the token. The
 Cachix action scans this isolated store at job end instead of installing a
 second live upload hook. Manual deployment uses FlakeHub but only pulls from
