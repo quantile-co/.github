@@ -1,6 +1,6 @@
 name: Set up Nix
-# Cache store contents and validity metadata, not the installation receipt:
-# a fresh runner must install and start its own Determinate Nix daemon.
+# Keep /nix on one volume so the installer can rename into the store.
+# A restored receipt cannot represent a daemon on this fresh runner.
 description: Set up a persistent Namespace Nix store and Determinate Nix
 inputs:
   flakehub-cache:
@@ -17,10 +17,15 @@ runs:
     - name: Mount Namespace Nix cache volume
       uses: namespacelabs/nscloud-cache-action@1124a6f3ce44e5cf84cc22111530961f4d2a15f9 # v1
       with:
-        path: |
-          /nix/store
-          /nix/var/nix/db
-          /home/runner/.cache/nix
+        cache: nix
+
+    - name: Reinstall the daemon on a fresh runner
+      shell: bash
+      run: |
+        # The restored receipt belongs to a different runner. Keep its store.
+        if [ -f /nix/receipt.json ]; then
+          sudo rm /nix/receipt.json
+        fi
 
     - name: Install Determinate Nix
       uses: DeterminateSystems/determinate-nix-action@8d87e8d5e5b8a8309d4281094560f127d9a265f1 # v3.22.5
