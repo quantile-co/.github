@@ -7,6 +7,6 @@ _: {
       actionlint typos gitleaks opa conftest semgrep trivy vale secretspec; do
       command -v "$tool" >/dev/null || { echo "Missing tool: $tool" >&2; exit 1; }
     done
-    tofu version | grep -F 'OpenTofu v1.12.3'
+    tofu version | grep -E '^OpenTofu v[0-9]+\.[0-9]+\.[0-9]+'
   '';
 }

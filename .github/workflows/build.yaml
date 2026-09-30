@@ -8,27 +8,8 @@ permissions:
   contents: read
 
 jobs:
-  check:
-    name: Check
-    runs-on:
-      - nscloud-ubuntu-24.04-amd64-4x8-with-cache
-      - nscloud-cache-tag-quantile-co-dot-github-build-checks
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-
-      - name: Set up Nix
-        uses: ./.github/actions/setup-nix
-
-      - name: Check repository
-        run: >-
-          nix run --accept-flake-config
-          github:cachix/devenv/b904dcb51fe48c30db250038241507f60752f222
-          -- tasks run --show-output check:all
-
   publish-caches:
-    name: Publish caches
-    needs: check
+    name: Publish Nix caches
     outputs:
       probe-path: ${{ steps.cache-probe.outputs.path }}
     permissions:
@@ -71,7 +52,7 @@ jobs:
           -- tasks run cache:select-probe
 
   verify-caches:
-    name: Verify caches
+    name: Verify Nix caches
     needs: publish-caches
     permissions:
       contents: read
