@@ -1,7 +1,9 @@
 # Repository workflow configuration
 
 `check.yaml` runs credential-free `check:all` once on PRs. Protected main
-requires its `All` status. `build.yaml` smoke-tests and publishes only trusted
+requires its `All` status. Check and the review-only updater fetch full Git
+history for Gitleaks. The secret-scanning task rejects shallow checkouts.
+`build.yaml` smoke-tests and publishes only trusted
 main outputs, without repeating the full PR gate. Workflow YAML must stay a thin wrapper around Devenv tasks defined
 under `nix/`. Use YAML for triggers, job ordering, permissions, runner and
 cache boundaries, and the few necessary authorization guards. Keep actual
@@ -9,7 +11,9 @@ checks and tool configuration in Nix modules. Manual `plan.yaml` and
 `apply.yaml` restrict repository changes to trusted maintainers on protected
 `main`. Plan never applies. Apply creates and applies a saved plan in its own
 job, without transferring sensitive plan artifacts. The `prod` environment
-gate runs before either job. Preserve shared concurrency and state locking,
+gate restricts branches before either job, without approval reviewers. The
+workflow policy rejects missing environments, altered authorization guards,
+and renamed or additional deployment jobs. Preserve shared concurrency and state locking,
 Google Cloud workload identity federation, and the GitHub token boundary.
 Never weaken branch protection or authorizations merely to allow a push.
 
