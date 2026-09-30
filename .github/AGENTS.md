@@ -28,10 +28,11 @@ Cachix action scans this isolated store at job end instead of installing a
 second live upload hook. Manual deployment uses FlakeHub but only pulls from
 public Cachix. No deploy-profile secrets may enter the public cache. The
 organization manages the platform connections. Define workflow runner labels
-and pinned action references here. This repository's `tf/` owns its selected-
-action policy. `quantile-q0/q0` owns the `quantile-co` organization policy.
-The pinned provider updates existing Actions policies directly. Update both
-allowlists when action SHAs change. Never add platform-wide resources here.
+and pinned action references here. This repository's `tf/` owns its Actions
+enablement and commit pinning. `quantile-q0/q0` owns the organization allowlist
+inherited by this repository. GitHub rejects a second repository-level
+selected-action list. Update Q0's list when action commits change. Never add
+platform-wide resources here.
 
 Dependabot updates GitHub Actions and Terraform dependencies with conventional
 commit prefixes. `dependencies.yaml` keeps Dependabot auto-merge and scheduled

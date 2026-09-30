@@ -104,18 +104,8 @@ resource "github_actions_repository_permissions" "self" {
   allowed_actions      = "selected"
   sha_pinning_required = true
 
-  allowed_actions_config {
-    github_owned_allowed = true
-    verified_allowed     = true
-    patterns_allowed = [
-      "aquasecurity/trivy-action@*",
-      "trufflesecurity/trufflehog@*",
-      "opentofu/setup-opentofu@*",
-      "namespacelabs/nscloud-cache-action@1124a6f3ce44e5cf84cc22111530961f4d2a15f9",
-      "cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866",
-      "peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1",
-    ]
-  }
+  # GitHub inherits selected-action patterns from the quantile-co organization.
+  # Q0 owns that list; GitHub rejects setting it again at repository level.
 }
 
 resource "github_repository_vulnerability_alerts" "self" {
