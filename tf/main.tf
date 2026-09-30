@@ -142,7 +142,7 @@ resource "github_branch_protection" "main" {
 
   required_status_checks {
     strict   = true
-    contexts = ["All checks"]
+    contexts = ["All"]
   }
 
   required_pull_request_reviews {

@@ -1,8 +1,8 @@
 # Repository workflow configuration
 
-`check.yaml` runs credential-free `check:all` on PRs. `build.yaml` reruns the
-same gate on trusted `main` after merge, then builds the environment for cache
-publishing. Workflow YAML must stay a thin wrapper around Devenv tasks defined
+`check.yaml` runs credential-free `check:all` once on PRs. Protected main
+requires its `All` status. `build.yaml` smoke-tests and publishes only trusted
+main outputs, without repeating the full PR gate. Workflow YAML must stay a thin wrapper around Devenv tasks defined
 under `nix/`. Use YAML for triggers, job ordering, permissions, runner and
 cache boundaries, and the few necessary authorization guards. Keep actual
 checks and tool configuration in Nix modules. Manual `plan.yaml` and
@@ -22,8 +22,8 @@ installation receipt so Determinate Nix installs and starts a new daemon on
 each fresh runner while reusing the persisted store and database. PR
 validation only pulls from public Cachix and retains `contents: read`.
 
-After the main-branch gate passes, a separate trusted job builds and publishes
-to both Cachix and FlakeHub Cache. A separate job reads a reference-free
+After a checked PR merges, a trusted Build job publishes Nix paths to Cachix
+and FlakeHub Cache. A separate job reads a reference-free
 probe from each cache into a fresh store after publishing finishes. Both jobs
 need `id-token: write` for FlakeHub. Supply a per-cache Cachix write token as
 the GitHub Actions secret

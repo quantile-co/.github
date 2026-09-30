@@ -1,6 +1,11 @@
-_: {
+{ pkgs, ... }:
+{
   # Public binary-cache pulls never need a repository credential.
   cachix.pull = [ "quantile-co" ];
+  packages = with pkgs; [
+    curl
+    jq
+  ];
 
   tasks = {
     "cache:select-probe" = {
@@ -18,8 +23,11 @@ _: {
         set -euo pipefail
         [[ "$CACHE_TEST_PATH" =~ ^/nix/store/[a-z0-9]{32}-quantile-cache-probe$ ]]
         [[ -n "$MAGIC_NIX_CACHE_ADDRESS" ]]
-        # An isolated local store does not inherit this runner's trusted keys.
-        keys=$(nix config show trusted-public-keys)
+        # Isolated local stores do not inherit Cachix's runner configuration.
+        cachix_key=$(curl --fail --location --silent --show-error \
+          https://cachix.org/api/v1/cache/quantile-co |
+          jq -er '.publicSigningKeys | map(select(startswith("quantile-co.cachix.org-1:"))) | first // empty')
+        keys="$(nix config show trusted-public-keys) $cachix_key"
 
         cachix_store=$(mktemp -d "$RUNNER_TEMP/cachix-read.XXXXXX")
         nix copy --option trusted-public-keys "$keys" --from https://quantile-co.cachix.org --to "local?root=$cachix_store" "$CACHE_TEST_PATH" -L
