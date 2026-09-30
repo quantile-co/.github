@@ -32,6 +32,14 @@ deny contains "Only the trusted main publisher may upload caches" if {
   not cache_publisher(job_id)
 }
 
+deny contains "Configure Cachix reads additively through the installer" if {
+  some _, step in walk(input)
+  is_object(step)
+  startswith(object.get(step, "uses", ""), "cachix/cachix-action@")
+  settings := object.get(step, "with", {})
+  not object.get(settings, "skipAddingSubstituter", false) in {true, "true"}
+}
+
 deny contains "Shared setup must never upload caches" if {
   some step in input.runs.steps
   cache_uploader(step)

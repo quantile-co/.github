@@ -19,7 +19,11 @@ receipts. Namespace cache tags aren't authorization: editable workflow labels
 can request another tag. Persistent runner-store reuse remains deferred until
 the audit verifies server-enforced access controls and the installer/credential
 lifecycle. Don't reuse existing volumes as trusted stores. Binary cache
-reads still provide reuse, with `require-sigs = true`.
+reads still provide reuse, with `require-sigs = true`. Configure Cachix reads
+through additive `extra-substituters` and `extra-trusted-public-keys` settings
+in the installer. The Cachix action's configuration step replaces the
+effective key list and removes FlakeHub's keys. The publisher must keep
+`skipAddingSubstituter: true`. PR checks verify that both sets of keys remain.
 
 After a checked PR merges, only Build's guarded main publisher runs the
 Cachix and FlakeHub upload actions. Supply the per-cache Cachix write token
