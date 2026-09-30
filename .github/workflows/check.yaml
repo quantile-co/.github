@@ -7,8 +7,8 @@ permissions:
   contents: read
 
 jobs:
-  tofu:
-    name: OpenTofu
+  all-checks:
+    name: All checks
     # PRs can read the public cache but never share writable publish state.
     runs-on:
       - nscloud-ubuntu-24.04-amd64-4x8-with-cache
@@ -25,3 +25,16 @@ jobs:
           nix run --accept-flake-config
           github:cachix/devenv/b904dcb51fe48c30db250038241507f60752f222
           -- tasks run --show-output check:all
+
+  # Temporary status bridge: branch protection still requires OpenTofu until
+  # the reviewed Terraform change to require All checks has been applied.
+  legacy-status:
+    name: OpenTofu
+    needs: all-checks
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require the full gate
+        env:
+          CHECK_RESULT: ${{ needs.all-checks.result }}
+        run: test "$CHECK_RESULT" = success

@@ -70,7 +70,7 @@ jobs:
         run: >-
           nix run --accept-flake-config
           github:cachix/devenv/b904dcb51fe48c30db250038241507f60752f222
-          -- tasks run tf:plan
+          -- tasks run --show-output tf:plan
 
       - name: Apply exact plan
         if: inputs.apply

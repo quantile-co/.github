@@ -142,7 +142,7 @@ resource "github_branch_protection" "main" {
 
   required_status_checks {
     strict   = true
-    contexts = ["OpenTofu"]
+    contexts = ["All checks"]
   }
 
   required_pull_request_reviews {
