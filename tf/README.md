@@ -37,7 +37,7 @@ tofu -chdir=tf init -migrate-state \
 tofu -chdir=tf state list
 tofu -chdir=tf plan # confirm no unexpected changes
 
-# Configure the values consumed by .github/workflows/deploy.yml.
+# Configure the values consumed by .github/workflows/deploy.yaml.
 repo=quantile-co/.github
 gh variable set GCP_BILLING_ACCOUNT --repo "$repo" --body "$TF_VAR_gcp_billing_account"
 gh variable set GCP_QUANTILE_CO_FOLDER_ID --repo "$repo" --body "$TF_VAR_gcp_quantile_co_folder_id"

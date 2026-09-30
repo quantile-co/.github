@@ -1,11 +1,11 @@
 # Repository workflow configuration
 
-`validate.yml` runs credential-free `check:all` on PRs. `build.yaml` reruns the
+`check.yaml` runs credential-free `check:all` on PRs. `build.yaml` reruns the
 same gate on trusted `main` after merge, then builds the environment for cache
 publishing. Workflow YAML must stay a thin wrapper around Devenv tasks defined
 under `nix/`. Use YAML for triggers, job ordering, permissions, runner and
 cache boundaries, and the few necessary authorization guards. Keep actual
-checks and tool configuration in Nix modules. The manual `deploy.yml` workflow restricts deployment to trusted maintainers
+checks and tool configuration in Nix modules. The manual `deploy.yaml` workflow restricts deployment to trusted maintainers
 on protected `main`. Deploy plans by default. An authorized maintainer can opt into applying
 the saved plan from the same run. The `prod` environment gate runs before the
 job. No second approval pause occurs between plan and apply. Preserve
