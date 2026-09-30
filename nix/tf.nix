@@ -1,6 +1,6 @@
 { pkgs, ... }:
 {
-  # The nixpkgs revision in devenv.yaml supplies OpenTofu 1.12.3, matching CI.
+  # The pinned nixpkgs revision supplies the same OpenTofu locally and in CI.
   packages = with pkgs; [
     opentofu
     tflint

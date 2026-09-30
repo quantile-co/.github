@@ -50,17 +50,31 @@ jobs:
           github:cachix/devenv/b904dcb51fe48c30db250038241507f60752f222
           -- tasks run dependabot:automerge
 
-  devenv-update:
+  update-pins:
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
-    # Do not share writable /nix state with untrusted PR jobs or deployment.
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: git-hooks
+            task: git:update-hooks
+          - target: nixpkgs
+            task: nix:update-nixpkgs
+          - target: ci-devenv
+            task: devenv:update-ci
+    # Isolate writable /nix state by updater, away from PRs and deployment.
     runs-on:
       - nscloud-ubuntu-24.04-amd64-4x8-with-cache
-      - nscloud-cache-tag-quantile-co-dot-github-dependencies
+      - nscloud-cache-tag-quantile-co-dot-github-dependencies-${{ matrix.target }}
     timeout-minutes: 40
     permissions:
-      contents: write
-      pull-requests: write
+      contents: read
     steps:
+      - name: Require the dedicated pull request token
+        env:
+          DEPENDENCY_PR_TOKEN: ${{ secrets.DEPENDENCY_PR_TOKEN }}
+        run: test -n "$DEPENDENCY_PR_TOKEN"
+
       - name: Check out trusted main
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
@@ -70,13 +84,13 @@ jobs:
       - name: Set up Nix
         uses: ./.github/actions/setup-nix
 
-      # `devenv update` cannot move a commit-pinned input on its own. Leave
-      # nixpkgs pinned to OpenTofu 1.12.3 until a maintainer reviews a bump.
-      - name: Refresh git-hooks input and devenv.lock
+      - name: Refresh the pinned input
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: >-
           nix run --accept-flake-config
           github:cachix/devenv/b904dcb51fe48c30db250038241507f60752f222
-          -- tasks run git:update-hooks
+          -- tasks run ${{ matrix.task }}
 
       - name: Validate the updated environment
         run: >-
@@ -84,21 +98,18 @@ jobs:
           github:cachix/devenv/b904dcb51fe48c30db250038241507f60752f222
           -- --no-tui tasks run --show-output check:all
 
-      # A GitHub App or fine-grained PAT makes the PR trigger CI. GITHUB_TOKEN
-      # opens the PR but does not trigger pull_request checks; never auto-merge it.
       - name: File a review-only pull request
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
         with:
-          token: ${{ secrets.DEPENDENCY_PR_TOKEN || secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.DEPENDENCY_PR_TOKEN }}
           add: |
             devenv.yaml
             devenv.lock
-          branch: chore/devenv-git-hooks
-          commit-message: 'chore(deps): update git-hooks devenv input'
-          title: 'chore(deps): update git-hooks devenv input'
+            .github/workflows
+          branch: chore/devenv-${{ matrix.target }}
+          commit-message: 'chore(deps): review ${{ matrix.target }} update'
+          title: 'chore(deps): review ${{ matrix.target }} update'
           body: |
-            Automated pinned git-hooks refresh. `check:all` passed before filing.
-            Review this change manually; the nixpkgs/OpenTofu pin is unchanged.
-            With the default GITHUB_TOKEN, this PR does not trigger PR checks:
-            close and reopen it or supply a dedicated PR token.
+            Review-only pinned ${{ matrix.target }} update.
+            `check:all` passed before filing. No toolchain update auto-merges.
           delete-branch: true

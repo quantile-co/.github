@@ -1,5 +1,4 @@
-# Pin nixpkgs to a revision with OpenTofu 1.12.3 for local checks and CI.
-# Bump deliberately, verifying tf/versions.tf and both workflows' toolchain.
+# Pin the package set for local checks and CI. Review tool versions on updates.
 inputs:
   git-hooks:
     url: github:cachix/git-hooks.nix/9f7e99119ece7705299595299f3b031f39356de1

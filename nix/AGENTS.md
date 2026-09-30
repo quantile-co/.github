@@ -17,8 +17,10 @@ and working-tree secret scanning, and `devenv test` shell smoke tests. Every dec
 in this gate. Each domain stays in its own module. A shared file format does
 not make different tools one domain. Keep these tasks usable without GitHub or
 Google Cloud credentials or remote Cloud Storage access. `check:tf` uses
-`-lockfile=readonly` so provider lock changes remain explicit. OpenTofu must
-remain at 1.12.3 until the CI/tool constraints change together.
+`-lockfile=readonly` so provider lock changes remain explicit. `nix/nix.nix`
+updates the whole pinned nixpkgs input. `nix/devenv.nix` updates only the CI
+Devenv revision. Both file review-only proposals and must pass `check:all`.
+Review the resulting tool versions before merging.
 
 `nix/cachix.nix` configures public binary-cache pulls without credentials.
 The trusted GitHub Actions setup handles FlakeHub Cache authentication and

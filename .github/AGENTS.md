@@ -42,22 +42,15 @@ only for stable minor/patch updates from the Dependabot bot. Required status
 checks and branch protection still gate merges. Maintain review requirements
 when adding maintainers.
 
-`devenv-update` runs `git:update-hooks` from `nix/git.nix` to refresh the
-pinned git-hooks input from upstream master. The job then runs `check:all`
-before filing a review-only PR. The Dependabot job calls
+`update-pins` runs `git:update-hooks`, `nix:update-nixpkgs`, and
+`devenv:update-ci` from their owning Nix modules. Each matrix entry has an
+isolated Namespace cache, runs `check:all`, and files a separate review-only
+PR. No toolchain PR auto-merges. The Dependabot job calls
 `dependabot:automerge` from `nix/dependabot.nix`. Both jobs check out trusted
-`main`, never the PR head.
-The nixpkgs/OpenTofu 1.12.3 pin and CI's pinned Devenv revision remain manual.
-The scheduled job uses its own Namespace cache tag. The checkout drops
-persisted credentials before evaluating updated Nix inputs. Set and rotate
-`DEPENDENCY_PR_TOKEN` with `gh secret set`, not Terraform, to keep its value out
-of state. The default GitHub token can open a PR only if repository settings
-permit Actions to create PRs.
-It can't trigger PR validation. The current repository
-setting disallows Actions-created PRs. Use a scoped `DEPENDENCY_PR_TOKEN` for
-automatic checks or ask an administrator to enable that setting, then close
-and reopen a token-created PR to trigger checks. Never auto-merge the Devenv
-update PR.
+`main`, never the PR head. Checkout drops persisted credentials before
+updating inputs. Set and rotate `DEPENDENCY_PR_TOKEN` with `gh secret set`,
+not Terraform, to keep its value out of state. A missing token fails closed.
+`GITHUB_TOKEN`-created PRs would not trigger validation.
 
 The deploy job sets `SECRETSPEC_PROFILE=deploy` before Devenv runs. Devenv
 resolves its required SecretSpec declarations at shell entry. Missing inputs

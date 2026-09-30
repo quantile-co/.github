@@ -3,6 +3,7 @@ _: {
     ./cachix.nix
     ./check.nix
     ./dependabot.nix
+    ./devenv.nix
     ./gcp.nix
     ./git.nix
     ./github.nix
