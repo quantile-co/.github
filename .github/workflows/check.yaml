@@ -9,13 +9,13 @@ permissions:
 jobs:
   all-checks:
     name: All
-    # PRs can read the public cache but never share writable publish state.
-    runs-on:
-      - nscloud-ubuntu-24.04-amd64-4x8-with-cache
-      - nscloud-cache-tag-quantile-co-dot-github-checks
+    # PRs only read public caches; no persistent runner store or cloud identity.
+    runs-on: nscloud-ubuntu-24.04-amd64-4x8
     steps:
       - name: Check out repository
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
 
       - name: Set up Nix
         uses: ./.github/actions/setup-nix

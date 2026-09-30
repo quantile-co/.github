@@ -6,12 +6,14 @@ rather than building the old superset module/scaffold system. A new domain
 warrants a new file only when it adds meaningful behavior.
 
 Keep CI workflows as thin wrappers around these Nix-defined tasks. PR
-validation and the post-merge build both run `check:all`. Neither workflow
-should reimplement a check in YAML. Run `devenv tasks run check:all` for the
+validation runs `check:all`. The post-merge Build smoke-tests and publishes
+trusted outputs without repeating the full gate. Neither workflow should
+reimplement a check in YAML. Run `devenv tasks run check:all` for the
 same local gate as validation CI.
 The gate covers OpenTofu formatting, backend-free initialization and TFLint,
 Markdown, YAML, actionlint for GitHub Actions, and Nix formatting and static
-checks. It also runs typos, Open Policy Agent deployment guardrails, tested Semgrep rules,
+checks. It also runs typos, Open Policy Agent deployment and cache policies,
+cache signature-rejection tests, tested Semgrep rules,
 Trivy filesystem scanning, Vale prose and AI-writing detection, Git-history
 and working-tree secret scanning, and `devenv test` shell smoke tests. Every declared check runs
 in this gate. Each domain stays in its own module. A shared file format does
@@ -22,10 +24,16 @@ updates the whole pinned nixpkgs input. `nix/devenv.nix` updates only the CI
 Devenv revision. Both file review-only proposals and must pass `check:all`.
 Review the resulting tool versions before merging.
 
-`nix/cache.nix` configures public Cachix pulls and tests fresh reads from
-both binary caches after a trusted publish. The GitHub Actions setup handles
-FlakeHub Cache authentication and Cachix uploads. No Nix module stores upload
-credentials. Namespace cache tags separate PR, publisher, and readback stores.
+`nix/cache.nix` configures public Cachix pulls. Its commissioning tasks build
+a run-specific input-addressed probe and test signature-checked HTTPS reads
+from each cache into independent empty stores, with no fallback substituters.
+Local tests accept the expected signing key and reject unsigned, wrong-key,
+corrupt, and missing paths, even when the host store contains the fixture.
+Remove the commissioning tasks and readback job once readback proves both
+live caches. Retain Nix signature enforcement and the lightweight workflow policies.
+Only Build's publisher runs upload actions. No Nix module stores upload
+credentials. Namespace runners use fresh, non-persistent Nix stores.
+Cache tags alone aren't an access-control boundary.
 Entering the local shell installs a pre-push Git hook that runs `check:all`.
 Unlike the old shared module framework, it never scaffolds tracked files.
 `.editorconfig` guides editors. Domain formatters and CI checks enforce

@@ -18,9 +18,7 @@ jobs:
       github.event.pull_request.user.login == 'dependabot[bot]' &&
       github.event.pull_request.head.repo.full_name == github.repository &&
       github.event.pull_request.base.ref == 'main'
-    runs-on:
-      - nscloud-ubuntu-24.04-amd64-4x8-with-cache
-      - nscloud-cache-tag-quantile-co-dot-github-automerge
+    runs-on: nscloud-ubuntu-24.04-amd64-4x8
     permissions:
       contents: write
       pull-requests: write
@@ -67,10 +65,8 @@ jobs:
           - target: ci-devenv
             label: Devenv CLI
             task: devenv:update-ci
-    # Isolate writable /nix state by updater, away from PRs and deployment.
-    runs-on:
-      - nscloud-ubuntu-24.04-amd64-4x8-with-cache
-      - nscloud-cache-tag-quantile-co-dot-github-dependencies-${{ matrix.target }}
+    # Updated toolchains must not populate caches consumed by trusted jobs.
+    runs-on: nscloud-ubuntu-24.04-amd64-4x8
     timeout-minutes: 40
     permissions:
       contents: read

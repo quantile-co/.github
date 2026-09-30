@@ -13,25 +13,39 @@ gate runs before either job. Preserve shared concurrency and state locking,
 Google Cloud workload identity federation, and the GitHub token boundary.
 Never weaken branch protection or authorizations merely to allow a push.
 
-Validation, deployment, and Dependabot maintenance use Namespace runners.
-Separate Namespace cache tags for PR checks, main checks, publishing,
-Dependabot, scheduled updates, and deployment form a trust boundary.
-Untrusted PR code must never write to the publishing or deployment caches.
-Namespace mounts `/nix` before installation. Discard a restored Nix
-installation receipt so Determinate Nix installs and starts a new daemon on
-each fresh runner while reusing the persisted store and database. PR
-validation only pulls from public Cachix and retains `contents: read`.
+Validation, deployment, and Dependabot maintenance use Namespace runners
+with fresh Nix installations. Don't restore `/nix` or delete installer
+receipts. Namespace cache tags aren't authorization: editable workflow labels
+can request another tag. Persistent runner-store reuse remains deferred until
+the audit verifies server-enforced access controls and the installer/credential
+lifecycle. Don't reuse existing volumes as trusted stores. Binary cache
+reads still provide reuse, with `require-sigs = true`.
 
-After a checked PR merges, a trusted Build job publishes Nix paths to Cachix
-and FlakeHub Cache. A separate job reads a reference-free
-probe from each cache into a fresh store after publishing finishes. Both jobs
-need `id-token: write` for FlakeHub. Supply a per-cache Cachix write token as
-the GitHub Actions secret
-`CACHIX_AUTH_TOKEN`. The trusted publisher alone receives the token. The
-Cachix action scans this isolated store at job end instead of installing a
-second live upload hook. Plan and Apply use FlakeHub but only pull from
-public Cachix. No prod-profile secrets may enter the public cache. The
-organization manages the platform connections. Define workflow runner labels
+After a checked PR merges, only Build's guarded main publisher runs the
+Cachix and FlakeHub upload actions. Supply the per-cache Cachix write token
+as the GitHub Actions secret `CACHIX_AUTH_TOKEN`, only in the publisher job.
+The Cachix action scans this fresh store at job end instead of installing a
+second live upload hook. PR checks have neither cloud identity nor cache
+write credentials. Shared setup, readback, Plan, Apply, and dependency jobs
+must not run upload actions. Never place production credentials in store paths.
+Checkout doesn't persist its Git credential. Git ignores Google auth's
+workspace credential files.
+
+The commissioning readback job downloads a run-specific, reference-free,
+input-addressed probe from each actual HTTPS cache into independent empty
+stores. It requires signatures from the expected cache keys and checks the
+publisher's Nix archive hash. Never use fallback substituters or signature
+bypasses. The Magic Nix Cache loopback service isn't a FlakeHub read endpoint.
+Remove the probes and readback job once readback proves both caches, not
+Nix's signature verification or the lightweight workflow policies.
+
+Determinate automatically logs into FlakeHub when GitHub provides OpenID
+Connect credentials. Publisher and readback need them for FlakeHub. Plan and
+Apply need them for Google Cloud and also trigger this login. Not installing an uploader prevents
+automatic publication, but doesn't establish a server-enforced read-only
+FlakeHub identity. Don't claim that narrower authorization without verifying
+FlakeHub's policy. Credentials remain on disposable runners, not cached volumes.
+The organization manages the platform connections. Define workflow runner labels
 and pinned action references here. This repository's `tf/` owns its Actions
 enablement and commit pinning. `quantile-q0/q0` owns the organization allowlist
 inherited by this repository. GitHub rejects a second repository-level
@@ -48,9 +62,8 @@ Required checks and branch protection still gate merges. Maintain review
 requirements when adding maintainers.
 
 The dependency matrix runs `git:update-hooks`, `nix:update-nixpkgs`, and
-`devenv:update-ci` from their owning Nix modules. Each matrix entry has an
-isolated Namespace cache, runs `check:all`, and files a separate review-only
-PR. No toolchain PR auto-merges. The Dependabot job calls
+`devenv:update-ci` from their owning Nix modules. Each matrix entry uses a
+fresh runner store, runs `check:all`, and files a separate review-only PR. No toolchain PR auto-merges. The Dependabot job calls
 `dependabot:automerge` from `nix/dependabot.nix`. Both jobs check out trusted
 `main`, never the PR head. Checkout drops persisted credentials before
 updating inputs. Store the dedicated pull request token as
