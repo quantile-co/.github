@@ -52,7 +52,7 @@ jobs:
           -- tasks run dependabot:automerge
 
   update:
-    name: ${{ matrix.label }}
+    name: ${{ github.event_name == 'pull_request_target' && 'Propose dependency PRs' || matrix.label }}
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     strategy:
       fail-fast: false
