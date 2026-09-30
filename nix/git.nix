@@ -19,6 +19,10 @@
       description = "Scan Git history and the working tree for secrets.";
       exec = ''
         set -euo pipefail
+        if [[ "$(git rev-parse --is-shallow-repository)" != false ]]; then
+          echo 'Full-history secret scanning requires an unshallow checkout.' >&2
+          exit 1
+        fi
         gitleaks git --no-banner --redact .
         gitleaks dir --no-banner --redact .
       '';
