@@ -23,6 +23,11 @@ remote backend. `devenv.nix` is only the import entrypoint. Domain code lives
 under `nix/`. Git ignores `.envrc.local`, which contains optional local
 credentials.
 
+Prefix project-defined environment variables, secrets, and parameters with
+their owning platform or component. Keep tool-required names such as
+`GH_TOKEN` and `TF_VAR_*`. Use `GH_` for custom GitHub credentials because
+GitHub reserves `GITHUB_` for its own secrets and workflow variables.
+
 ## Knowledge maintenance
 
 Keep this guide self-contained. The parent workspace, app repo, old

@@ -4,6 +4,7 @@
 .direnv/
 .pre-commit-config.yaml
 .envrc.local
+gha-creds-*.json
 result
 result-*
 backend_override.tf

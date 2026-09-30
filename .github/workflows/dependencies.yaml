@@ -18,9 +18,7 @@ jobs:
       github.event.pull_request.user.login == 'dependabot[bot]' &&
       github.event.pull_request.head.repo.full_name == github.repository &&
       github.event.pull_request.base.ref == 'main'
-    runs-on:
-      - nscloud-ubuntu-24.04-amd64-4x8-with-cache
-      - nscloud-cache-tag-quantile-co-dot-github-automerge
+    runs-on: nscloud-ubuntu-24.04-amd64-4x8
     permissions:
       contents: write
       pull-requests: write
@@ -52,7 +50,7 @@ jobs:
           -- tasks run dependabot:automerge
 
   update:
-    name: ${{ github.event_name == 'pull_request_target' && 'Propose dependency PRs' || matrix.label }}
+    name: Propose dependency PRs
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     strategy:
       fail-fast: false
@@ -67,18 +65,16 @@ jobs:
           - target: ci-devenv
             label: Devenv CLI
             task: devenv:update-ci
-    # Isolate writable /nix state by updater, away from PRs and deployment.
-    runs-on:
-      - nscloud-ubuntu-24.04-amd64-4x8-with-cache
-      - nscloud-cache-tag-quantile-co-dot-github-dependencies-${{ matrix.target }}
+    # Updated toolchains must not populate caches consumed by trusted jobs.
+    runs-on: nscloud-ubuntu-24.04-amd64-4x8
     timeout-minutes: 40
     permissions:
       contents: read
     steps:
       - name: Require the dedicated pull request token
         env:
-          GITHUB_DEPENDENCY_PR_TOKEN: ${{ secrets.GITHUB_DEPENDENCY_PR_TOKEN || secrets.DEPENDENCY_PR_TOKEN }}
-        run: test -n "$GITHUB_DEPENDENCY_PR_TOKEN"
+          GH_DEPENDENCY_PR_TOKEN: ${{ secrets.GH_DEPENDENCY_PR_TOKEN || secrets.DEPENDENCY_PR_TOKEN }}
+        run: test -n "$GH_DEPENDENCY_PR_TOKEN"
 
       - name: Check out trusted main
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
@@ -89,7 +85,7 @@ jobs:
       - name: Set up Nix
         uses: ./.github/actions/setup-nix
 
-      - name: Refresh the pinned input
+      - name: Update ${{ matrix.label }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: >-
@@ -109,7 +105,7 @@ jobs:
       - name: File a review-only pull request
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
         with:
-          token: ${{ secrets.GITHUB_DEPENDENCY_PR_TOKEN || secrets.DEPENDENCY_PR_TOKEN }}
+          token: ${{ secrets.GH_DEPENDENCY_PR_TOKEN || secrets.DEPENDENCY_PR_TOKEN }}
           add-paths: |
             devenv.yaml
             devenv.lock

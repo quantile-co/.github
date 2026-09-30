@@ -17,10 +17,8 @@ jobs:
     if: >-
       github.ref == 'refs/heads/main' &&
       contains(fromJSON(vars.GH_MAINTAINERS), github.actor)
-    # Use a separate cache tag so PR jobs do not share this writable volume.
-    runs-on:
-      - nscloud-ubuntu-24.04-amd64-4x8-with-cache
-      - nscloud-cache-tag-quantile-co-dot-github-repository-settings
+    # No persistent store or cache uploader in a credentialed job.
+    runs-on: nscloud-ubuntu-24.04-amd64-4x8
     environment: prod
     timeout-minutes: 15
     env:
@@ -36,6 +34,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3
@@ -43,10 +43,8 @@ jobs:
           project_id: ${{ vars.GCP_PROJECT_ID }}
           workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
 
-      - name: Set up Nix and FlakeHub Cache
+      - name: Set up Nix
         uses: ./.github/actions/setup-nix
-        with:
-          flakehub-cache: 'true'
 
       - name: Initialize state
         run: >-
