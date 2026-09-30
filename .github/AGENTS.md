@@ -21,8 +21,10 @@ persistent `/nix` store before Determinate Nix installs. PR validation only
 pulls from the public `quantile-co` Cachix cache and retains `contents: read`.
 
 After the main-branch gate passes, a separate trusted job builds and publishes
-to both Cachix and FlakeHub Cache. This job needs `id-token: write` for
-FlakeHub. Supply a per-cache Cachix write token as the GitHub Actions secret
+to both Cachix and FlakeHub Cache. A separate job reads a reference-free
+probe from each cache into a fresh store after publishing finishes. Both jobs
+need `id-token: write` for FlakeHub. Supply a per-cache Cachix write token as
+the GitHub Actions secret
 `CACHIX_AUTH_TOKEN`. The trusted publisher alone receives the token. The
 Cachix action scans this isolated store at job end instead of installing a
 second live upload hook. Manual deployment uses FlakeHub but only pulls from
