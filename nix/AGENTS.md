@@ -51,9 +51,9 @@ YAML in `.github/workflows/`. Local Semgrep rules and tests live in
 that the deployed environment is secure.
 
 The `default` SecretSpec profile requires no credentials for local/CI checks.
-`SECRETSPEC_PROFILE=deploy` selects required inputs automatically during
+`SECRETSPEC_PROFILE=prod` selects required inputs automatically during
 Devenv evaluation. `nix/secrets.nix` forces validation without mapping values
 to Nix `env`. The old mapping wrote a synthetic token into a world-readable
 Nix store file. With the env provider, required inputs already pass through to
-the child shell. Never select the deploy profile in untrusted PR validation or
+the child shell. Never select the prod profile in untrusted PR validation or
 commit actual values.

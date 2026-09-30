@@ -1,13 +1,7 @@
-name: Deploy repository settings
+name: Apply
 
 on:
   workflow_dispatch:
-    inputs:
-      apply:
-        description: Apply the reviewed plan in this run
-        required: true
-        type: boolean
-        default: false
 
 permissions:
   contents: read
@@ -18,20 +12,20 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  deploy:
-    name: Plan and optionally apply
+  apply:
+    name: Repository settings
     if: >-
       github.ref == 'refs/heads/main' &&
       contains(fromJSON(vars.GH_MAINTAINERS), github.actor)
     # Use a separate cache tag so PR jobs do not share this writable volume.
     runs-on:
       - nscloud-ubuntu-24.04-amd64-4x8-with-cache
-      - nscloud-cache-tag-quantile-co-dot-github-deploy
+      - nscloud-cache-tag-quantile-co-dot-github-repository-settings
     environment: prod
     timeout-minutes: 15
     env:
       TF_IN_AUTOMATION: "true"
-      SECRETSPEC_PROFILE: deploy
+      SECRETSPEC_PROFILE: prod
       TF_STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
       TF_VAR_gcp_billing_account: ${{ vars.GCP_BILLING_ACCOUNT }}
       TF_VAR_gcp_quantile_co_folder_id: ${{ vars.GCP_QUANTILE_CO_FOLDER_ID }}
@@ -73,7 +67,6 @@ jobs:
           -- tasks run --show-output tf:plan
 
       - name: Apply exact plan
-        if: inputs.apply
         run: >-
           nix run --accept-flake-config
           github:cachix/devenv/b904dcb51fe48c30db250038241507f60752f222

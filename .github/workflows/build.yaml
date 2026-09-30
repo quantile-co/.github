@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   check:
-    name: Check trusted main
+    name: Check
     runs-on:
       - nscloud-ubuntu-24.04-amd64-4x8-with-cache
       - nscloud-cache-tag-quantile-co-dot-github-build-checks
@@ -27,7 +27,7 @@ jobs:
           -- tasks run --show-output check:all
 
   publish-caches:
-    name: Build and publish trusted main outputs
+    name: Publish caches
     needs: check
     outputs:
       probe-path: ${{ steps.cache-probe.outputs.path }}
@@ -71,7 +71,7 @@ jobs:
           -- tasks run cache:select-probe
 
   verify-caches:
-    name: Read back both published caches
+    name: Verify caches
     needs: publish-caches
     permissions:
       contents: read
