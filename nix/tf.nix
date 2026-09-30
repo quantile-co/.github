@@ -2,6 +2,7 @@
 {
   # The pinned nixpkgs revision supplies the same OpenTofu locally and in CI.
   packages = with pkgs; [
+    jq
     opentofu
     tflint
   ];
@@ -36,8 +37,13 @@
     };
 
     "tf:plan" = {
-      description = "Write a production plan for optional same-run apply.";
-      exec = "tofu -chdir=tf plan -input=false -out=plan.tfplan";
+      description = "Write a production plan and print only resource actions to public CI logs.";
+      exec = ''
+        set -euo pipefail
+        tofu -chdir=tf plan -input=false -out=plan.tfplan >/dev/null
+        tofu -chdir=tf show -json plan.tfplan |
+          jq -r '[.resource_changes[]? | select(.change.actions != ["no-op"]) | "\(.address): \(.change.actions | join(","))"] | if length == 0 then "No changes." else .[] end'
+      '';
     };
 
     "tf:apply" = {
