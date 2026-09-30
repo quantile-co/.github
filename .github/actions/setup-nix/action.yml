@@ -1,0 +1,24 @@
+name: Set up Nix
+# Namespace's cache:nix must mount /nix before Determinate Nix is installed.
+description: Set up a persistent Namespace Nix store and Determinate Nix
+inputs:
+  flakehub-cache:
+    description: Enable FlakeHub Cache (requires id-token write permission)
+    default: 'false'
+    required: false
+runs:
+  using: composite
+  steps:
+    - name: Mount Namespace Nix cache volume
+      uses: namespacelabs/nscloud-cache-action@1124a6f3ce44e5cf84cc22111530961f4d2a15f9 # v1
+      with:
+        cache: nix
+
+    - name: Install Determinate Nix
+      uses: DeterminateSystems/determinate-nix-action@8d87e8d5e5b8a8309d4281094560f127d9a265f1 # v3.22.5
+
+    - name: Enable FlakeHub Cache
+      if: inputs.flakehub-cache == 'true'
+      uses: DeterminateSystems/flakehub-cache-action@83282a8aef353db1d659d3bacf4a28b6683de0b3 # v3.22.5
+      with:
+        use-gha-cache: disabled

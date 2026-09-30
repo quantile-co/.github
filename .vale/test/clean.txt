@@ -1,0 +1,3 @@
+The deployment workflow requires approval before a maintainer applies the saved plan.
+The backend stores state in the project bucket.
+Review failed checks before updating dependencies.

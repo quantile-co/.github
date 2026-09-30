@@ -1,4 +1,11 @@
 .terraform/
+.devenv/
+.devenv.flake.nix
+.direnv/
+.pre-commit-config.yaml
+.envrc.local
+result
+result-*
 backend_override.tf
 *.tfstate
 *.tfstate.*

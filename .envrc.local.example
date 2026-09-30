@@ -1,0 +1,16 @@
+# Copy to .envrc.local only for a credentialed Day 0 bootstrap or local plan.
+# .envrc.local is gitignored. Do not commit tokens, state, or saved plans.
+# Set up GCP Application Default Credentials (for example, with
+# `gcloud auth application-default login`) and access to the GCS state bucket.
+# Obtain the values from the repository's authorized operators.
+#
+# export TF_VAR_gcp_billing_account=...
+# export TF_VAR_gcp_quantile_co_folder_id=...
+# export TF_VAR_gcp_wif_pool=...
+# export TF_VAR_github_maintainers='["your-github-username"]'
+# export TF_VAR_github_quantile_co_token=...
+# export TF_STATE_BUCKET=... # After Day 0; required by the deploy profile.
+#
+# For Day 0 local-state bootstrap, see tf/README.md. For subsequent remote
+# plans, use the bucket and prefix from the deploy workflow. `check:tf`
+# never accesses that backend.

@@ -1,0 +1,6 @@
+# This organization-profile repository is deliberately public.
+GIT-0001
+# Vulnerability alerts are enabled by github_repository_vulnerability_alerts.self.
+GIT-0003
+# Signed commits are not currently a branch-protection requirement.
+GIT-0004

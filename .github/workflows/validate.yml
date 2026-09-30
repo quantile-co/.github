@@ -11,21 +11,19 @@ permissions:
 jobs:
   tofu:
     name: OpenTofu
-    runs-on: ubuntu-latest
+    # Keep the PR cache separate from the privileged deployment cache.
+    runs-on:
+      - nscloud-ubuntu-24.04-amd64-4x8-with-cache
+      - nscloud-cache-tag-quantile-co-dot-github-checks
     steps:
       - name: Check out repository
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - name: Set up OpenTofu
-        uses: opentofu/setup-opentofu@9d84900f3238fab8cd84ce47d658d25dd008be2f # v1
-        with:
-          tofu_version: 1.12.3
+      - name: Set up Nix
+        uses: ./.github/actions/setup-nix
 
-      - name: Initialize without backend
-        run: tofu -chdir=tf init -backend=false -input=false
-
-      - name: Check formatting
-        run: tofu -chdir=tf fmt -check
-
-      - name: Validate
-        run: tofu -chdir=tf validate
+      - name: Check repository
+        run: >-
+          nix run --accept-flake-config
+          github:cachix/devenv/b904dcb51fe48c30db250038241507f60752f222
+          -- tasks run --show-output check:all

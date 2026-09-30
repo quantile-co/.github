@@ -83,6 +83,7 @@ resource "github_repository" "self" {
   has_projects    = false
   has_wiki        = false
 
+  allow_auto_merge       = true
   allow_merge_commit     = true
   allow_squash_merge     = true
   allow_rebase_merge     = false
