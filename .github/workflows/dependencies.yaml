@@ -52,7 +52,7 @@ jobs:
           -- tasks run dependabot:automerge
 
   update:
-    name: ${{ github.event_name == 'pull_request_target' && 'Propose dependency PRs' || matrix.label }}
+    name: Propose dependency PRs
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     strategy:
       fail-fast: false
@@ -89,7 +89,7 @@ jobs:
       - name: Set up Nix
         uses: ./.github/actions/setup-nix
 
-      - name: Refresh the pinned input
+      - name: Update ${{ matrix.label }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: >-
