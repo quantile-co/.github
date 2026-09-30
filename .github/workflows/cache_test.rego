@@ -3,7 +3,7 @@ package main
 import rego.v1
 
 cache_publish_steps := [
-  {"uses": "cachix/cachix-action@pinned", "with": {"authToken": "${{ secrets.CACHIX_AUTH_TOKEN }}"}},
+  {"uses": "cachix/cachix-action@pinned", "with": {"authToken": "${{ secrets.CACHIX_AUTH_TOKEN }}", "skipAddingSubstituter": true}},
   {"uses": "DeterminateSystems/flakehub-cache-action@pinned"},
 ]
 
@@ -26,8 +26,13 @@ test_cache_yaml_true_key if {
 }
 
 test_cache_reader if {
-  reader := {"runs": {"steps": [{"uses": "cachix/cachix-action@pinned", "with": {"skipPush": "true"}}]}}
+  reader := {"runs": {"steps": [{"uses": "cachix/cachix-action@pinned", "with": {"skipPush": "true", "skipAddingSubstituter": true}}]}}
   count(deny) == 0 with input as reader
+}
+
+test_cache_rejects_replacing_installer_configuration if {
+  unsafe := {"runs": {"steps": [{"uses": "cachix/cachix-action@pinned", "with": {"skipPush": "true"}}]}}
+  "Configure Cachix reads additively through the installer" in deny with input as unsafe
 }
 
 test_cache_rejects_pr_publisher if {

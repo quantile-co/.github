@@ -12,10 +12,5 @@ runs:
       with:
         extra-conf: |
           require-sigs = true
-
-    - name: Configure public Cachix reads
-      uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866 # v17
-      with:
-        name: quantile-co
-        skipPush: 'true'
-        useDaemon: false
+          extra-substituters = https://quantile-co.cachix.org
+          extra-trusted-public-keys = quantile-co.cachix.org-1:OM+kQzUqP3Ija8QQMUxvQNs97u6PB5/s83ZJe7c9WIQ=

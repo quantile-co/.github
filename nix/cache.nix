@@ -63,9 +63,18 @@ in
       description = "Verify signed downloads from Cachix and FlakeHub independently.";
       exec = ''
         set -euo pipefail
-        [[ "$CACHE_TEST_PATH" =~ ^/nix/store/[a-z0-9]{32}-quantile-cache-probe$ ]]
-        test -n "$CACHE_TEST_NAR_HASH"
-        test "$(nix config show require-sigs)" = true
+        [[ "$CACHE_TEST_PATH" =~ ^/nix/store/[a-z0-9]{32}-quantile-cache-probe$ ]] || {
+          echo 'Invalid or missing publisher probe path.' >&2
+          exit 1
+        }
+        test -n "$CACHE_TEST_NAR_HASH" || {
+          echo 'Missing publisher NAR hash.' >&2
+          exit 1
+        }
+        test "$(nix config show require-sigs)" = true || {
+          echo 'Nix signature enforcement must be enabled.' >&2
+          exit 1
+        }
         # These keys come from the pinned Determinate installer, not narinfo
         # metadata supplied by the cache being tested.
         flakehub_keys=()
@@ -74,9 +83,15 @@ in
             cache.flakehub.com-*:*) flakehub_keys+=("$key") ;;
           esac
         done
-        test "''${#flakehub_keys[@]}" -gt 0
+        test "''${#flakehub_keys[@]}" -gt 0 || {
+          echo 'FlakeHub signing keys are missing from the effective Nix configuration.' >&2
+          exit 1
+        }
         netrc=/nix/var/determinate/netrc
-        test -r "$netrc"
+        test -r "$netrc" || {
+          echo 'Determinate FlakeHub authentication file is not readable.' >&2
+          exit 1
+        }
 
         work=$(mktemp -d "$RUNNER_TEMP/cache-readback.XXXXXX")
         trap 'rm -rf "$work"' EXIT
@@ -91,6 +106,16 @@ in
       description = "Test signed cache reads and reject unsigned, untrusted, corrupt, or missing data.";
       exec = ''
         set -euo pipefail
+        # CI uses Determinate. Catch a bootstrap configuration that replaces
+        # its keys rather than adding Cachix, without needing FlakeHub login.
+        if [[ "''${GITHUB_ACTIONS:-false}" == true ]]; then
+          keys=$(nix config show trusted-public-keys)
+          [[ "$keys" == *'${cachixKey}'* && "$keys" == *'cache.flakehub.com-'* ]] || {
+            echo 'CI setup must retain both Cachix and FlakeHub signing keys.' >&2
+            exit 1
+          }
+          test "$(nix config show require-sigs)" = true
+        fi
         work=$(mktemp -d)
         trap 'rm -rf "$work"' EXIT
         umask 077
