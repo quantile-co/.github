@@ -80,9 +80,14 @@ YAML in `.github/workflows/`. Local Semgrep rules and tests live in
 `.semgrep/`. Keep policy tests alongside each rule. These checks can't prove
 that the deployed environment is secure.
 
-The `default` SecretSpec profile requires no credentials for local/CI checks.
-`SECRETSPEC_PROFILE=prod` selects required inputs automatically during
-Devenv evaluation. `nix/secrets.nix` forces validation without mapping values
+Keep SecretSpec enabled. The credential-free `default` profile contains only
+optional `SECRETSPEC_DEFAULT_PLACEHOLDER`. Leave it unset, with no fallback value.
+SecretSpec rejects empty profiles, so this declaration satisfies the validator
+without adding a real credential.
+Credentialed profiles require explicit selection with `SECRETSPEC_PROFILE=prod`
+or `--secretspec-profile prod`. `.envrc` loads `.envrc.local` before devenv so
+local profile selection takes effect at entry. Verify compatibility with the
+pinned CLI before merging profile changes. `nix/secrets.nix` forces validation without mapping values
 to Nix `env`. The old mapping wrote a synthetic token into a world-readable
 Nix store file. With the env provider, required inputs already pass through to
 the child shell. Never select the prod profile in untrusted PR validation or
