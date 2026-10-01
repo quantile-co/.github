@@ -12,6 +12,7 @@
       description = "Format, initialize without the GCS backend, validate, and lint tf/.";
       exec = ''
         set -euo pipefail
+        export TF_DATA_DIR="$DEVENV_STATE/tofu-check"
         tofu -chdir=tf fmt -check -recursive
         tofu -chdir=tf init -backend=false -input=false -lockfile=readonly
         tofu -chdir=tf validate
@@ -19,8 +20,8 @@
       '';
     };
 
-    # Deployment tasks run only from the protected, manual workflow with its
-    # deploy SecretSpec profile. Keep the saved plan in tf/ for the same run.
+    # Deployment tasks run only from protected, manual Plan/Apply workflows with
+    # the prod SecretSpec profile. Keep the saved plan in tf/ for the same run.
     "tf:init" = {
       description = "Initialize the production state backend.";
       exec = ''

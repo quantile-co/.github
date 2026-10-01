@@ -168,3 +168,24 @@ resource "github_repository_environment" "prod" {
     custom_branch_policies = false
   }
 }
+
+# Store the Cachix write token through GitHub, never in Terraform state.
+resource "github_repository_environment" "cache" {
+  provider = github.quantile_co
+
+  repository  = github_repository.self.name
+  environment = "cache"
+
+  deployment_branch_policy {
+    protected_branches     = false
+    custom_branch_policies = true
+  }
+}
+
+resource "github_repository_environment_deployment_policy" "cache_main" {
+  provider = github.quantile_co
+
+  repository     = github_repository.self.name
+  environment    = github_repository_environment.cache.environment
+  branch_pattern = "main"
+}

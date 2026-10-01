@@ -9,8 +9,8 @@
 # export TF_VAR_gcp_wif_pool=...
 # export TF_VAR_github_maintainers='["your-github-username"]'
 # export TF_VAR_github_quantile_co_token=...
-# export TF_STATE_BUCKET=... # After Day 0; required by the deploy profile.
+# export TF_STATE_BUCKET=... # After Day 0; required by the prod profile.
 #
 # For Day 0 local-state bootstrap, see tf/README.md. For subsequent remote
-# plans, use the bucket and prefix from the deploy workflow. `check:tf`
-# never accesses that backend.
+# plans, use the bucket and prefix from the Plan/Apply workflows. `check:tf`
+# isolates its backend-free data directory from production initialization.
