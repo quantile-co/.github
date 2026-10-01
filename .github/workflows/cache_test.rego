@@ -15,7 +15,7 @@ safe_cache_build := {
   "on": {"push": {"branches": ["main"]}},
   "jobs": {"publish-caches": {
     "if": "github.event_name == 'push' && github.ref == 'refs/heads/main'",
-    "environment": "cache",
+    "environment": "build",
     "steps": cache_publish_steps,
   }},
 }
@@ -172,10 +172,10 @@ test_cache_rejects_mount_in_shared_setup if {
 }
 
 test_cache_requires_publisher_environment if {
-  every environment in ["", "prod"] {
+  every environment in ["", "prod", "cache"] {
     job := object.union(safe_cache_build.jobs["publish-caches"], {"environment": environment})
     unsafe := object.union(safe_cache_build, {"jobs": {"publish-caches": job}})
-    "Cachix publication requires the main-only cache environment" in deny with input as unsafe
+    "Cachix publication requires the main-only build environment" in deny with input as unsafe
   }
 }
 
