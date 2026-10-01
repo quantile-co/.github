@@ -1,7 +1,7 @@
 # Pin the package set for local checks and CI. Review tool versions on updates.
 inputs:
   git-hooks:
-    url: github:cachix/git-hooks.nix/9f7e99119ece7705299595299f3b031f39356de1
+    url: github:cachix/git-hooks.nix/a0e4241b51206fbcbf52fd322eb5f0cd80f153c4
   nixpkgs:
     url: github:cachix/devenv-nixpkgs/e2c881cb8d5f1cac6cef9d71f0d450a55691b999
 secretspec:
