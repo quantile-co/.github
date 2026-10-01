@@ -12,13 +12,13 @@ permissions:
 
 jobs:
   dependabot-automerge:
-    name: Dependabot auto-merge
+    name: GitHub Actions and OpenTofu providers
     if: >-
       github.event_name == 'pull_request_target' &&
       github.event.pull_request.user.login == 'dependabot[bot]' &&
       github.event.pull_request.head.repo.full_name == github.repository &&
       github.event.pull_request.base.ref == 'main'
-    runs-on: nscloud-ubuntu-24.04-amd64-4x8
+    runs-on: namespace-profile-quantile
     permissions:
       contents: write
       pull-requests: write
@@ -30,8 +30,14 @@ jobs:
           ref: main
           persist-credentials: false
 
-      - name: Set up Nix
-        uses: ./.github/actions/setup-nix
+      - name: Install Nix
+        uses: cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24 # v31.11.1
+        with:
+          github_access_token: ${{ github.token }}
+          extra_nix_config: |
+            require-sigs = true
+            extra-substituters = https://quantile-co.cachix.org
+            extra-trusted-public-keys = quantile-co.cachix.org-1:OM+kQzUqP3Ija8QQMUxvQNs97u6PB5/s83ZJe7c9WIQ=
 
       - name: Read Dependabot metadata
         id: metadata
@@ -50,7 +56,7 @@ jobs:
           -- tasks run dependabot:automerge
 
   update:
-    name: 'Open PRs for: Git hooks, Nixpkgs, Devenv CLI'
+    name: Nix inputs and Devenv CLI
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     strategy:
       fail-fast: false
@@ -66,7 +72,7 @@ jobs:
             label: Devenv CLI
             task: devenv:update-ci
     # Updated toolchains must not populate caches consumed by trusted jobs.
-    runs-on: nscloud-ubuntu-24.04-amd64-4x8
+    runs-on: namespace-profile-quantile
     timeout-minutes: 40
     permissions:
       contents: read
@@ -83,8 +89,14 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Set up Nix
-        uses: ./.github/actions/setup-nix
+      - name: Install Nix
+        uses: cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24 # v31.11.1
+        with:
+          github_access_token: ${{ github.token }}
+          extra_nix_config: |
+            require-sigs = true
+            extra-substituters = https://quantile-co.cachix.org
+            extra-trusted-public-keys = quantile-co.cachix.org-1:OM+kQzUqP3Ija8QQMUxvQNs97u6PB5/s83ZJe7c9WIQ=
 
       - name: Update ${{ matrix.label }}
         env:

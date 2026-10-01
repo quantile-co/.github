@@ -16,8 +16,10 @@ cache_push_disabled(step) if {
   step.with.skipPush in {true, "true"}
 }
 
-cache_uploader(step) if {
-  startswith(object.get(step, "uses", ""), "DeterminateSystems/flakehub-cache-action@")
+deny contains "Public CI uses standard Nix and Cachix, not Determinate or FlakeHub" if {
+  some _, step in walk(input)
+  is_object(step)
+  regex.match("^DeterminateSystems/(determinate-nix-action|nix-installer-action|flakehub-cache-action)@", object.get(step, "uses", ""))
 }
 
 cache_uploader(step) if {
@@ -38,6 +40,15 @@ deny contains "Configure Cachix reads additively through the installer" if {
   startswith(object.get(step, "uses", ""), "cachix/cachix-action@")
   settings := object.get(step, "with", {})
   not object.get(settings, "skipAddingSubstituter", false) in {true, "true"}
+}
+
+deny contains "Cachix publishing requires explicit roots, including warm paths" if {
+  some job_id, job in input.jobs
+  cache_publisher(job_id)
+  some step in job.steps
+  cache_uploader(step)
+  settings := object.get(step, "with", {})
+  object.get(settings, "pathsToPush", "") == ""
 }
 
 deny contains "Shared setup must never upload caches" if {

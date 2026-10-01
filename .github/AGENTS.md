@@ -1,5 +1,20 @@
 # Repository workflow configuration
 
+**README edits:** be very judicious. Ask the user and get explicit approval
+before editing any README. Propose only necessary, succinct changes. Keep
+workflow details and agent implementation guidance in `AGENTS.md`, not READMEs.
+
+Use these shared verb–noun names:
+
+- Check → All
+- Build → Nix caches
+- Plan/Apply → Infrastructure
+- Update → GitHub Actions and OpenTofu providers
+- Update → Nix inputs and Devenv CLI
+
+Keep the protected job IDs unchanged.
+`namespace-profile-quantile` is the shared Restricted, cache-free runner profile.
+
 `check.yaml` runs credential-free `check:all` once on PRs. Protected main
 requires its `All` status. Check and the review-only updater fetch full Git
 history for Gitleaks. The secret-scanning task rejects shallow checkouts.
@@ -17,42 +32,31 @@ and renamed or additional deployment jobs. Preserve shared concurrency and state
 Google Cloud workload identity federation, and the GitHub token boundary.
 Never weaken branch protection or authorizations merely to allow a push.
 
-Validation, deployment, and Dependabot maintenance use Namespace runners
-with fresh Nix installations. Don't restore `/nix` or delete installer
-receipts. Namespace cache tags aren't authorization: editable workflow labels
-can request another tag. Persistent runner-store reuse remains deferred until
-the audit verifies server-enforced access controls and the installer/credential
-lifecycle. Don't reuse existing volumes as trusted stores. Binary cache
-reads still provide reuse, with `require-sigs = true`. Configure Cachix reads
-through additive `extra-substituters` and `extra-trusted-public-keys` settings
-in the installer. The Cachix action's configuration step replaces the
-effective key list and removes FlakeHub's keys. The publisher must keep
-`skipAddingSubstituter: true`. PR checks verify that both sets of keys remain.
+Validation, deployment, and maintenance use standard Nix on Namespace runners.
+Call pinned stock actions directly in workflows. Don't add a local installer
+wrapper. The interim workflows still use fresh stores while an isolated pilot
+checks Namespace's main-only snapshot commits and warm-store lifecycle. Don't
+restore a legacy volume or enable privileged cache consumption before those
+checks pass. Profile/cache tags alone aren't authorization.
 
-After a checked PR merges, only Build's guarded main publisher runs the
-Cachix and FlakeHub upload actions. Supply the per-cache Cachix write token
-as the GitHub Actions secret `CACHIX_AUTH_TOKEN`, only in the publisher job.
-The Cachix action scans this fresh store at job end instead of installing a
-second live upload hook. PR checks have neither cloud identity nor cache
-write credentials. Shared setup, readback, Plan, Apply, and dependency jobs
-must not run upload actions. Never place production credentials in store paths.
-Checkout doesn't persist its Git credential. Git ignores Google auth's
-workspace credential files.
+Keep `require-sigs = true`. Configure public Cachix reads through additive
+`extra-substituters` and `extra-trusted-public-keys` installer settings, retaining
+the NixOS key. PR checks verify both keys. Only Build's guarded `publish-caches`
+job receives `CACHIX_AUTH_TOKEN` and runs `cachix/cachix-action`.
+Build smoke-tests the environment, then `cache:roots` selects its devenv GC
+roots and a pinned Cachix executable for the action's `pathsToPush` and
+`cachixBin` inputs. This publishes warm as well as newly built paths without
+an extra uploader or repeating the full gate. Keep `skipAddingSubstituter: true`.
 
-The commissioning readback job downloads a run-specific, reference-free,
-input-addressed probe from each actual HTTPS cache into independent empty
-stores. It requires signatures from the expected cache keys and checks the
-publisher's Nix archive hash. Never use fallback substituters or signature
-bypasses. The Magic Nix Cache loopback service isn't a FlakeHub read endpoint.
-Remove the probes and readback job once readback proves both caches, not
-Nix's signature verification or the lightweight workflow policies.
+Plan, Apply, and dependency jobs don't publish caches. PR checks have no cloud
+identity or cache write credentials. Only Plan and Apply request OpenID Connect
+for Google Cloud. This repository no longer uses Determinate or FlakeHub.
+Keep commissioning probes, the readback job, and custom signature fixtures out
+of routine CI. Retain signature enforcement, expected-key checks, and lightweight
+workflow policy tests. Never place production credentials in store paths.
+Checkout doesn't persist its Git credential. Git ignores Google's workspace
+credential files.
 
-Determinate automatically logs into FlakeHub when GitHub provides OpenID
-Connect credentials. Publisher and readback need them for FlakeHub. Plan and
-Apply need them for Google Cloud and also trigger this login. Not installing an uploader prevents
-automatic publication, but doesn't establish a server-enforced read-only
-FlakeHub identity. Don't claim that narrower authorization without verifying
-FlakeHub's policy. Credentials remain on disposable runners, not cached volumes.
 The organization manages the platform connections. Define workflow runner labels
 and pinned action references here. This repository's `tf/` owns its Actions
 enablement and commit pinning. `quantile-q0/q0` owns the organization allowlist

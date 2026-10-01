@@ -9,16 +9,10 @@ permissions:
 
 jobs:
   publish-caches:
-    name: Publish Nix caches
+    name: Nix caches
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    outputs:
-      probe-path: ${{ steps.cache-probe.outputs.path }}
-      probe-nar-hash: ${{ steps.cache-probe.outputs.nar-hash }}
-    permissions:
-      contents: read
-      id-token: write
-    # No restored runner store: publish only this trusted run's outputs.
-    runs-on: nscloud-ubuntu-24.04-amd64-4x8
+    # Keep privileged jobs on fresh stores until the cache pilot passes.
+    runs-on: namespace-profile-quantile
     timeout-minutes: 20
     steps:
       - name: Require the public cache upload token
@@ -35,8 +29,27 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Set up Nix
-        uses: ./.github/actions/setup-nix
+      - name: Install Nix
+        uses: cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24 # v31.11.1
+        with:
+          github_access_token: ${{ github.token }}
+          extra_nix_config: |
+            require-sigs = true
+            extra-substituters = https://quantile-co.cachix.org
+            extra-trusted-public-keys = quantile-co.cachix.org-1:OM+kQzUqP3Ija8QQMUxvQNs97u6PB5/s83ZJe7c9WIQ=
+
+      - name: Build and smoke-test the environment for caching
+        run: >-
+          nix run --accept-flake-config
+          github:cachix/devenv/b904dcb51fe48c30db250038241507f60752f222
+          -- test
+
+      - name: Select environment closures
+        id: cache-roots
+        run: >-
+          nix run --accept-flake-config
+          github:cachix/devenv/b904dcb51fe48c30db250038241507f60752f222
+          -- tasks run cache:roots
 
       - name: Publish to Cachix
         uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866 # v17
@@ -45,49 +58,5 @@ jobs:
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
           skipAddingSubstituter: true
           useDaemon: false
-
-      - name: Publish to FlakeHub
-        uses: DeterminateSystems/flakehub-cache-action@83282a8aef353db1d659d3bacf4a28b6683de0b3 # v3.22.5
-        with:
-          use-gha-cache: disabled
-
-      - name: Build and smoke-test the environment for caching
-        run: >-
-          nix run --accept-flake-config
-          github:cachix/devenv/b904dcb51fe48c30db250038241507f60752f222
-          -- test
-
-      - name: Select a store path for readback
-        id: cache-probe
-        run: >-
-          nix run --accept-flake-config
-          github:cachix/devenv/b904dcb51fe48c30db250038241507f60752f222
-          -- tasks run cache:select-probe
-
-  verify-caches:
-    name: Verify Nix caches
-    needs: publish-caches
-    permissions:
-      contents: read
-      id-token: write
-    runs-on: nscloud-ubuntu-24.04-amd64-4x8
-    timeout-minutes: 20
-    steps:
-      - name: Check out trusted main
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        with:
-          persist-credentials: false
-
-      # Determinate authenticates direct FlakeHub reads using GitHub OIDC.
-      # Do not run either cache's publishing action here.
-      - name: Set up Nix
-        uses: ./.github/actions/setup-nix
-
-      - name: Fetch from each cache into a fresh store
-        env:
-          CACHE_TEST_PATH: ${{ needs.publish-caches.outputs.probe-path }}
-          CACHE_TEST_NAR_HASH: ${{ needs.publish-caches.outputs.probe-nar-hash }}
-        run: >-
-          nix run --accept-flake-config
-          github:cachix/devenv/b904dcb51fe48c30db250038241507f60752f222
-          -- tasks run --show-output cache:verify-reads
+          pathsToPush: ${{ steps.cache-roots.outputs.paths }}
+          cachixBin: ${{ steps.cache-roots.outputs.cachix-bin }}
