@@ -43,8 +43,13 @@ jobs:
           github_access_token: ${{ github.token }}
           extra_nix_config: |
             require-sigs = true
-            extra-substituters = https://quantile-co.cachix.org
-            extra-trusted-public-keys = quantile-co.cachix.org-1:OM+kQzUqP3Ija8QQMUxvQNs97u6PB5/s83ZJe7c9WIQ=
+
+      - name: Configure Cachix
+        uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866 # v17
+        with:
+          name: quantile-co
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          useDaemon: false
 
       - name: Build and smoke-test the environment for caching
         run: >-
@@ -52,25 +57,9 @@ jobs:
           github:cachix/devenv/b904dcb51fe48c30db250038241507f60752f222
           -- test
 
-      - name: Select environment closures
-        id: cache-roots
+      # Remove this one-off step and script after cross-run qualification.
+      - name: Qualify native cache persistence and substitution
         run: >-
           nix run --accept-flake-config
           github:cachix/devenv/b904dcb51fe48c30db250038241507f60752f222
-          -- tasks run cache:roots
-
-      - name: Publish to Cachix
-        uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866 # v17
-        with:
-          name: quantile-co
-          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
-          skipAddingSubstituter: true
-          useDaemon: false
-          pathsToPush: ${{ steps.cache-roots.outputs.paths }}
-          cachixBin: ${{ steps.cache-roots.outputs.cachix-bin }}
-
-      - name: Flush the Nix store and database
-        run: >-
-          nix run --accept-flake-config
-          github:cachix/devenv/b904dcb51fe48c30db250038241507f60752f222
-          -- tasks run cache:sync
+          -- shell -- bash .github/qualify-native-cache.sh

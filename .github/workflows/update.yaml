@@ -44,8 +44,13 @@ jobs:
           github_access_token: ${{ github.token }}
           extra_nix_config: |
             require-sigs = true
-            extra-substituters = https://quantile-co.cachix.org
-            extra-trusted-public-keys = quantile-co.cachix.org-1:OM+kQzUqP3Ija8QQMUxvQNs97u6PB5/s83ZJe7c9WIQ=
+
+      - name: Configure Cachix
+        uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866 # v17
+        with:
+          name: quantile-co
+          skipPush: true
+          useDaemon: false
 
       - name: Read Dependabot metadata
         id: metadata
@@ -62,12 +67,6 @@ jobs:
           nix run --accept-flake-config
           github:cachix/devenv/b904dcb51fe48c30db250038241507f60752f222
           -- tasks run dependabot:automerge
-
-      - name: Flush the Nix store and database
-        run: >-
-          nix run --accept-flake-config
-          github:cachix/devenv/b904dcb51fe48c30db250038241507f60752f222
-          -- tasks run cache:sync
 
   update:
     name: Nix inputs and Devenv CLI (${{ matrix.label }})
@@ -119,8 +118,13 @@ jobs:
           github_access_token: ${{ github.token }}
           extra_nix_config: |
             require-sigs = true
-            extra-substituters = https://quantile-co.cachix.org
-            extra-trusted-public-keys = quantile-co.cachix.org-1:OM+kQzUqP3Ija8QQMUxvQNs97u6PB5/s83ZJe7c9WIQ=
+
+      - name: Configure Cachix
+        uses: cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866 # v17
+        with:
+          name: quantile-co
+          skipPush: true
+          useDaemon: false
 
       - name: Update ${{ matrix.label }}
         env:
