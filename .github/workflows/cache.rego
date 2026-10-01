@@ -34,11 +34,11 @@ deny contains "Only the trusted main publisher may upload caches" if {
   not cache_publisher(job_id)
 }
 
-deny contains "Cachix publication requires the main-only build environment" if {
+deny contains "Cachix publication requires the main-only cache environment" if {
   some _, job in input.jobs
   some step in job.steps
   cache_uploader(step)
-  object.get(job, "environment", "") != "build"
+  object.get(job, "environment", "") != "cache"
 }
 
 deny contains "Configure Cachix reads additively through the installer" if {

@@ -47,7 +47,7 @@ for the stock action's `pathsToPush`. Explicit roots include restored paths.
 A before/after store scan would miss them. Build smoke-tests once, then publishes
 those closures without repeating `check:all`.
 Only Build's remote publisher receives Cachix upload credentials, through the
-main-only `build` environment. No Nix module stores them. Namespace mounts the
+main-only `cache` environment. No Nix module stores them. Namespace mounts the
 active `/nix` store and database before a standard single-user installation.
 Its profile permits snapshot commits only from protected main, including Plan
 and Apply. The input-update matrix adds no-commit because it evaluates unreviewed

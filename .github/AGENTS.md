@@ -78,11 +78,11 @@ configuration directory. Both are outside `/nix`, as are the checkout, Google
 credentials, Terraform data, and saved plans. Never redirect home, configuration
 or temporary directories into the persisted tree.
 
-The `build` environment must allow only the `main` branch, with no tag policy or
+The `cache` environment must allow only the `main` branch, with no tag policy or
 required approval reviewers. `tf/` declares the environment and its branch rule.
 Provision them before merging the workflow that references it, since GitHub can
 otherwise create an unprotected environment automatically. Set the existing
-Cachix write token using `gh secret set CACHIX_AUTH_TOKEN --env build`, then remove
+Cachix write token using `gh secret set CACHIX_AUTH_TOKEN --env cache`, then remove
 the repository-scoped copy after confirming the environment secret exists.
 GitHub can't return the original value: obtain it from its secure source, never
 from workflow logs. An environment reference alone doesn't restrict the old
