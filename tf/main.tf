@@ -169,6 +169,27 @@ resource "github_repository_environment" "prod" {
   }
 }
 
+# Keep cache until Build uses the provisioned build environment and secret.
+resource "github_repository_environment" "build" {
+  provider = github.quantile_co
+
+  repository  = github_repository.self.name
+  environment = "build"
+
+  deployment_branch_policy {
+    protected_branches     = false
+    custom_branch_policies = true
+  }
+}
+
+resource "github_repository_environment_deployment_policy" "build_main" {
+  provider = github.quantile_co
+
+  repository     = github_repository.self.name
+  environment    = github_repository_environment.build.environment
+  branch_pattern = "main"
+}
+
 # Store the Cachix write token through GitHub, never in Terraform state.
 resource "github_repository_environment" "cache" {
   provider = github.quantile_co
