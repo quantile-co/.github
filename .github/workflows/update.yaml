@@ -1,4 +1,4 @@
-name: Dependencies
+name: Update
 
 on:
   pull_request_target:
@@ -12,15 +12,13 @@ permissions:
 
 jobs:
   dependabot-automerge:
-    name: Dependabot auto-merge
+    name: GitHub Actions and OpenTofu providers
     if: >-
       github.event_name == 'pull_request_target' &&
       github.event.pull_request.user.login == 'dependabot[bot]' &&
       github.event.pull_request.head.repo.full_name == github.repository &&
       github.event.pull_request.base.ref == 'main'
-    runs-on:
-      - nscloud-ubuntu-24.04-amd64-4x8-with-cache
-      - nscloud-cache-tag-quantile-co-dot-github-automerge
+    runs-on: namespace-profile-quantile
     permissions:
       contents: write
       pull-requests: write
@@ -32,8 +30,14 @@ jobs:
           ref: main
           persist-credentials: false
 
-      - name: Set up Nix
-        uses: ./.github/actions/setup-nix
+      - name: Install Nix
+        uses: cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24 # v31.11.1
+        with:
+          github_access_token: ${{ github.token }}
+          extra_nix_config: |
+            require-sigs = true
+            extra-substituters = https://quantile-co.cachix.org
+            extra-trusted-public-keys = quantile-co.cachix.org-1:OM+kQzUqP3Ija8QQMUxvQNs97u6PB5/s83ZJe7c9WIQ=
 
       - name: Read Dependabot metadata
         id: metadata
@@ -52,7 +56,7 @@ jobs:
           -- tasks run dependabot:automerge
 
   update:
-    name: ${{ matrix.label }}
+    name: Nix inputs and Devenv CLI
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     strategy:
       fail-fast: false
@@ -67,29 +71,34 @@ jobs:
           - target: ci-devenv
             label: Devenv CLI
             task: devenv:update-ci
-    # Isolate writable /nix state by updater, away from PRs and deployment.
-    runs-on:
-      - nscloud-ubuntu-24.04-amd64-4x8-with-cache
-      - nscloud-cache-tag-quantile-co-dot-github-dependencies-${{ matrix.target }}
+    # Updated toolchains must not populate caches consumed by trusted jobs.
+    runs-on: namespace-profile-quantile
     timeout-minutes: 40
     permissions:
       contents: read
     steps:
       - name: Require the dedicated pull request token
         env:
-          GITHUB_DEPENDENCY_PR_TOKEN: ${{ secrets.GITHUB_DEPENDENCY_PR_TOKEN || secrets.DEPENDENCY_PR_TOKEN }}
-        run: test -n "$GITHUB_DEPENDENCY_PR_TOKEN"
+          GH_DEPENDENCY_PR_TOKEN: ${{ secrets.GH_DEPENDENCY_PR_TOKEN || secrets.DEPENDENCY_PR_TOKEN }}
+        run: test -n "$GH_DEPENDENCY_PR_TOKEN"
 
       - name: Check out trusted main
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           ref: main
+          fetch-depth: 0
           persist-credentials: false
 
-      - name: Set up Nix
-        uses: ./.github/actions/setup-nix
+      - name: Install Nix
+        uses: cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24 # v31.11.1
+        with:
+          github_access_token: ${{ github.token }}
+          extra_nix_config: |
+            require-sigs = true
+            extra-substituters = https://quantile-co.cachix.org
+            extra-trusted-public-keys = quantile-co.cachix.org-1:OM+kQzUqP3Ija8QQMUxvQNs97u6PB5/s83ZJe7c9WIQ=
 
-      - name: Refresh the pinned input
+      - name: Update ${{ matrix.label }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: >-
@@ -104,12 +113,15 @@ jobs:
           -- --no-tui tasks run --show-output check:all
 
       - name: Disable the pre-push hook after the full gate
-        run: git config --local core.hooksPath /dev/null
+        run: >-
+          nix run --accept-flake-config
+          github:cachix/devenv/b904dcb51fe48c30db250038241507f60752f222
+          -- shell -- git config --local core.hooksPath /dev/null
 
       - name: File a review-only pull request
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
         with:
-          token: ${{ secrets.GITHUB_DEPENDENCY_PR_TOKEN || secrets.DEPENDENCY_PR_TOKEN }}
+          token: ${{ secrets.GH_DEPENDENCY_PR_TOKEN || secrets.DEPENDENCY_PR_TOKEN }}
           add-paths: |
             devenv.yaml
             devenv.lock
