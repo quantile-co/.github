@@ -11,7 +11,8 @@ state bucket `TF_STATE_BUCKET` and prefix `repository/prod`. Never point it at a
 repository's backend or commit credentials, state files, or saved plans.
 
 Run `devenv tasks run check:tf` for backend-free init, format,
-validation, and TFLint. It must not require cloud credentials. A real plan or
+validation, and TFLint. Its dedicated `TF_DATA_DIR` must not load a production
+backend left in `tf/.terraform`. It must not require cloud credentials. A real plan or
 apply requires authorized Google Cloud and GitHub credentials and the
 repository's `TF_VAR_*` inputs. Use `SECRETSPEC_PROFILE=prod` on credentialed
 Devenv runs after Day 0. The profile requires its inputs before entering the
@@ -22,3 +23,11 @@ federation principal bindings, project/bucket deletion safeguards, and Cloud
 Storage state versioning. The manual Plan workflow never applies. The manual
 Apply workflow plans again and applies that exact saved plan in the same job
 when an authorized maintainer invokes it.
+
+The separate `cache` environment grants access only to the `main` branch through
+an explicit branch deployment policy. It doesn't grant access by tag or by
+branch protection status alone.
+It has no required approval reviewers. Provision the environment and rule before
+Build starts referencing it. Store `CACHIX_AUTH_TOKEN` through GitHub's secrets
+interface, never Terraform. After provisioning the environment secret, remove
+the repository copy so other branches can't access that credential.
