@@ -2,6 +2,8 @@
 {
   packages = with pkgs; [
     deadnix
+    direnv
+    nix
     nixfmt
     statix
   ];

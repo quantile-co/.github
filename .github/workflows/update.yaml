@@ -113,7 +113,10 @@ jobs:
           -- --no-tui tasks run --show-output check:all
 
       - name: Disable the pre-push hook after the full gate
-        run: git config --local core.hooksPath /dev/null
+        run: >-
+          nix run --accept-flake-config
+          github:cachix/devenv/b904dcb51fe48c30db250038241507f60752f222
+          -- shell -- git config --local core.hooksPath /dev/null
 
       - name: File a review-only pull request
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
