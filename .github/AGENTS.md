@@ -123,7 +123,8 @@ only `matrix.label`. Keep the target and task identifiers as internal settings.
 Plan and Apply set `SECRETSPEC_PROFILE=prod` before Devenv runs. Devenv
 resolves its required SecretSpec declarations at shell entry. Missing inputs
 fail before OpenTofu initialization without a separate secrets check step. PR
-validation uses the credential-free default profile. Never interpolate
+validation uses the credential-free default profile with only the optional
+compatibility placeholder. Leave that placeholder unset. Never interpolate
 deployment values into PR jobs or commit them.
 
 Workflow invocations pin the CI Devenv executable by revision. Keep all
