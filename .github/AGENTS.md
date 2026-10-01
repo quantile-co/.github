@@ -110,13 +110,15 @@ private store snapshot without commit rights, runs `check:all`, and files a sepa
 `dependabot:automerge` from `nix/dependabot.nix`. Both jobs check out trusted
 `main`, never the PR head. Checkout drops persisted credentials before
 updating inputs. Store the dedicated pull request token as
-`GH_DEPENDENCY_PR_TOKEN` with `gh secret set`, not Terraform. GitHub reserves
-the `GITHUB_` prefix for secrets and workflow environment variables. The workflow
-temporarily accepts the existing `DEPENDENCY_PR_TOKEN`. GitHub won't let you
-read back or rename stored secret values, so copy the token from its secure
-source. Remove the fallback only after a run files a PR with the new name. A
-missing token fails closed.
-`GITHUB_TOKEN`-created PRs would not trigger validation.
+`GH_UPDATE_WORKFLOW_TOKEN` with `gh secret set`, not Terraform. GitHub reserves
+the `GITHUB_` prefix for secrets and workflow environment variables. Use an
+expiring fine-grained personal access token scoped only to this repository,
+with Contents, Pull requests, and Workflows write permissions. Workflows
+permission lets the updater change the pinned CLI in workflow files. Don't
+grant organization or administration permissions. This remains a repository-scoped
+secret, not an environment-scoped one. A missing token fails closed.
+`GITHUB_TOKEN`-created PRs would not trigger validation. Matrix job names display
+only `matrix.label`. Keep the target and task identifiers as internal settings.
 
 Plan and Apply set `SECRETSPEC_PROFILE=prod` before Devenv runs. Devenv
 resolves its required SecretSpec declarations at shell entry. Missing inputs

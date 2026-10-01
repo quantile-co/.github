@@ -70,7 +70,7 @@ jobs:
           -- tasks run cache:sync
 
   update:
-    name: Nix inputs and Devenv CLI
+    name: Nix inputs and Devenv CLI (${{ matrix.label }})
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     strategy:
       fail-fast: false
@@ -95,8 +95,8 @@ jobs:
     steps:
       - name: Require the dedicated pull request token
         env:
-          GH_DEPENDENCY_PR_TOKEN: ${{ secrets.GH_DEPENDENCY_PR_TOKEN || secrets.DEPENDENCY_PR_TOKEN }}
-        run: test -n "$GH_DEPENDENCY_PR_TOKEN"
+          GH_UPDATE_WORKFLOW_TOKEN: ${{ secrets.GH_UPDATE_WORKFLOW_TOKEN }}
+        run: test -n "$GH_UPDATE_WORKFLOW_TOKEN"
 
       - name: Check out trusted main
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -145,7 +145,7 @@ jobs:
       - name: File a review-only pull request
         uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
         with:
-          token: ${{ secrets.GH_DEPENDENCY_PR_TOKEN || secrets.DEPENDENCY_PR_TOKEN }}
+          token: ${{ secrets.GH_UPDATE_WORKFLOW_TOKEN }}
           add-paths: |
             devenv.yaml
             devenv.lock
