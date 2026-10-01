@@ -3,6 +3,11 @@
   cachix.pull = [ "quantile-co" ];
 
   tasks = {
+    "cache:sync" = {
+      description = "Flush the active Nix store and database before the runner exits.";
+      exec = "sync -f /nix";
+    };
+
     "cache:roots" = {
       description = "Select this environment's closures for Cachix publication, including warm paths.";
       exec = ''

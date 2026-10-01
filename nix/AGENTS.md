@@ -32,7 +32,9 @@ Every declared check runs
 in this gate. Each domain stays in its own module. A shared file format does
 not make different tools one domain. Keep these tasks usable without GitHub or
 Google Cloud credentials or remote Cloud Storage access. `check:tf` uses
-`-lockfile=readonly` so provider lock changes remain explicit. `nix/nix.nix`
+`-lockfile=readonly` so provider lock changes remain explicit, and sets
+`TF_DATA_DIR=$DEVENV_STATE/tofu-check` so a previous production initialization
+can't supply backend metadata to a credential-free check. `nix/nix.nix`
 updates the whole pinned nixpkgs input. `nix/devenv.nix` updates only the CI
 Devenv revision. Both file review-only proposals and must pass `check:all`.
 Review the resulting tool versions before merging.
@@ -44,9 +46,16 @@ complete. Don't restore its custom probes or signature fixtures.
 for the stock action's `pathsToPush`. Explicit roots include restored paths.
 A before/after store scan would miss them. Build smoke-tests once, then publishes
 those closures without repeating `check:all`.
-Only Build's publisher receives upload credentials. No Nix module stores them.
-Runners remain fresh until the isolated Namespace pilot proves main-only
-snapshot commits and warm reuse. Cache tags alone aren't authorization.
+Only Build's remote publisher receives Cachix upload credentials, through the
+main-only `cache` environment. No Nix module stores them. Namespace mounts the
+active `/nix` store and database before a standard single-user installation.
+Its profile permits snapshot commits only from protected main, including Plan
+and Apply. The input-update matrix adds no-commit because it evaluates unreviewed
+versions. Other jobs rely on the profile's branch policy, not a blanket PR ban.
+`cache:sync` flushes the filesystem after successful work. Namespace handles the
+snapshot lifecycle. Signed remote substitutions remain the fallback on misses.
+Keep credentials and temporary files outside `/nix`. Cache tags alone aren't
+authorization.
 Entering the local shell installs a pre-push Git hook that runs `check:all`.
 Unlike the old shared module framework, it never scaffolds tracked files.
 `.editorconfig` guides editors. Domain formatters and CI checks enforce

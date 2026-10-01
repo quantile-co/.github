@@ -13,7 +13,12 @@ Use these shared verb–noun names:
 - Update → Nix inputs and Devenv CLI
 
 Keep the protected job IDs unchanged.
-`namespace-profile-quantile` is the shared Restricted, cache-free runner profile.
+`namespace-profile-quantile` is the shared Restricted runner profile. Its cache
+volume must set `allow_commit_from_branch: ["main"]`, with default profile and
+repository isolation. The creation command is in the
+[Q0 Day 0 runbook](https://github.com/quantile-q0/q0#day-0-runbook). This repository
+consumes the profile, not its management credentials. Configure the profile
+before these workflows run.
 
 `check.yaml` has exactly one job, All, which runs credential-free `check:all`
 once on PRs. Don't add tool-specific Check jobs or an aggregate gate. Protected
@@ -34,11 +39,22 @@ Google Cloud workload identity federation, and the GitHub token boundary.
 Never weaken branch protection or authorizations merely to allow a push.
 
 Validation, deployment, and maintenance use standard Nix on Namespace runners.
-Call pinned stock actions directly in workflows. Don't add a local installer
-wrapper. The interim workflows still use fresh stores while an isolated pilot
-checks Namespace's main-only snapshot commits and warm-store lifecycle. Don't
-restore a legacy volume or enable privileged cache consumption before those
-checks pass. Profile/cache tags alone aren't authorization.
+Call pinned stock actions directly in workflows. Mount `/nix` with the pinned
+Namespace action before the Cachix installer, using `--no-daemon`. This reuses the
+active store and database and recreates the user profile on each fresh runner.
+Keep the integration's spacectl version pinned and ignore the host binary.
+Don't add an installer wrapper, copy the store elsewhere, or delete installer
+receipts. Namespace decides which snapshots persist. The mount action's post
+step isn't the publisher. Tags alone aren't authorization.
+
+Any job on protected main, including Plan and Apply, may retain its Nix changes.
+Other branches use private writable copies. Namespace discards their changes.
+A PR event alone isn't a reason to reject publication by this repository's main.
+Only the input-update matrix uses `nscloud-cache-exp-do-not-commit`: it evaluates
+new inputs before review, even though its workflow starts from main.
+`cache:sync` flushes the active filesystem after successful work. Single-user
+Nix leaves no daemon running during snapshot completion. Treat snapshots as
+optional. Signed remote substitution handles missing store paths.
 
 Keep `require-sigs = true`. Configure public Cachix reads through additive
 `extra-substituters` and `extra-trusted-public-keys` installer settings, retaining
@@ -49,14 +65,28 @@ roots and a pinned Cachix executable for the action's `pathsToPush` and
 `cachixBin` inputs. This publishes warm as well as newly built paths without
 an extra uploader or repeating the full gate. Keep `skipAddingSubstituter: true`.
 
-Plan, Apply, and dependency jobs don't publish caches. PR checks have no cloud
-identity or cache write credentials. Only Plan and Apply request OpenID Connect
-for Google Cloud. This repository no longer uses Determinate or FlakeHub.
+Only Build publishes to remote Cachix. Namespace snapshot commits are separate.
+PR checks have no cloud identity or remote cache write credentials. Only Plan and
+Apply request OpenID Connect for Google Cloud. This repository no longer uses Determinate or FlakeHub.
 Keep commissioning probes, the readback job, and custom signature fixtures out
 of routine CI. Retain signature enforcement, expected-key checks, and lightweight
 workflow policy tests. Never place production credentials in store paths.
 Checkout doesn't persist its Git credential. Git ignores Google's workspace
-credential files.
+credential files. The single-user installer writes its token-bearing Nix
+configuration to `/etc/nix/nix.conf`. Cachix authentication uses the runner's home
+configuration directory. Both are outside `/nix`, as are the checkout, Google
+credentials, Terraform data, and saved plans. Never redirect home, configuration
+or temporary directories into the persisted tree.
+
+The `cache` environment must allow only the `main` branch, with no tag policy or
+required approval reviewers. `tf/` declares the environment and its branch rule.
+Provision them before merging the workflow that references it, since GitHub can
+otherwise create an unprotected environment automatically. Set the existing
+Cachix write token using `gh secret set CACHIX_AUTH_TOKEN --env cache`, then remove
+the repository-scoped copy after confirming the environment secret exists.
+GitHub can't return the original value: obtain it from its secure source, never
+from workflow logs. An environment reference alone doesn't restrict the old
+repository secret. No token values belong in Terraform or Nix.
 
 The organization manages the platform connections. Define workflow runner labels
 and pinned action references here. This repository's `tf/` owns its Actions
@@ -76,7 +106,7 @@ requirements when adding maintainers.
 
 The dependency matrix runs `git:update-hooks`, `nix:update-nixpkgs`, and
 `devenv:update-ci` from their owning Nix modules. Each matrix entry uses a
-fresh runner store, runs `check:all`, and files a separate review-only PR. No toolchain PR auto-merges. The Dependabot job calls
+private store snapshot without commit rights, runs `check:all`, and files a separate review-only PR. No toolchain PR auto-merges. The Dependabot job calls
 `dependabot:automerge` from `nix/dependabot.nix`. Both jobs check out trusted
 `main`, never the PR head. Checkout drops persisted credentials before
 updating inputs. Store the dedicated pull request token as
