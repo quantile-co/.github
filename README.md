@@ -15,7 +15,7 @@
 
 ## Prerequisites
 
-- [Determinate Nix](https://docs.determinate.systems/)
+- [Nix](https://nix.dev/install-nix.html)
 - [direnv](https://direnv.net/docs/installation.html)
 - [devenv](https://devenv.sh/getting-started/)
 
