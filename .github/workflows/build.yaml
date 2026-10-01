@@ -56,10 +56,3 @@ jobs:
           nix run --accept-flake-config
           github:cachix/devenv/b904dcb51fe48c30db250038241507f60752f222
           -- test
-
-      # Remove this one-off step and script after cross-run qualification.
-      - name: Qualify native cache persistence and substitution
-        run: >-
-          nix run --accept-flake-config
-          github:cachix/devenv/b904dcb51fe48c30db250038241507f60752f222
-          -- shell -- bash .github/qualify-native-cache.sh
