@@ -15,8 +15,9 @@ Use these shared verb–noun names:
 Keep the protected job IDs unchanged.
 `namespace-profile-quantile` is the shared Restricted, cache-free runner profile.
 
-`check.yaml` runs credential-free `check:all` once on PRs. Protected main
-requires its `All` status. Check and the review-only updater fetch full Git
+`check.yaml` has exactly one job, All, which runs credential-free `check:all`
+once on PRs. Don't add tool-specific Check jobs or an aggregate gate. Protected
+main requires its `All` status. Check and the review-only updater fetch full Git
 history for Gitleaks. The secret-scanning task rejects shallow checkouts.
 `build.yaml` smoke-tests and publishes only trusted
 main outputs, without repeating the full PR gate. Workflow YAML must stay a thin wrapper around Devenv tasks defined
