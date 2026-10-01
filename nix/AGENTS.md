@@ -9,6 +9,13 @@ directory. Keep the entrypoint small and group checks with their related tools
 rather than building the old superset module/scaffold system. A new domain
 warrants a new file only when it adds meaningful behavior.
 
+Declare every project tool in the devenv packages, including tools used for
+maintenance and deployment. Devenv supplies its own CLI and the base shell
+utilities. Keep project commands inside devenv locally and in CI/CD. Don't rely
+on host tools or add separate tool installers. Stock actions still handle
+checkout, Nix bootstrap, and authentication. `devenv test` checks that project
+tools resolve into the Nix store.
+
 Keep CI workflows as thin wrappers around these Nix-defined tasks. PR
 validation runs `check:all`. The post-merge Build smoke-tests and publishes
 trusted outputs without repeating the full gate. Neither workflow should

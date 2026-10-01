@@ -1,6 +1,9 @@
 { pkgs, ... }:
 {
-  packages = [ pkgs.actionlint ];
+  packages = with pkgs; [
+    actionlint
+    shellcheck
+  ];
 
   tasks."check:github" = {
     description = "Check GitHub Actions workflow semantics.";
