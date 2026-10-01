@@ -9,31 +9,26 @@ permissions:
 jobs:
   all-checks:
     name: All
-    # PRs can read the public cache but never share writable publish state.
-    runs-on:
-      - nscloud-ubuntu-24.04-amd64-4x8-with-cache
-      - nscloud-cache-tag-quantile-co-dot-github-checks
+    # PRs only read public caches; no persistent runner store or cloud identity.
+    runs-on: namespace-profile-quantile
     steps:
       - name: Check out repository
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
 
-      - name: Set up Nix
-        uses: ./.github/actions/setup-nix
+      - name: Install Nix
+        uses: cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24 # v31.11.1
+        with:
+          github_access_token: ${{ github.token }}
+          extra_nix_config: |
+            require-sigs = true
+            extra-substituters = https://quantile-co.cachix.org
+            extra-trusted-public-keys = quantile-co.cachix.org-1:OM+kQzUqP3Ija8QQMUxvQNs97u6PB5/s83ZJe7c9WIQ=
 
       - name: Check repository
         run: >-
           nix run --accept-flake-config
           github:cachix/devenv/b904dcb51fe48c30db250038241507f60752f222
           -- tasks run --show-output check:all
-
-  # Preserve the currently required status until Plan/Apply changes it to All.
-  legacy-status:
-    name: All checks
-    needs: all-checks
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
-      - name: Require the full gate
-        env:
-          CHECK_RESULT: ${{ needs.all-checks.result }}
-        run: test "$CHECK_RESULT" = success

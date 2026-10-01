@@ -1,41 +1,40 @@
-{ pkgs, ... }:
+{ lib, pkgs, ... }:
 {
-  # Public binary-cache pulls never need a repository credential.
   cachix.pull = [ "quantile-co" ];
-  packages = with pkgs; [
-    curl
-    jq
-  ];
 
   tasks = {
-    "cache:select-probe" = {
-      description = "Add a reference-free store path for both trusted cache publishers.";
+    "cache:roots" = {
+      description = "Select this environment's closures for Cachix publication, including warm paths.";
       exec = ''
         set -euo pipefail
-        path=$(nix store add-path --name quantile-cache-probe README.md)
-        printf 'path=%s\n' "$path" >> "$GITHUB_OUTPUT"
+        paths=()
+        for root in .devenv/gc/*; do
+          test -L "$root" || continue
+          path=$(readlink -f "$root")
+          nix-store --check-validity "$path"
+          paths+=("$path")
+        done
+        test "''${#paths[@]}" -gt 0
+        printf 'paths=%s\n' "''${paths[*]}" >> "$GITHUB_OUTPUT"
+        printf 'cachix-bin=%s\n' '${lib.getExe pkgs.cachix}' >> "$GITHUB_OUTPUT"
       '';
     };
 
-    "cache:verify-reads" = {
-      description = "Fetch the published probe from each cache into separate empty stores.";
+    "check:cache" = {
+      description = "Check Nix signature enforcement and public cache signing keys.";
       exec = ''
         set -euo pipefail
-        [[ "$CACHE_TEST_PATH" =~ ^/nix/store/[a-z0-9]{32}-quantile-cache-probe$ ]]
-        [[ -n "$MAGIC_NIX_CACHE_ADDRESS" ]]
-        # Isolated local stores do not inherit Cachix's runner configuration.
-        cachix_key=$(curl --fail --location --silent --show-error \
-          https://cachix.org/api/v1/cache/quantile-co |
-          jq -er '.publicSigningKeys | map(select(startswith("quantile-co.cachix.org-1:"))) | first // empty')
-        keys="$(nix config show trusted-public-keys) $cachix_key"
-
-        cachix_store=$(mktemp -d "$RUNNER_TEMP/cachix-read.XXXXXX")
-        nix copy --option trusted-public-keys "$keys" --from https://quantile-co.cachix.org --to "local?root=$cachix_store" "$CACHE_TEST_PATH" -L
-        nix path-info --store "local?root=$cachix_store" "$CACHE_TEST_PATH"
-
-        flakehub_store=$(mktemp -d "$RUNNER_TEMP/flakehub-read.XXXXXX")
-        nix copy --option trusted-public-keys "$keys" --from "http://$MAGIC_NIX_CACHE_ADDRESS" --to "local?root=$flakehub_store" "$CACHE_TEST_PATH" -L
-        nix path-info --store "local?root=$flakehub_store" "$CACHE_TEST_PATH"
+        test "$(nix config show require-sigs)" = true || {
+          echo 'Nix signature enforcement must remain enabled.' >&2
+          exit 1
+        }
+        if [[ "''${GITHUB_ACTIONS:-false}" == true ]]; then
+          keys=$(nix config show trusted-public-keys)
+          [[ "$keys" == *'quantile-co.cachix.org-1:OM+kQzUqP3Ija8QQMUxvQNs97u6PB5/s83ZJe7c9WIQ='* && "$keys" == *'cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY='* ]] || {
+            echo 'CI setup must retain the Cachix and NixOS signing keys.' >&2
+            exit 1
+          }
+        fi
       '';
     };
   };

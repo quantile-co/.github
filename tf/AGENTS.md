@@ -1,5 +1,9 @@
 # Repository settings and state
 
+**README edits:** be very judicious. Ask the user and get explicit approval
+before editing any README. Propose only necessary, succinct changes. Keep
+workflow details and agent implementation guidance in `AGENTS.md`, not READMEs.
+
 This single OpenTofu root manages `quantile-co/.github` settings and its
 Google Cloud state project and bucket. After the one-time local-state Day 0
 bootstrap in [`README.md`](README.md), state uses the Cloud Storage backend with
