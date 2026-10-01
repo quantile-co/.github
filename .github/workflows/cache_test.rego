@@ -5,8 +5,8 @@ import rego.v1
 cache_publish_steps := [
   {"uses": "cachix/cachix-action@pinned", "with": {
     "authToken": "${{ secrets.CACHIX_AUTH_TOKEN }}",
-    "skipAddingSubstituter": true,
-    "pathsToPush": "${{ steps.cache-roots.outputs.paths }}",
+    "name": "quantile-co",
+    "useDaemon": false,
   }},
 ]
 
@@ -30,13 +30,10 @@ test_cache_yaml_true_key if {
 }
 
 test_cache_reader if {
-  reader := {"runs": {"steps": [{"uses": "cachix/cachix-action@pinned", "with": {"skipPush": "true", "skipAddingSubstituter": true}}]}}
-  count(deny) == 0 with input as reader
-}
-
-test_cache_rejects_replacing_installer_configuration if {
-  unsafe := {"runs": {"steps": [{"uses": "cachix/cachix-action@pinned", "with": {"skipPush": "true"}}]}}
-  "Configure Cachix reads additively through the installer" in deny with input as unsafe
+  every disabled in [true, "true"] {
+    reader := {"runs": {"steps": [{"uses": "cachix/cachix-action@pinned", "with": {"name": "quantile-co", "skipPush": disabled, "useDaemon": false}}]}}
+    count(deny) == 0 with input as reader
+  }
 }
 
 test_cache_rejects_pr_publisher if {
@@ -177,12 +174,6 @@ test_cache_requires_publisher_environment if {
     unsafe := object.union(safe_cache_build, {"jobs": {"publish-caches": job}})
     "Cachix publication requires the main-only build environment" in deny with input as unsafe
   }
-}
-
-test_cache_rejects_implicit_store_scan if {
-  step := object.union(cache_publish_steps[0], {"with": {"pathsToPush": ""}})
-  unsafe := object.union(safe_cache_build, {"jobs": {"publish-caches": {"steps": [step]}}})
-  "Cachix publishing requires explicit roots, including warm paths" in deny with input as unsafe
 }
 
 test_cache_rejects_determinate_and_flakehub if {

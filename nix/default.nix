@@ -1,6 +1,6 @@
 _: {
   imports = [
-    ./cache.nix
+    ./cachix.nix
     ./check.nix
     ./dependabot.nix
     ./devenv.nix

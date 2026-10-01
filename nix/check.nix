@@ -10,7 +10,6 @@ _: {
       devenv tasks run --show-output check:nix
       devenv tasks run --show-output check:typos
       devenv tasks run --show-output check:opa
-      devenv tasks run --show-output check:cache
       devenv tasks run --show-output check:semgrep
       devenv tasks run --show-output check:trivy
       devenv tasks run --show-output check:vale

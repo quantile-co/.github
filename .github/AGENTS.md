@@ -52,25 +52,24 @@ Other branches use private writable copies. Namespace discards their changes.
 A PR event alone isn't a reason to reject publication by this repository's main.
 Only the input-update matrix uses `nscloud-cache-exp-do-not-commit`: it evaluates
 new inputs before review, even though its workflow starts from main.
-`cache:sync` flushes the active filesystem after successful work. Single-user
-Nix leaves no daemon running during snapshot completion. Treat snapshots as
-optional. Signed remote substitution handles missing store paths.
+Namespace manages snapshot completion without a custom flush task. Treat
+snapshots as optional. Signed remote substitution handles missing store paths.
 
-Keep `require-sigs = true`. Configure public Cachix reads through additive
-`extra-substituters` and `extra-trusted-public-keys` installer settings, retaining
-the NixOS key. PR checks verify both keys. Only Build's guarded `publish-caches`
-job receives `CACHIX_AUTH_TOKEN` and runs `cachix/cachix-action`.
-Build smoke-tests the environment, then `cache:roots` selects its devenv GC
-roots and a pinned Cachix executable for the action's `pathsToPush` and
-`cachixBin` inputs. This publishes warm as well as newly built paths without
-an extra uploader or repeating the full gate. Keep `skipAddingSubstituter: true`.
+Keep `require-sigs = true`. Follow Ghostty's stock integration order: mount
+`/nix`, install Nix, configure `cachix/cachix-action`, then run project commands.
+The Cachix action configures public reads and signing keys. All readers set
+`skipPush: true`. Only Build's guarded `publish-caches` job receives
+`CACHIX_AUTH_TOKEN`. Use `useDaemon: false`, as Ghostty does. The action uploads
+the before/after store difference after the job, including dependencies of those
+paths. Paths already in the restored store aren't selected independently.
+Don't add explicit-root selection, a custom Cachix executable, or a flush
+task. Build smoke-tests once without repeating the full gate.
 
 Only Build publishes to remote Cachix. Namespace snapshot commits are separate.
 PR checks have no cloud identity or remote cache write credentials. Only Plan and
 Apply request OpenID Connect for Google Cloud. This repository no longer uses Determinate or FlakeHub.
 Keep commissioning probes, the readback job, and custom signature fixtures out
-of routine CI. Retain signature enforcement, expected-key checks, and lightweight
-workflow policy tests. Never place production credentials in store paths.
+of routine CI. Retain signature enforcement and lightweight workflow policy tests. Never place production credentials in store paths.
 Checkout doesn't persist its Git credential. Git ignores Google's workspace
 credential files. The single-user installer writes its token-bearing Nix
 configuration to `/etc/nix/nix.conf`. Cachix authentication uses the runner's home

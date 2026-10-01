@@ -13,7 +13,7 @@ Declare every project tool in the devenv packages, including tools used for
 maintenance and deployment. Devenv supplies its own CLI and the base shell
 utilities. Keep project commands inside devenv locally and in CI/CD. Don't rely
 on host tools or add separate tool installers. Stock actions still handle
-checkout, Nix bootstrap, and authentication. `devenv test` checks that project
+checkout, Nix bootstrap, authentication, and Cachix integration. `devenv test` checks that project
 tools resolve into the Nix store.
 
 Keep CI workflows as thin wrappers around these Nix-defined tasks. PR
@@ -24,7 +24,7 @@ same local gate as validation CI.
 The gate covers OpenTofu formatting, backend-free initialization and TFLint,
 Markdown, YAML, actionlint for GitHub Actions, and Nix formatting and static
 checks. It also runs typos, Open Policy Agent deployment and cache policies,
-cache signature/key configuration checks, tested Semgrep rules,
+tested Semgrep rules,
 Trivy filesystem scanning, Vale prose and AI-writing detection, Git-history
 and working-tree secret scanning, and `devenv test` shell smoke tests.
 `check:git` rejects shallow checkouts rather than claiming full-history coverage.
@@ -39,21 +39,20 @@ updates the whole pinned nixpkgs input. `nix/devenv.nix` updates only the CI
 Devenv revision. Both file review-only proposals and must pass `check:all`.
 Review the resulting tool versions before merging.
 
-`nix/cache.nix` configures public Cachix pulls and checks signature enforcement
-and the expected Cachix/NixOS CI keys. Signed remote readback commissioning is
-complete. Don't restore its custom probes or signature fixtures.
-`cache:roots` selects this job's devenv GC roots and the pinned Cachix binary
-for the stock action's `pathsToPush`. Explicit roots include restored paths.
-A before/after store scan would miss them. Build smoke-tests once, then publishes
-those closures without repeating `check:all`.
+`nix/cachix.nix` contains only native `cachix.pull` configuration for public
+`quantile-co` cache reads in Devenv. Nix handles signed downloads. CI uses the
+stock Cachix action before project commands, with `useDaemon: false` and no
+explicit roots or custom executable. The action uploads the store difference
+after the job. Paths already restored from Namespace aren't independently
+republished. Build smoke-tests once without repeating `check:all`.
 Only Build's remote publisher receives Cachix upload credentials, through the
 main-only `build` environment. No Nix module stores them. Namespace mounts the
 active `/nix` store and database before a standard single-user installation.
 Its profile permits snapshot commits only from protected main, including Plan
 and Apply. The input-update matrix adds no-commit because it evaluates unreviewed
 versions. Other jobs rely on the profile's branch policy, not a blanket PR ban.
-`cache:sync` flushes the filesystem after successful work. Namespace handles the
-snapshot lifecycle. Signed remote substitutions remain the fallback on misses.
+Namespace handles the snapshot lifecycle without a custom flush task.
+Signed remote substitutions remain the fallback on misses.
 Keep credentials and temporary files outside `/nix`. Cache tags alone aren't
 authorization.
 Entering the local shell installs a pre-push Git hook that runs `check:all`.
