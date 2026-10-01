@@ -1,5 +1,9 @@
 # Organization repository agent guide
 
+**README edits:** be very judicious. Ask the user and get explicit approval
+before editing any README. Propose only necessary, succinct changes. Keep
+workflow details and agent implementation guidance in `AGENTS.md`, not READMEs.
+
 This is the public `quantile-co/.github` repository, not the app's `.github/` directory. `profile/README.md` is the approved
 public organization profile. The root `README.md` describes this repository. Preserve the profile's
 approved copy and the root README's centered header and horizontal navigation.
@@ -17,7 +21,7 @@ infrastructure here.
 
 ## Development
 
-Local prerequisites are Determinate Nix, direnv, and devenv. All repository
+Local prerequisites are Nix, direnv, and devenv. All repository
 checks run with `devenv tasks run check:all` without cloud credentials or a
 remote backend. `devenv.nix` is only the import entrypoint. Domain code lives
 under `nix/`. Git ignores `.envrc.local`, which contains optional local

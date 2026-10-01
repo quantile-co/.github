@@ -13,12 +13,12 @@ concurrency:
 
 jobs:
   apply:
-    name: Repository settings
+    name: Infrastructure
     if: >-
       github.ref == 'refs/heads/main' &&
       contains(fromJSON(vars.GH_MAINTAINERS), github.actor)
     # No persistent store or cache uploader in a credentialed job.
-    runs-on: nscloud-ubuntu-24.04-amd64-4x8
+    runs-on: namespace-profile-quantile
     environment: prod
     timeout-minutes: 15
     env:
@@ -43,8 +43,14 @@ jobs:
           project_id: ${{ vars.GCP_PROJECT_ID }}
           workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
 
-      - name: Set up Nix
-        uses: ./.github/actions/setup-nix
+      - name: Install Nix
+        uses: cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24 # v31.11.1
+        with:
+          github_access_token: ${{ github.token }}
+          extra_nix_config: |
+            require-sigs = true
+            extra-substituters = https://quantile-co.cachix.org
+            extra-trusted-public-keys = quantile-co.cachix.org-1:OM+kQzUqP3Ija8QQMUxvQNs97u6PB5/s83ZJe7c9WIQ=
 
       - name: Initialize state
         run: >-

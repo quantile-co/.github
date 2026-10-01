@@ -10,7 +10,7 @@ jobs:
   all-checks:
     name: All
     # PRs only read public caches; no persistent runner store or cloud identity.
-    runs-on: nscloud-ubuntu-24.04-amd64-4x8
+    runs-on: namespace-profile-quantile
     steps:
       - name: Check out repository
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
@@ -18,8 +18,14 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Set up Nix
-        uses: ./.github/actions/setup-nix
+      - name: Install Nix
+        uses: cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24 # v31.11.1
+        with:
+          github_access_token: ${{ github.token }}
+          extra_nix_config: |
+            require-sigs = true
+            extra-substituters = https://quantile-co.cachix.org
+            extra-trusted-public-keys = quantile-co.cachix.org-1:OM+kQzUqP3Ija8QQMUxvQNs97u6PB5/s83ZJe7c9WIQ=
 
       - name: Check repository
         run: >-

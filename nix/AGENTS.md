@@ -1,5 +1,9 @@
 # Development environment
 
+**README edits:** be very judicious. Ask the user and get explicit approval
+before editing any README. Propose only necessary, succinct changes. Keep
+workflow details and agent implementation guidance in `AGENTS.md`, not READMEs.
+
 `devenv.nix` imports `nix/default.nix`, which lists domain modules in this
 directory. Keep the entrypoint small and group checks with their related tools
 rather than building the old superset module/scaffold system. A new domain
@@ -13,7 +17,7 @@ same local gate as validation CI.
 The gate covers OpenTofu formatting, backend-free initialization and TFLint,
 Markdown, YAML, actionlint for GitHub Actions, and Nix formatting and static
 checks. It also runs typos, Open Policy Agent deployment and cache policies,
-cache signature-rejection tests, tested Semgrep rules,
+cache signature/key configuration checks, tested Semgrep rules,
 Trivy filesystem scanning, Vale prose and AI-writing detection, Git-history
 and working-tree secret scanning, and `devenv test` shell smoke tests.
 `check:git` rejects shallow checkouts rather than claiming full-history coverage.
@@ -26,16 +30,16 @@ updates the whole pinned nixpkgs input. `nix/devenv.nix` updates only the CI
 Devenv revision. Both file review-only proposals and must pass `check:all`.
 Review the resulting tool versions before merging.
 
-`nix/cache.nix` configures public Cachix pulls. Its commissioning tasks build
-a run-specific input-addressed probe and test signature-checked HTTPS reads
-from each cache into independent empty stores, with no fallback substituters.
-Local tests accept the expected signing key and reject unsigned, wrong-key,
-corrupt, and missing paths, even when the host store contains the fixture.
-Remove the commissioning tasks and readback job once readback proves both
-live caches. Retain Nix signature enforcement and the lightweight workflow policies.
-Only Build's publisher runs upload actions. No Nix module stores upload
-credentials. Namespace runners use fresh, non-persistent Nix stores.
-Cache tags alone aren't an access-control boundary.
+`nix/cache.nix` configures public Cachix pulls and checks signature enforcement
+and the expected Cachix/NixOS CI keys. Signed remote readback commissioning is
+complete. Don't restore its custom probes or signature fixtures.
+`cache:roots` selects this job's devenv GC roots and the pinned Cachix binary
+for the stock action's `pathsToPush`. Explicit roots include restored paths.
+A before/after store scan would miss them. Build smoke-tests once, then publishes
+those closures without repeating `check:all`.
+Only Build's publisher receives upload credentials. No Nix module stores them.
+Runners remain fresh until the isolated Namespace pilot proves main-only
+snapshot commits and warm reuse. Cache tags alone aren't authorization.
 Entering the local shell installs a pre-push Git hook that runs `check:all`.
 Unlike the old shared module framework, it never scaffolds tracked files.
 `.editorconfig` guides editors. Domain formatters and CI checks enforce
