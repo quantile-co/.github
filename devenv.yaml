@@ -3,7 +3,7 @@ inputs:
   git-hooks:
     url: github:cachix/git-hooks.nix/a0e4241b51206fbcbf52fd322eb5f0cd80f153c4
   nixpkgs:
-    url: github:cachix/devenv-nixpkgs/e2c881cb8d5f1cac6cef9d71f0d450a55691b999
+    url: github:cachix/devenv-nixpkgs/c2f38fe7f9e04d9aadd354d380f2bd40531d9737
 secretspec:
   enable: true
   provider: env
