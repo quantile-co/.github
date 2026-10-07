@@ -62,9 +62,10 @@ source formats. New checks should pass against approved content. Never rewrite
 `profile/README.md` merely to satisfy a new lint rule. Declare any network or
 credential prerequisite, and keep it outside the credential-free `check:all`
 gate. Local Open Policy Agent rules inspect workflow source, not effective
-GitHub permissions or a cloud plan. The Semgrep rule catches missing or unsafe
-bucket public-access prevention. It doesn't evaluate live identity and access
-management permissions. Trivy ignores three documented exceptions in
+GitHub permissions or a cloud plan. Semgrep catches missing or unsafe bucket public-access prevention and requires
+sensitive input declarations to also be ephemeral, in native HCL and Terraform
+JSON. Annotated fixtures test both accepted and rejected declarations. These
+checks don't evaluate live identity and access management permissions. Trivy ignores three documented exceptions in
 `.trivyignore`: intentional public visibility, separate vulnerability alerts,
 and the current unsigned-commit policy.
 
