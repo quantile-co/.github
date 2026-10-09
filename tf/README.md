@@ -47,7 +47,7 @@ gh variable set GH_MAINTAINERS --repo "$repo" --body "$TF_VAR_github_maintainers
 gh variable set GCP_PROJECT_ID --repo "$repo" --body "$project"
 gh variable set TF_STATE_BUCKET --repo "$repo" --body "$bucket"
 printf '%s' "$TF_VAR_github_quantile_co_token" | \
-  gh secret set TERRAFORM_GITHUB_QUANTILE_CO_TOKEN --repo "$repo" --env prod
+  gh secret set GH_REPO_TOKEN --repo "$repo" --env prod
 # Verify protected main/prod, then run the manual Plan workflow.
 gh workflow run plan.yaml --repo "$repo" --ref main
 # Run Apply only after reviewing the plan; Apply replans in its own job.
