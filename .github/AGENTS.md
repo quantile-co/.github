@@ -10,7 +10,6 @@ Use these shared verb–noun names:
 - Build → Nix caches
 - Plan/Apply → Infrastructure
 - Update → GitHub Actions and OpenTofu providers
-- Update → Nix inputs and Devenv CLI
 
 Keep the protected job IDs unchanged.
 `namespace-profile-quantile` is the shared Restricted runner profile. Its cache
@@ -22,8 +21,8 @@ before these workflows run.
 
 `check.yaml` has exactly one job, All, which runs credential-free `check:all`
 once on PRs. Don't add tool-specific Check jobs or an aggregate gate. Protected
-main requires its `All` status. Check and the review-only updater fetch full Git
-history for Gitleaks. The secret-scanning task rejects shallow checkouts.
+main requires its `All` status. Check fetches full Git history for Gitleaks.
+The secret-scanning task rejects shallow checkouts.
 `build.yaml` smoke-tests and publishes only trusted
 main outputs, without repeating the full PR gate. Workflow YAML must stay a thin wrapper around Devenv tasks defined
 under `nix/`. Use YAML for triggers, job ordering, permissions, runner and
@@ -50,8 +49,6 @@ step isn't the publisher. Tags alone aren't authorization.
 Any job on protected main, including Plan and Apply, may retain its Nix changes.
 Other branches use private writable copies. Namespace discards their changes.
 A PR event alone isn't a reason to reject publication by this repository's main.
-Only the input-update matrix uses `nscloud-cache-exp-do-not-commit`: it evaluates
-new inputs before review, even though its workflow starts from main.
 Namespace manages snapshot completion without a custom flush task. Treat
 snapshots as optional. Signed remote substitution handles missing store paths.
 
@@ -95,29 +92,21 @@ selected-action list. Update Q0's list when action commits change. Never add
 platform-wide resources here.
 
 Dependabot updates GitHub Actions and Terraform dependencies with conventional
-commit prefixes. `update.yaml` runs scheduled review-only updates and
-Dependabot auto-merge as separate, event-guarded jobs. Its
-`pull_request_target` job never checks out PR code. It requests auto-merge
-only for stable minor/patch updates from the Dependabot bot. Non-bot PRs show
-both dependency jobs as skipped because GitHub starts the workflow for each PR.
-Required checks and branch protection still gate merges. Maintain review
-requirements when adding maintainers.
+commit prefixes. `update.yaml` has only a `pull_request_target` Dependabot
+auto-merge job. It checks out trusted `main`, never PR code, and calls
+`dependabot:automerge` from `nix/dependabot.nix` using the job-scoped
+`GITHUB_TOKEN`. It requests auto-merge only for stable minor/patch updates
+from the Dependabot bot. Non-bot PRs show this job as skipped. Required checks
+and branch protection still gate merges. Maintain review requirements when
+adding maintainers.
 
-The dependency matrix runs `git:update-hooks`, `nix:update-nixpkgs`, and
-`devenv:update-ci` from their owning Nix modules. Each matrix entry uses a
-private store snapshot without commit rights, runs `check:all`, and files a separate review-only PR. No toolchain PR auto-merges. The Dependabot job calls
-`dependabot:automerge` from `nix/dependabot.nix`. Both jobs check out trusted
-`main`, never the PR head. Checkout drops persisted credentials before
-updating inputs. Store the dedicated pull request token as
-`GH_UPDATE_WORKFLOW_TOKEN` with `gh secret set`, not Terraform. GitHub reserves
-the `GITHUB_` prefix for secrets and workflow environment variables. Use an
-expiring fine-grained personal access token scoped only to this repository,
-with Contents, Pull requests, and Workflows write permissions. Workflows
-permission lets the updater change the pinned CLI in workflow files. Don't
-grant organization or administration permissions. This remains a repository-scoped
-secret, not an environment-scoped one. A missing token fails closed.
-`GITHUB_TOKEN`-created PRs would not trigger validation. Matrix job names display
-only `matrix.label`. Keep the target and task identifiers as internal settings.
+There is no scheduled or manual input-update workflow or dedicated updater
+token. Update the pinned git-hooks and nixpkgs inputs in `devenv.yaml`
+and `devenv.lock`, and the Devenv CLI commit in workflows, by a separately
+reviewed manual change. The local `git:update-hooks`, `nix:update-nixpkgs`,
+and `devenv:update-ci` tasks remain available for that purpose. Run the full
+`check:all` gate before filing a PR. GitHub reserves the `GITHUB_` prefix for
+secrets and workflow environment variables.
 
 Plan and Apply set `SECRETSPEC_PROFILE=prod` before Devenv runs. Devenv
 resolves its required SecretSpec declarations at shell entry. Missing inputs
