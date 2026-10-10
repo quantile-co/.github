@@ -13,3 +13,8 @@ backend_override.tf
 *.tfplan
 plan.json
 crash.log
+
+# Keep generated Pi session data local.
+/.pi/memory/SCRATCHPAD.md
+/.pi/memory/recovery/
+/.pi/memory/daily/*
