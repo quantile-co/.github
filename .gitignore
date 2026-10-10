@@ -14,6 +14,9 @@ backend_override.tf
 plan.json
 crash.log
 
+# Pi-managed local dependencies
+/.pi/npm/
+
 # Keep generated Pi session data local.
 /.pi/memory/SCRATCHPAD.md
 /.pi/memory/recovery/
