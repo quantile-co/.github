@@ -12,7 +12,7 @@ Use these shared verb–noun names:
 - Update → GitHub Actions and OpenTofu providers
 
 Keep the protected job IDs unchanged.
-`namespace-profile-quantile` is the shared Restricted runner profile. Its cache
+`namespace-profile-quantile-4x8` is the shared Restricted runner profile. Its cache
 volume must set `allow_commit_from_branch: ["main"]`, with default profile and
 repository isolation. The creation command is in the
 [Q0 Day 0 runbook](https://github.com/quantile-q0/q0#day-0-runbook). This repository

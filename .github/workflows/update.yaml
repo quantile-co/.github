@@ -15,7 +15,7 @@ jobs:
       github.event.pull_request.user.login == 'dependabot[bot]' &&
       github.event.pull_request.head.repo.full_name == github.repository &&
       github.event.pull_request.base.ref == 'main'
-    runs-on: namespace-profile-quantile
+    runs-on: namespace-profile-quantile-4x8
     permissions:
       contents: write
       pull-requests: write

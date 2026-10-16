@@ -74,7 +74,7 @@ cache_mount_step := {"uses": "namespacelabs/nscloud-cache-action@pinned", "with"
 cache_install_step := {"uses": "cachix/install-nix-action@pinned", "with": {"install_options": "--no-daemon"}}
 
 cache_store_job := {
-  "runs-on": "namespace-profile-quantile",
+  "runs-on": "namespace-profile-quantile-4x8",
   "steps": [cache_mount_step, cache_install_step],
 }
 
@@ -102,7 +102,7 @@ test_cache_allows_deployment_snapshot_updates if {
   every workflow in [safe_plan, safe_apply] {
     job_id := lower(workflow.name)
     job := object.union(workflow.jobs[job_id], {
-      "runs-on": "namespace-profile-quantile",
+      "runs-on": "namespace-profile-quantile-4x8",
       "steps": array.concat(cache_store_job.steps, workflow.jobs[job_id].steps),
     })
     candidate := object.union(workflow, {"jobs": {job_id: job}})
@@ -117,8 +117,8 @@ test_cache_allows_trusted_main_maintenance_updates if {
 test_cache_rejects_custom_identity if {
   every labels in [
     "nscloud-ubuntu-24.04-amd64-4x8-with-cache",
-    "namespace-profile-quantile;overrides.cache-tag=shared",
-    ["namespace-profile-quantile", "nscloud-cache-tag-shared"],
+    "namespace-profile-quantile-4x8;overrides.cache-tag=shared",
+    ["namespace-profile-quantile-4x8", "nscloud-cache-tag-shared"],
     "namespace-profile-default",
   ] {
     job := object.union(cache_store_job, {"runs-on": labels})

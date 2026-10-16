@@ -11,7 +11,7 @@ jobs:
   publish-caches:
     name: Nix caches
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    runs-on: namespace-profile-quantile
+    runs-on: namespace-profile-quantile-4x8
     environment: build
     timeout-minutes: 20
     steps:
