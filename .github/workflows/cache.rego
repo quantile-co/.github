@@ -65,10 +65,10 @@ nix_installer(step) if {
   startswith(object.get(step, "uses", ""), "cachix/install-nix-action@")
 }
 
-namespace_reader_labels := ["namespace-profile-quantile", "nscloud-cache-exp-do-not-commit"]
+namespace_reader_labels := ["namespace-profile-quantile-4x8", "nscloud-cache-exp-do-not-commit"]
 
 namespace_profile(job) if {
-  job["runs-on"] == "namespace-profile-quantile"
+  job["runs-on"] == "namespace-profile-quantile-4x8"
 }
 
 namespace_profile(job) if {
