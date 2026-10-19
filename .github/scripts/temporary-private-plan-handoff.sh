@@ -13,12 +13,25 @@ umask 077
 test "${TF_BACKEND_PREFIX:?Set the backend prefix}" = repository/prod
 test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
 
-for id in "${PLAN_RUN_ID:?}" "${PLAN_ATTEMPT:?}" "${PLAN_ARTIFACT_ID:?}"; do
+for id in "${PLAN_RUN_ID:?}" "${PLAN_ATTEMPT:?}"; do
     [[ "$id" =~ ^[1-9][0-9]*$ ]] || {
-        echo 'Use numeric Plan run, attempt, and artifact IDs.' >&2
+        echo 'Use numeric Plan run and attempt IDs.' >&2
         exit 1
     }
 done
+# The successful called Plan published this one receipt in the same workflow run.
+# GitHub artifact indexing can lag a completed upload briefly.
+for ((retry = 1; retry <= 5; retry++)); do
+    PLAN_ARTIFACT_ID=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$PLAN_RUN_ID/artifacts?per_page=100" |
+        jq -r --arg name "plan-$PLAN_RUN_ID-$PLAN_ATTEMPT" \
+            '[.artifacts[] | select(.name == $name)] | if length == 1 then .[0].id else empty end')
+    if [[ "$PLAN_ARTIFACT_ID" =~ ^[1-9][0-9]*$ ]]; then break; fi
+    sleep 10
+done
+[[ "$PLAN_ARTIFACT_ID" =~ ^[1-9][0-9]*$ ]] || {
+    echo 'The exact Plan receipt artifact was not found.' >&2
+    exit 1
+}
 recipient=$(< .github/plan-review.agepub)
 [[ "$recipient" =~ ^age1[0-9a-z]{58}$ ]] || {
     echo 'Invalid reviewed public plan recipient.' >&2
