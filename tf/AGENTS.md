@@ -4,10 +4,10 @@
 before editing any README. Propose only necessary, succinct changes. Keep
 workflow details and agent implementation guidance in `AGENTS.md`, not READMEs.
 
-This single OpenTofu root consumes immutable-revision Factory project modules for
+The `tf/infrastructure/` OpenTofu root consumes immutable-revision Factory project modules for
 `quantile-co/.github` settings and its **existing** Google Cloud state project and
 bucket. The Cloud Storage backend still uses `TF_STATE_BUCKET` and prefix
-`repository/prod`. `moved.tf` maps the old root resources into the Factory
+`repository/prod`. `tf/infrastructure/moved.tf` maps the old root resources into the Factory
 modules without creating replacement infrastructure. The GitHub provider alias
 preserves the existing state provider address. Both are temporary migration
 scaffolding. Review a Plan from the existing remote state before separately
@@ -19,7 +19,7 @@ root at another repository's backend or commit credentials, state, or saved plan
 
 Run `devenv tasks run check:tf` for backend-free init, format,
 validation, and TFLint. Its dedicated `TF_DATA_DIR` must not load a production
-backend left in `tf/.terraform`. It must not require cloud credentials. A real plan or
+backend left in `tf/infrastructure/.terraform`. It must not require cloud credentials. A real plan or
 apply requires authorized Google Cloud and GitHub credentials and the
 repository's `TF_VAR_*` inputs. Use `SECRETSPEC_PROFILE=prod` on credentialed
 Devenv runs after Day 0. The profile requires its inputs before entering the
