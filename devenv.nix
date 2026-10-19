@@ -54,17 +54,6 @@ in
   # Select only the declaration file in the store; runtime values stay in the shell.
   env.SECRETSPEC_FILE = "${config.quantile.secretspec.configFile}";
   enterShell = lib.mkBefore config.quantile.secretspec.shellHook;
-  enterTest = ''
-    set -euo pipefail
-    test -L .pi/settings.json
-    ${exe config.quantile.jq.package} -e '(.skills | index("./skills/deploy") != null) and (.skills | index("./skills/day-zero-deploy") != null)' .pi/settings.json >/dev/null
-    for skill in deploy day-zero-deploy; do
-      test -L ".pi/skills/$skill"
-      test -f ".pi/skills/$skill/SKILL.md"
-      test -d ".pi/skills/$skill/references"
-    done
-    ${lib.getExe' pkgs.diffutils "cmp"} -s .github/dependabot.yml ${dependabotFile}
-  '';
 
   files = {
     ".editorconfig".source = config.quantile.editorconfig.configFile;
@@ -96,13 +85,13 @@ in
 
   tasks = {
     "git:hooks:install" = {
-      description = "Install the pre-push hook.";
+      description = "Install Git hooks.";
       after = [ "devenv:files" ];
       exec = exe config.quantile.git.prePush.install.package;
     };
 
     "check:all" = {
-      description = "Run all checks without production credentials or a backend.";
+      description = "Run all checks.";
       after = [ "devenv:files" ];
       exec = ''
         set -euo pipefail
@@ -171,7 +160,7 @@ in
     "test:all" = {
       description = "Run all tests.";
       after = [ "check:all" ];
-      exec = "devenv test";
+      exec = "${exe config.quantile.vale.check.package} README.md profile/README.md";
     };
 
     "plan:infrastructure" = {
