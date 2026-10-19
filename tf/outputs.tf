@@ -1,14 +1,14 @@
-output "repository_id" {
-  description = "Immutable numeric GitHub repository ID."
-  value       = github_repository.self.repo_id
+output "gcp_tf_state_bucket" {
+  description = "Existing versioned GCS bucket for this repository's Terraform state."
+  value       = module.gcp.tf_state_bucket
 }
 
-output "state_bucket" {
-  description = "GCS bucket containing this repository's OpenTofu state."
-  value       = google_storage_bucket.state.name
+output "gcp_tf_state_project_id" {
+  description = "Existing project ID for this repository's state infrastructure."
+  value       = module.gcp.tf_state_project_id
 }
 
-output "state_project_id" {
-  description = "GCP project containing this repository's OpenTofu state."
-  value       = google_project.state.project_id
+output "gh_repository_id" {
+  description = "Immutable numeric ID of the .github repository."
+  value       = module.github.repository_id
 }

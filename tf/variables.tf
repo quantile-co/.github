@@ -1,44 +1,23 @@
 variable "gcp_billing_account" {
-  description = "GCP billing account ID."
+  description = "Authorized billing account for .github's existing state project."
   type        = string
+  nullable    = false
 }
 
-variable "gcp_quantile_co_folder_id" {
-  description = "GCP quantile-co folder ID for public repository support projects."
+variable "gcp_folder_id" {
+  description = "Numeric quantile-co folder ID directly parenting the state project."
   type        = string
-}
-
-variable "gcp_state_location" {
-  description = "Location for the OpenTofu state bucket."
-  type        = string
-  default     = "US"
+  nullable    = false
 }
 
 variable "gcp_wif_pool" {
-  description = "Full GitHub workload identity pool resource path."
+  description = "Existing GitHub workload identity pool resource path supplied by Q0."
   type        = string
+  nullable    = false
 }
 
-variable "github_maintainers" {
-  description = "GitHub usernames trusted to merge and deploy this repository."
-  type        = list(string)
-  default     = ["aj-welch"]
-
-  validation {
-    condition     = length(var.github_maintainers) > 0
-    error_message = "At least one maintainer is required."
-  }
-}
-
-variable "github_quantile_co_organization" {
-  description = "GitHub organization containing this repository."
-  type        = string
-  default     = "quantile-co"
-}
-
-variable "github_quantile_co_token" {
-  description = "Fine-grained PAT managing this repository in quantile-co."
-  type        = string
-  sensitive   = true
-  ephemeral   = true
+variable "gh_maintainers" {
+  description = "GitHub usernames trusted to run production Plan/Apply on main."
+  type        = set(string)
+  nullable    = false
 }

@@ -1,16 +1,15 @@
-# Copy to .envrc.local only for a credentialed Day 0 bootstrap or local plan.
-# .envrc.local is gitignored. Do not commit tokens, state, or saved plans.
-# Set up GCP Application Default Credentials (for example, with
-# `gcloud auth application-default login`) and access to the GCS state bucket.
-# Obtain the values from the repository's authorized operators.
+# Optional inputs for an authorized local plan against this repository's
+# existing remote state. .envrc.local is ignored; never commit real values.
+# Authenticate to Google Cloud and obtain GitHub credentials from the
+# approved secure source. Do not run the historical Day 0 bootstrap.
 #
 # export TF_VAR_gcp_billing_account=...
-# export TF_VAR_gcp_quantile_co_folder_id=...
+# export TF_VAR_gcp_folder_id=...
 # export TF_VAR_gcp_wif_pool=...
-# export TF_VAR_github_maintainers='["your-github-username"]'
-# export TF_VAR_github_quantile_co_token=...
-# export TF_STATE_BUCKET=... # After Day 0; required by the prod profile.
+# export TF_VAR_gh_maintainers='["your-github-username"]'
+# export GITHUB_TOKEN=...   # Repository-scoped token from a secure source.
+# export REST_API_BEARER=... # Same token as GITHUB_TOKEN.
+# export TF_STATE_BUCKET=... # Existing .github state bucket.
 #
-# For Day 0 local-state bootstrap, see tf/README.md. For subsequent remote
-# plans, use the bucket and prefix from the Plan/Apply workflows. `check:tf`
-# isolates its backend-free data directory from production initialization.
+# Protected Plan/Apply use prefix repository/prod. `check:tf` isolates its
+# credential-free initialization from the production backend.

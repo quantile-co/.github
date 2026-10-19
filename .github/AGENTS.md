@@ -96,9 +96,11 @@ commit prefixes. `update.yaml` has only a `pull_request_target` Dependabot
 auto-merge job. It checks out trusted `main`, never PR code, and calls
 `dependabot:automerge` from `nix/dependabot.nix` using the job-scoped
 `GITHUB_TOKEN`. It requests auto-merge only for stable minor/patch updates
-from the Dependabot bot. Non-bot PRs show this job as skipped. Required checks
-and branch protection still gate merges. Maintain review requirements when
-adding maintainers.
+from the Dependabot bot. Non-bot PRs show this job as skipped. Factory's project
+module intentionally disables repository auto-merge, so retire or replace this
+legacy updater before applying the Terraform migration. Don't enable auto-merge
+just to keep the old workflow running. The Factory main policy requires signed,
+linear history instead of this repository's old PR-review and push restrictions.
 
 There is no scheduled or manual input-update workflow or dedicated updater
 token. Update the pinned git-hooks and nixpkgs inputs in `devenv.yaml`
