@@ -21,6 +21,9 @@ by a reviewed Apply, not by an unreviewed live configuration change. Preserve
 the `prod` gate, protected main, both maintainer checks, WIF, backend locking,
 and production concurrency. The organization-level Cachix secret is shared;
 do not create a repository-scoped replacement or pass it to PR Check.
+The pinned reusable Check emits `All / All`, but live main protection still
+requires `All`. Coordinate a separately reviewed required-check cutover before
+merging this branch; never bypass protection or run Plan/Apply to force it.
 
 `tf/` manages this repository's settings and its dedicated state infrastructure,
 not organization-wide administration, app hosting, or domain name system

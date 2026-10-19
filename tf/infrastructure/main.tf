@@ -15,6 +15,8 @@ module "github" {
   visibility      = "public"
   has_issues      = false
   maintainers     = var.gh_maintainers
+  # GitHub emits this status for the pinned reusable Check's nested job.
+  required_checks = ["All / All"]
   # Production is the only gated environment; the old build environment
   # becomes an intentional deletion after a separately reviewed Apply.
   environments = ["prod"]
