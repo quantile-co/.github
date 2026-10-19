@@ -73,6 +73,12 @@ documentation-only result note c0fd548 records that Test outcome. This
 repository aligns its flake/Devenv pins and locks, all four workflow
 callers, and both Terraform module sources to that final Factory SHA. No Terraform module
 content, provider locks, backend, or production authorization changed.
+The final consumer alignment d87dbf7676abd2fdc2edc266a512dd2b678e5bbe
+passed exact-head Check 39342887708 and was ordinarily fast-forwarded to
+protected main. Local `nix flake check path:.`, backend-free Terraform
+format/init/validate and Devenv `test:all` passed on that same source. No
+production Plan or Apply ran. Subsequent historical module review is
+read-only, with no further rollout implied.
 
 ## Repository and workflow policy
 
