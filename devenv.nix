@@ -8,6 +8,11 @@
 let
   terraformSourceDir = "tf";
   terraformRoot = "tf/infrastructure";
+  dependabotFile = config.quantile.dependabot.withUpdates [
+    "github-actions"
+    "opentofu"
+    "nix"
+  ];
   exe = lib.getExe;
 in
 {
@@ -51,15 +56,14 @@ in
   enterShell = lib.mkBefore config.quantile.secretspec.shellHook;
   enterTest = ''
     set -euo pipefail
-    for tool in tofu tflint nixfmt deadnix statix markdownlint-cli2 yamllint \
-      actionlint shellcheck typos semgrep trivy vale secretspec gh gcloud jq \
-      git rg pi qmd; do
-      path=$(type -P "$tool") || { echo "Missing tool: $tool" >&2; exit 1; }
-      case "$(readlink -f "$path")" in
-        /nix/store/*) ;;
-        *) echo "Tool is not from Nix: $tool ($path)" >&2; exit 1 ;;
-      esac
+    test -L .pi/settings.json
+    ${exe config.quantile.jq.package} -e '(.skills | index("./skills/deploy") != null) and (.skills | index("./skills/day-zero-deploy") != null)' .pi/settings.json >/dev/null
+    for skill in deploy day-zero-deploy; do
+      test -L ".pi/skills/$skill"
+      test -f ".pi/skills/$skill/SKILL.md"
+      test -d ".pi/skills/$skill/references"
     done
+    ${lib.getExe' pkgs.diffutils "cmp"} -s .github/dependabot.yml ${dependabotFile}
   '';
 
   files = {
@@ -77,6 +81,11 @@ in
     "etc/vale/styles".source = config.quantile.vale.stylesDirectory;
     ".yamllint.yaml".source = config.quantile.yamllint.configFile;
     ".github/actionlint.yaml".source = config.quantile.actionlint.configFile;
+    # GitHub reads a tracked copy; an ignored Nix-store symlink is not enough.
+    ".github/dependabot.yml" = {
+      source = dependabotFile;
+      copyMode = "copy";
+    };
     ".pi/settings.json".source = config.quantile.pi.settingsFile;
     ".pi/skills/deploy".source = config.quantile.pi.skillsDir + "/deploy";
     ".pi/skills/day-zero-deploy".source = config.quantile.pi.skillsDir + "/day-zero-deploy";
@@ -87,7 +96,7 @@ in
 
   tasks = {
     "git:hooks:install" = {
-      description = "Explicitly install the shared pre-push hook for all worktrees.";
+      description = "Install the pre-push hook.";
       after = [ "devenv:files" ];
       exec = exe config.quantile.git.prePush.install.package;
     };
@@ -97,7 +106,15 @@ in
       after = [ "devenv:files" ];
       exec = ''
         set -euo pipefail
+        # Validate the flake and the tracked native Dependabot copy.
         ${exe pkgs.nix} flake check .
+        ${exe pkgs.git} show :.github/dependabot.yml |
+          ${lib.getExe' pkgs.diffutils "cmp"} -s - ${dependabotFile} || {
+            echo 'Commit the selected Dependabot configuration.' >&2
+            exit 1
+          }
+        # The CLI and Factory module input must agree; CI compares the index
+        # so an uncommitted lock change cannot hide revision drift.
         ${
           exe inputs.factory.packages.${pkgs.stdenv.hostPlatform.system}.check-devenv-locks
         } --flake-input factory flake.lock devenv.lock factory
@@ -106,6 +123,7 @@ in
             exe inputs.factory.packages.${pkgs.stdenv.hostPlatform.system}.check-devenv-locks
           } --git-index --flake-input factory flake.lock devenv.lock factory
         fi
+        # Read-only checks: formatting fixes are only in fix:all.
         ${exe config.quantile.prek.check.package}
         ${exe config.quantile.nixfmt.check.package}
         ${exe config.quantile.deadnix.check.package}
@@ -113,6 +131,7 @@ in
         ${exe config.quantile.editorconfig.check.package}
         ${exe config.quantile.markdownlint-cli2.check.package} '*.md' ':(exclude,glob).pi/memory/**'
         ${exe config.quantile.actionlint.check.package}
+        # Test the native Semgrep policy fixtures before scanning the source.
         ${exe config.quantile.semgrep.test.package}
         ${exe config.quantile.semgrep.check.package}
         ${exe config.quantile.trivy.check.package}
@@ -121,10 +140,13 @@ in
         ${exe config.quantile.yamllint.check.package}
         ${exe config.quantile.taplo.check.package}
         ${exe config.quantile.taplo.format.package}
+        # Exclude non-Terraform files but retain safe handling of spaced paths.
         git ls-files -z -- ${lib.escapeShellArg terraformSourceDir} |
           while IFS= read -r -d "" file; do
             case "$file" in *.tf|*.tofu) printf '%s\0' "$file" ;; esac
           done | xargs -0 -r ${exe config.quantile.opentofu.nonempty.package}
+        # OpenTofu initializes modules without the remote backend. TFLint must
+        # reuse that isolated module data rather than a checkout's .terraform.
         TF_DIR=${lib.escapeShellArg terraformSourceDir} ${exe config.quantile.opentofu.format.package}
         TF_DIR=${lib.escapeShellArg terraformRoot} ${exe config.quantile.opentofu.check.package}
         : "''${DEVENV_STATE:?Devenv must provide isolated Terraform data}"
