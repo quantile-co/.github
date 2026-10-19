@@ -47,8 +47,10 @@ in
     config.quantile.nixfmt.package
     config.quantile.deadnix.package
     config.quantile.statix.package
+    pkgs.age
     pkgs.git
     pkgs.ripgrep
+    pkgs.unzip
   ];
 
   # Select only the declaration file in the store; runtime values stay in the shell.
