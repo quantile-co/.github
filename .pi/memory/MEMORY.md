@@ -1,24 +1,93 @@
 # Project memory
 
-Read this checkout's root `AGENTS.md` before changing code or production behavior. Source, current workflows, tests, and remote-state observations take precedence over historical notes. Store only reviewed, repository-specific facts here; never commit credentials, provider payloads, state, plans, local overrides, or raw transcripts. Review and sanitize daily logs before publishing.
+Read root `AGENTS.md` first. Source, current workflows and tests take precedence
+over historical notes. Never commit credentials, provider payloads, state, saved
+plans, backend overrides or raw transcripts. Review and commit sanitized memory
+with source changes; keep private recovery evidence outside Git.
 
-#decision [[org-factory-terraform-migration]] [[org-production-guards]]
-`quantile-co/.github` has an existing installation. Its proposed `tf/infrastructure/` root consumes unchanged, revision-pinned Factory project modules. Preserve the existing Cloud Storage state bucket and `repository/prod` backend prefix; never rebootstrap or replace the backend. Factory's linked Day Zero skill is solely for genuinely new installations, not this one. The temporary `moved.tf` maps the 11 resources that remain managed; the former `build` environment and its main-only deployment policy have no destination and should appear as intentional deletions in a reviewed Plan. The temporary GitHub provider alias preserves the old state provider address. `gcp_maintainers` defaults to an empty set for the existing installation: a reviewed Plan requires an already-authorized private GCS reader; a new Day Zero installation supplies reader accounts before CI handoff. Arrange any initial reader grant through a separately authorized state change, never a public plan or manual Owner grant. Remove migration scaffolding only in a later guarded change after an authorized Apply and address/provider verification. No production Apply has run for this migration. The Factory module intentionally switches repository protection to signed, linear main history and disables auto-merge; inspect the exact Plan for any other effects before Apply. Keep existing project, bucket, WIF, deletion protections and state versioning. This root manages its own repository and state infrastructure, not organization-wide platform resources.
-
-#decision [[org-workflows]] [[org-secret-boundaries]]
-Check must be credential-free, including backend-free OpenTofu initialization with a separate `TF_DATA_DIR`, formatting, validation, and static/security checks. Fail on shallow history if claiming full-history secret scans. Plan and Apply are separate manual dispatches on protected main with both maintainer/triggering-actor checks, `prod` environment gating, WIF, shared production concurrency and backend locks. Plan never applies. Factory's reusable Apply validates the producing Plan receipt and applies the reviewed saved plan without replanning; the old local workflow used a different same-job plan contract and must be replaced, not copied. Treat a passing Check, Plan, source merge, or skill invocation as no Apply authorization. Only production steps receive the repository-scoped GitHub provider token, at runtime as `GITHUB_TOKEN` and `REST_API_BEARER`, never in Terraform inputs or Nix outputs. The organization already shares `CACHIX_AUTH_TOKEN`: do not provision a repository secret or expose it to PR Check. Build and Update are absent from main source; future remote publishing belongs only to manually dispatched protected Factory Test/Plan/Apply. Keep read-only cache trust with `require-sigs = true`. Namespace's shared restricted runner profile commits snapshots only from main, mounts `/nix` before Nix installation, and keeps credentials and ephemeral state outside `/nix`. This repository consumes that profile; Q0 owns its administration. Removing Build/Update source did not delete the existing `build` environment; only a reviewed Apply may retire that environment.
-
-#incident #decision [[org-production-plan]] [[org-secret-boundaries]]
-Follow-up PR #54 merged at main 17ad43dab976ff24250e08add4ec4b8516ac00b9. Its approved Plan run 39226445495 timed out reading GitHub maintainer data; completed job logs showed empty `GITHUB_TOKEN` and `REST_API_BEARER` at the Plan step. The reusable caller had not passed `GH_REPO_TOKEN` explicitly: GitHub silently resolves an environment-only secret to empty in the called workflow if the caller omits the mapping. No receipt, saved artifact or Apply resulted. The backend-lock read using the local account was unauthorized, not proof that no lock exists; the first private GCS plan reader still requires verification. Do not retry Plan, clear a lock or attempt Apply without separate authorization and a privately reviewed saved plan. SecretSpec 0.21's env provider treats empty values as present and bare Devenv tasks skip `enterShell`; the credentialed called workflows now enter the Devenv shell for their selected profile and check for nonempty provider-token values before starting OpenTofu. `workflow_call.secrets` declares the token required, and the downstream Plan/Apply callers pass it explicitly by name; Check remains secret-free and none of these changes proves live token delivery until an authorized run.
-
-#decision [[org-initial-plan-review]] [[org-production-guards]]
-The user selected their active Google account for the conditional private plan-reader grant and approved temporary guarded workflows for inspecting the state lock and encrypting the first saved Plan. The repository-level `GCP_MAINTAINERS` Actions variable now contains that account as a JSON array. No IAM grant exists from this setting alone; the Factory GCP module creates its `plans/`-only reader binding only on an authorized Apply, and that binding never permits reading `repository/prod/default.tflock`. The reauthenticated local account still received permission denied for lock metadata, which establishes neither lock presence nor absence. The first temporary standalone lock-inspection run on main failed at WIF authentication before reaching GCS: the Q0-owned provider accepts only `plan.yaml` or `apply.yaml` workflow references for this repository, manual main and `prod`. This did not establish lock status and no Plan ran. Do not weaken that provider. The temporary read-only lock preflight and encrypted handoff are instead jobs in the existing protected `plan.yaml` workflow. Protected Plan run 39313627885 passed WIF authentication and the preflight confirmed a backend lock exists; it stopped before the called Plan or handoff ran and published no receipt. Protected Plan entry 39314878098 again stopped before OpenTofu but uploaded an encrypted, one-day lock diagnostic. Its artifact ZIP digest and age decryption were verified privately: the GCS object and Plan lock were created at 08:59 UTC during cancelled Plan 39226445495 (08:57–09:17 UTC); its runner hostname appears in that completed run's logs, and no Plan/Apply workflow remains active. No lock ID, holder or payload was published. The user explicitly authorized removal of **only this reviewed stale lock** after rechecking its exact identity and GCS generation, followed by a new Plan; that does not authorize clearing another lock or applying an unreviewed plan. A one-time boolean input on the protected Plan caller verifies a nonreversible fingerprint of the exact ID, holder, timestamps, backend path and generation, confirms the original producer is cancelled, and conditionally removes that generation with a metageneration precondition; any mismatch stops before Plan. PR #64 passed both protected Checks and merged at main 51d78fcb0b1464da930aae2b77d76c5d4a25ee97. Authorized run 39317595580 then removed only the matching stale lock, confirmed absence, and completed Plan plus encrypted handoff successfully. Preflight fails closed before the called Plan; the subsequent handoff binds itself to the current run/attempt and requires its called Infrastructure job to have succeeded (the containing run is still in progress until handoff finishes), verifies exact main revision, receipt digest, backend and GCS generation, then uploads only age-encrypted plan bytes for one reviewed recipient whose private key remains outside Git. Decrypt and inspect the exact Plan, including the proposed IAM grant and intentional `build` deletions, before an artifact-specific Apply decision. These temporary jobs, scripts, public recipient and extra tools must be removed through a later protected change after Apply and address/provider verification, never before applying a saved plan pinned to main.
-
-#verification #blocked [[org-production-plan]] [[org-initial-plan-review]]
-Plan run 39317595580 attempt 1 produced receipt artifact 12217849725 and encrypted artifact 12218628829 at main 51d78fcb0b1464da930aae2b77d76c5d4a25ee97. Both archive digests, decrypted plan digest and backend binding were verified; the entire saved-plan rendering was reviewed privately using backend-free provider initialization. It contains 11 address moves, no replacements, three creates, four updates and two deletions. State bucket protections are retained; the two deletions retire the intended legacy `build` environment and its deployment policy. The planned conditional reader grant is limited to `plans/`; lifecycle rules only affect that prefix. However, the shared GitHub module also removes the existing required-PR-review configuration and maintainer push restrictions on main. These protection reductions block conditional Apply approval; no Apply has run. Preserve those protections in a reviewed source fix and obtain approval for a fresh Plan rather than applying this artifact unseen or treating signed/linear history as a substitute. The receipt expires approximately 2026-10-20 20:20 UTC. Temporary jobs/scripts/recipient/tools remain pending deployment resolution; do not claim cleanup or IAM access is complete. This outcome is recorded on a separate branch without advancing main while the saved plan is under review.
+## Factory consumer
 
 #decision [[org-factory-consumer]] [[org-tool-policy]]
-The old `nix/*.nix` implementations are removed. `devenv.nix` explicitly orchestrates Factory tool modules, Devenv-managed native links (including shared Pi settings and full deploy/Day Zero skills), and a backend-free OpenTofu check with isolated TFLint data. Importing a module does not install hooks or run checks; hook installation remains explicit and checks run at pre-push, never commit. The default shared SecretSpec declaration is store-backed and resolves runtime values only in selected shell profiles; never place credentials in Nix `env` or a derivation. The source flake and Devenv lock pin reviewed Factory SHA 72850c073197ed22bb01210f8eb0cf1108e95d38 for its native Dependabot selector and pre-push installer; Check remains pinned to cf329575941594f47ccf77407f077525930e2638; credentialed Test/Plan/Apply callers pin aa1f81936ef7e12bb77cc2f1ddbbc96039fb177f for explicit protected-secret forwarding, nonempty runtime checks and SecretSpec shell entry. All workflow guards and executable contracts remain intact. Factored workflow guards remain in the called workflow; the downstream wrappers have no duplicate Rego tests by user choice. Check receives no secrets; Cachix is passed explicitly, never with `secrets: inherit`. Exact-head downstream Check 39219632732 passed on d967657a0596272fb405852b6c6b1e237a5bd6e6; GitHub's Checks API reported `All / All` from GitHub Actions app 15368. The main Terraform root requests `required_checks = ["All / All"]`. With user authorization, the live main required-status-check rule was changed from `All` to `All / All` with app 15368, retaining strict mode and verifying every other branch-protection field unchanged. No Terraform Plan, Apply or state change occurred from that live check-context cutover. The reviewed migration source landed through protected PR #53 as main SHA 1c0112daa7fa83e4e0c69eb4f3b06f8b7f00222c; no branch-rule bypass. Future source changes also use the protected PR process. The user approved a production Plan and expressed approval for Apply, but the private saved Plan must still be read and its exact effects reviewed before an Apply decision. The optional ignored `.envrc.local` remains available for local-only inputs, without a checked-in example. Prefix project-defined environment variables and parameters by their owning platform or component; keep tool-required names (`GH_TOKEN`, `TF_VAR_*`) and use `GH_` for custom GitHub credentials rather than GitHub's reserved `GITHUB_` prefix. The user approved Factory's explicit common-directory pre-push installer replacing any existing pre-push hook and retargeting inherited/invoking-worktree hook paths; other hook types remain untouched. The managed hook was explicitly installed once in the common Git hooks directory after preserving the old generated Prek hook in private scratch; all three linked worktrees resolve the shared path. Empty-ref read-only hook smokes passed from both the migration worktree and primary main; no production operation ran. The downstream task description is simply `Install the pre-push hook.` The signed-commit and Vale/Trivy/Markdown policy is shared with Factory, not forked; the approved public profile remains untouched.
+This repository consumes Factory's Terraform modules, Nix tools, native policies,
+Pi skills and reusable Check/Test/Plan/Apply workflows. Use the upstream behavior
+as-is rather than preserving the old downstream architecture. The shared pin is
+`aa1f81936ef7e12bb77cc2f1ddbbc96039fb177f`; update the flake/Devenv pins and locks,
+Terraform module sources and workflow callers together when appropriate.
+`devenv.nix` owns local task orchestration and native config links. Imports do not
+install hooks or run checks. Hook installation is explicit and shared across Git
+worktrees; checks run at pre-push, not commit. Fixes are explicit, checks read-only.
 
-#decision [[org-readmes]] [[org-style-source]]
-`profile/README.md` is approved public organization copy; the root README has an approved centered header and navigation. The user approved updating the root `.github` README to match Factory's local development and shared skills guidance, and separately approved removing `tf/README.md` after auditing it against Factory's complete shared Day Zero skill. The shared skill covers all unique safe phases with current module addresses, explicit private plan review, backend preservation and credential guards; the deleted README's old-root commands and replan-on-Apply advice must not be revived. Do not edit the public profile or other READMEs without approval. Factory's native Google/Quantile Vale styles, Semgrep rules, Markdownlint policy and Pi resources replace the old downstream duplicates. The old Trivy exceptions and workflow-specific Rego tests were removed after read-only checks and review. Dependabot is a tracked Devenv-managed copy selected from Factory's one native policy: GitHub Actions, OpenTofu and Nix updates, not npm. `check:all` compares the committed file with the selected source; `test:all` exercises generated Pi skill links and the Dependabot copy instead of redundantly checking that executables exist. Vale matches signal editorial review, not proof of authorship. Source checks and local policy tests cannot prove live GitHub permissions, IAM or plan safety. Never add separate platform-wide resources here.
+Dependabot is a tracked copy selected from Factory's native policy for GitHub
+Actions, OpenTofu and Nix. Check compares the Git index to the selected policy.
+Nix updates must synchronize `flake.lock` and `devenv.lock`. Provider updates must
+respect the pinned module's constraints. Do not weaken Check to merge bot PRs.
+Keep checks/tests small and behavior-focused; avoid redundant validation and
+new downstream policy frameworks.
+
+## Repository and workflow policy
+
+#decision [[org-member-landing]] [[org-workflows]]
+PRs are optional. Repository writers push a candidate branch, wait for required
+Check on the exact commit, then fast-forward main normally. Optional PR merges
+are squash-only. No required PR reviews, maintainer-only push restriction,
+member-landing ruleset, auto-merge or merge queue. Preserve signed commits,
+linear history, strict `All / All` checks, admin enforcement, and no force pushes
+or branch deletions. This is the explicit October 5 and October 19 architecture
+decision, not an accidental weakening to repair. Workflow-run approval for
+external contributors is separate from PR code review.
+
+Check receives no secrets and initializes OpenTofu without a backend. Test,
+Plan and Apply delegate to Factory; credentialed jobs use protected main/prod,
+maintainer/triggering-actor guards and WIF. Plan/Apply share production
+concurrency and backend locks. Explicitly forward `GH_REPO_TOKEN` and the shared
+organization Cachix token; never use `secrets: inherit`. The called workflows
+enter the selected SecretSpec shell and separately reject empty credentials.
+SecretSpec alone accepts present-but-empty env values. Cache publishing is
+main-only; keep signature verification and credentials outside persisted stores.
+
+## Infrastructure and deployment
+
+#decision [[org-production-guards]] [[org-infrastructure]]
+`tf/infrastructure/` manages this repository and its dedicated state project,
+not organization-wide resources. It imports Factory's GitHub and GCP modules.
+Keep the existing state bucket and `repository/prod` backend prefix; do not
+rebootstrap this installation. Q0 owns organization controls, Namespace profiles
+and WIF. This repository's WIF provider accepts only manual main `plan.yaml` and
+`apply.yaml` jobs using `prod`; do not widen it for diagnostics.
+
+Plan saves private GCS bytes and publishes only a receipt. Read the exact saved
+plan privately before applying its artifact ID through the existing Apply caller.
+Apply does not replan. Preserve revision, expiry, digest and backend checks.
+`GCP_MAINTAINERS` is a JSON array of Google account emails, distinct from GitHub
+maintainers; the module grants object reads only under `plans/`, not state or
+lock access. Normal private GCS plan retrieval has been verified. `prod` is the
+only deployment environment. Runtime provider credentials never belong in Nix
+values, Terraform inputs, source or state.
+
+## Migration outcome
+
+#verification [[org-factory-migration]]
+The first migration Plan timed out with empty provider credentials; explicit
+caller secret forwarding fixed that. Its abandoned lock was privately inspected
+and removed only after user approval, exact identity verification and conditional
+GCS generation/metageneration matching. Plan 39317595580 produced receipt
+12217849725 at main `51d78fcb0b1464da930aae2b77d76c5d4a25ee97`. The complete saved
+plan was privately reviewed: 11 address moves, no replacements, three creates,
+four updates and two intentional legacy build-environment deletions. Removal of
+old PR-review and maintainer push restrictions was explicitly intended.
+Authorized Apply 39319984039 succeeded. Live API reads confirmed the target main
+policy and only `prod`; normal Google-user retrieval matched the reviewed saved
+plan bytes. No manual IAM grant or WIF relaxation was used. Temporary recovery
+jobs/scripts, encryption recipient/tools, moved blocks and provider alias are
+removed in the cleanup source; validate its normal Plan before claiming final
+state/provider convergence. The assistant's earlier recommendation to restore
+legacy review/push restrictions was incorrect and is withdrawn.
+
+## Documentation
+
+#decision [[org-readmes]]
+`profile/README.md` is approved public copy. Do not change it or other READMEs
+without approval. Keep root `AGENTS.md` a navigation index with no nested guides.
+The shared deploy and Day Zero skills are authoritative; Day Zero is only for
+new installations. Do not recreate an old downstream runbook or fork Factory's
+native style/security configuration.
