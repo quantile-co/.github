@@ -19,6 +19,8 @@ for id in "${PLAN_RUN_ID:?}" "${PLAN_ATTEMPT:?}"; do
         exit 1
     }
 done
+test "$PLAN_RUN_ID" = "${GITHUB_RUN_ID:?Only hand off this workflow run}"
+test "$PLAN_ATTEMPT" = "${GITHUB_RUN_ATTEMPT:?Only hand off this attempt}"
 # The successful called Plan published this one receipt in the same workflow run.
 # GitHub artifact indexing can lag a completed upload briefly.
 for ((retry = 1; retry <= 5; retry++)); do
@@ -70,8 +72,15 @@ jq -e --arg run "$PLAN_RUN_ID" --arg attempt "$PLAN_ATTEMPT" \
     .repository.full_name == $repo and .repository.id == ($repo_id | tonumber) and
     .head_sha == $sha and .path == ".github/workflows/plan.yaml" and
     .event == "workflow_dispatch" and .head_branch == "main" and
-    .status == "completed" and .conclusion == "success"
+    .status == "in_progress" and .conclusion == null
 ' "$audit/run.json" > /dev/null
+# This job is part of the producer run, which cannot complete until handoff ends.
+# Require the called Plan JOB to have succeeded; Apply still requires the entire
+# original run to complete successfully before it will consume this receipt.
+gh api "repos/$GITHUB_REPOSITORY/actions/runs/$PLAN_RUN_ID/attempts/$PLAN_ATTEMPT/jobs?per_page=100" > "$audit/jobs.json"
+jq -e '[.jobs[] | select(.name == "Infrastructure / Infrastructure")] |
+    length == 1 and .[0].status == "completed" and .[0].conclusion == "success"
+' "$audit/jobs.json" > /dev/null
 test "$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/main" --jq .object.sha)" = "$GITHUB_SHA"
 
 gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$PLAN_ARTIFACT_ID/zip" > "$audit/artifact.zip"

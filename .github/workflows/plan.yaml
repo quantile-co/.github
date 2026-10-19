@@ -2,6 +2,12 @@ name: Plan
 
 on:
   workflow_dispatch:
+    inputs:
+      unlock_reviewed_lock:
+        description: Remove only the privately reviewed abandoned Plan lock before planning
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -54,6 +60,8 @@ jobs:
       - name: Inspect lock without reading its contents
         env:
           SECRETSPEC_PROFILE: check
+          GH_TOKEN: ${{ github.token }}
+          GH_UNLOCK_REVIEWED_LOCK: ${{ inputs.unlock_reviewed_lock && 'true' || 'false' }}
           GCP_TF_STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
           TF_BACKEND_PREFIX: repository/prod
         run: |
