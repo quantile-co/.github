@@ -14,10 +14,12 @@ jobs:
       github.ref == 'refs/heads/main' &&
       contains(fromJSON(vars.GH_MAINTAINERS), github.actor) &&
       contains(fromJSON(vars.GH_MAINTAINERS), github.triggering_actor)
-    uses: quantile-co/factory/.github/workflows/plan.yaml@cf329575941594f47ccf77407f077525930e2638
+    uses: quantile-co/factory/.github/workflows/plan.yaml@aa1f81936ef7e12bb77cc2f1ddbbc96039fb177f
     with:
       tf_state_bucket: ${{ vars.TF_STATE_BUCKET }}
       gcp_folder_id: ${{ vars.GCP_QUANTILE_CO_FOLDER_ID }}
       gcp_maintainers: ${{ vars.GCP_MAINTAINERS || '[]' }}
     secrets:
       CACHIX_AUTH_TOKEN: ${{ secrets.CACHIX_AUTH_TOKEN }}
+      # GitHub requires the caller to pass even a protected environment secret by name.
+      GH_REPO_TOKEN: ${{ secrets.GH_REPO_TOKEN }}
