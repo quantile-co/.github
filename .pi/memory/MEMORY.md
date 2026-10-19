@@ -11,7 +11,7 @@ with source changes; keep private recovery evidence outside Git.
 This repository consumes Factory's Terraform modules, Nix tools, native policies,
 Pi skills and reusable Check/Test/Plan/Apply workflows. Use the upstream behavior
 as-is rather than preserving the old downstream architecture. The shared pin is
-`92ef45786d2f003559ffc9d41f56bc7a8763c7d9`; update the flake/Devenv pins and locks,
+`c0fd54801c96766033ba8fd59cb8fb126044660c`; update the flake/Devenv pins and locks,
 Terraform module sources and workflow callers together when appropriate.
 `devenv.nix` owns local task orchestration and native config links. Imports do not
 install hooks or run checks. Hook installation is explicit and shared across Git
@@ -57,10 +57,22 @@ and outcome commits are finished, including documentation-only commits, rather
 than intentionally retaining an earlier implementation-only SHA. Initial
 adoption c569f21 passed Check 39330886727 and landed normally. Final Factory
 main 92ef45786d2f003559ffc9d41f56bc7a8763c7d9 passed Check 39331840904 and was
-published and synced before this final pin alignment. All consumer references
-and both locks now select that SHA; local backend-free check:all and test:all
-passed again. No Terraform module content or provider-lock changes and no
+published and synced before that pin alignment. At the time, consumer references
+and both locks selected that SHA; local backend-free check:all and test:all
+passed. No Terraform module content or provider-lock changes and no
 production Plan/Apply.
+
+#verification #decision [[org-local-cache]] [[org-factory-consumer]]
+The signed organization local-read cache commit e83638f passed exact-head
+Check 39340785130. Factory's corresponding cache commit 1fba32e passed
+Check 39340693542 and fast-forwarded its protected main. Its C follow-up
+16ca0ee passed Check 39340723225; the outcome-note descendant 0b291a5
+passed Check 39341304861 and fast-forwarded Factory main. The separately
+authorized main Test 39341977302 passed at 0b291a5. Factory's signed,
+documentation-only result note c0fd548 records that Test outcome. This
+repository aligns its flake/Devenv pins and locks, all four workflow
+callers, and both Terraform module sources to that final Factory SHA. No Terraform module
+content, provider locks, backend, or production authorization changed.
 
 ## Repository and workflow policy
 

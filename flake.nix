@@ -2,7 +2,7 @@
   description = "Quantile organization repository";
 
   inputs = {
-    factory.url = "github:quantile-co/factory/92ef45786d2f003559ffc9d41f56bc7a8763c7d9";
+    factory.url = "github:quantile-co/factory/c0fd54801c96766033ba8fd59cb8fb126044660c";
     nixpkgs.follows = "factory/nixpkgs";
     devenv.follows = "factory/devenv";
     devenv-cli.follows = "factory/devenv-cli";
