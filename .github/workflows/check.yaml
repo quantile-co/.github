@@ -10,6 +10,8 @@ permissions:
   contents: read
 
 jobs:
+  # GitHub renders called jobs as "caller / called", so main requires the
+  # resulting "All / All" context even though each job is named "All".
   all:
     name: All
     if: github.ref != 'refs/heads/main'
