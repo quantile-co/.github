@@ -24,6 +24,18 @@ respect the pinned module's constraints. Do not weaken Check to merge bot PRs.
 Keep checks/tests small and behavior-focused; avoid redundant validation and
 new downstream policy frameworks.
 
+#decision [[org-local-cache]]
+The consuming `devenv.nix` explicitly pulls the public `quantile-co`, `cachix`,
+`pre-commit-hooks`, and `go-overlay` caches; Devenv already adds `devenv`.
+No local push/token requirement, Nix evaluation-time secret resolution, or
+shared Factory module was added. `cachix.pull` applies to Devenv-managed
+operations, not the `.envrc` Nix CLI bootstrap, and untrusted multi-user daemon
+settings can ignore requested substituters/keys; host-level cache setup remains
+operator-owned. CI also reads Numtide: its `cache.numtide.com` URL and public
+key are configured in the consuming `.envrc` through `NIX_CONFIG` after the
+CLI bootstrap and before `use devenv`, not as a fake Devenv Cachix-name entry.
+Direct Devenv invocation without direnv does not inherit that setting.
+
 #implementation #verification [[org-shared-checks]]
 The user approved replacing embedded check logic with Factory-owned commands.
 Dependabot's checker verifies the selected policy against the Git index;
