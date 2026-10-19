@@ -6,10 +6,21 @@ updates:
       interval: weekly
     commit-message:
       prefix: "chore(deps)"
-
-  - package-ecosystem: terraform
+  - package-ecosystem: opentofu
     directory: /tf/infrastructure
     schedule:
       interval: weekly
+    commit-message:
+      prefix: "chore(deps)"
+  - package-ecosystem: nix
+    directory: /
+    schedule:
+      interval: weekly
+    # Best effort only: Check requires the CLI/module revisions and devenv.lock to agree.
+    groups:
+      devenv:
+        patterns:
+          - devenv
+          - devenv-cli
     commit-message:
       prefix: "chore(deps)"
