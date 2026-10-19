@@ -21,6 +21,25 @@ crash.log
 /.pi/memory/SCRATCHPAD.md
 /.pi/memory/recovery/
 
-# Keep QMD's native config; exclude its worktree-local index and locks.
+# Native files and directories are managed by the explicit Devenv files task.
+/.editorconfig
+/.editorconfig-checker.json
+/.markdownlint-cli2.jsonc
+/.cz.toml
+/.shellcheckrc
+/.tflint.hcl
+/taplo.toml
+/trivy.yaml
+/typos.toml
+/.vale.ini
+/.yamllint.yaml
+/.github/actionlint.yaml
+/.pi/settings.json
+/.pi/skills/deploy
+/.pi/skills/day-zero-deploy
+/.semgrep
+/.semgrepignore
+/etc/vale/styles
+
+# QMD's native config link and local index stay worktree-local.
 /.qmd/*
-!/.qmd/index.yml

@@ -1,9 +1,22 @@
-# Pin the package set for local checks and CI. Review tool versions on updates.
-inputs:
-  git-hooks:
-    url: github:cachix/git-hooks.nix/a0e4241b51206fbcbf52fd322eb5f0cd80f153c4
-  nixpkgs:
-    url: github:cachix/devenv-nixpkgs/e2c881cb8d5f1cac6cef9d71f0d450a55691b999
+# Runtime shell loading handles validation; avoid evaluation-time secret resolution.
 secretspec:
-  enable: true
-  provider: env
+  enable: false
+
+inputs:
+  factory:
+    url: github:quantile-co/factory/cf329575941594f47ccf77407f077525930e2638
+    flake: true
+  nixpkgs:
+    follows: factory/nixpkgs
+  devenv:
+    follows: factory/devenv
+  git-hooks:
+    follows: factory/git-hooks
+  go-overlay:
+    follows: factory/go-overlay
+  llm-agents:
+    follows: factory/llm-agents
+  mk-shell-bin:
+    follows: factory/mk-shell-bin
+  nix2container:
+    follows: factory/nix2container

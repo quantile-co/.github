@@ -6,7 +6,8 @@
   <p><em>GitHub organization profile</em></p>
   <p>
     <a href="#prerequisites">Prerequisites</a> ·
-    <a href="#development">Development</a>
+    <a href="#development">Development</a> ·
+    <a href="#skills">Skills</a>
   </p>
 </div>
 
@@ -17,7 +18,6 @@
 
 - [Nix](https://nix.dev/install-nix.html)
 - [direnv](https://direnv.net/docs/installation.html)
-- [devenv](https://devenv.sh/getting-started/)
 
 After cloning, allow direnv to load the development environment:
 
@@ -30,5 +30,28 @@ The devenv shell provides all other project tools.
 ## Development
 
 ```sh
-devenv tasks run check:all
+# Check source without rewriting it or accessing production state.
+devenv tasks run --show-output check:all
+
+# Apply safe source fixes explicitly.
+devenv tasks run --show-output fix:all
+
+# Run tests.
+devenv tasks run --show-output --mode single test:all
 ```
+
+## Skills
+
+Run from this repository with Pi:
+
+- **Day Zero deployment**
+
+  ```sh
+  pi "/skill:day-zero-deploy"
+  ```
+
+- **Steady-state deployment**
+
+  ```sh
+  pi "/skill:deploy"
+  ```
