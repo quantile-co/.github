@@ -55,12 +55,5 @@ moved {
   to   = module.github.github_repository_environment.main["prod"]
 }
 
-moved {
-  from = github_repository_environment.build
-  to   = module.github.github_repository_environment.main["build"]
-}
-
-moved {
-  from = github_repository_environment_deployment_policy.build_main
-  to   = module.github.github_repository_environment_deployment_policy.main["build"]
-}
+# The former build environment and its main branch policy have no destination:
+# a reviewed production plan should show their intentional deletion.

@@ -15,7 +15,9 @@ module "github" {
   visibility      = "public"
   has_issues      = false
   maintainers     = var.gh_maintainers
-  environments    = ["build", "prod"]
+  # Production is the only gated environment; the old build environment
+  # becomes an intentional deletion after a separately reviewed Apply.
+  environments = ["prod"]
 }
 
 module "gcp" {
@@ -25,9 +27,9 @@ module "gcp" {
   folder_id       = var.gcp_folder_id
   billing_account = var.gcp_billing_account
   wif_pool        = var.gcp_wif_pool
-  # This repository applies fresh plans in the same job; it has no human
-  # cross-workflow saved-plan reviewers to grant object access to.
-  maintainers = []
+  # Empty for the existing installation until an approved plan-reader grant.
+  # New installations supply GCP_MAINTAINERS before the CI handoff.
+  maintainers = var.gcp_maintainers
 
   repository_id             = module.github.repository_id
   repository_maintainer_ids = module.github.maintainer_ids

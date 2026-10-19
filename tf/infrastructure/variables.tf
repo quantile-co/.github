@@ -10,6 +10,13 @@ variable "gcp_folder_id" {
   nullable    = false
 }
 
+variable "gcp_maintainers" {
+  description = "Google account emails allowed to read saved plans, not Terraform state."
+  type        = set(string)
+  default     = []
+  nullable    = false
+}
+
 variable "gcp_wif_pool" {
   description = "Existing GitHub workload identity pool resource path supplied by Q0."
   type        = string
