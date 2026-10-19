@@ -78,10 +78,17 @@ old PR-review and maintainer push restrictions was explicitly intended.
 Authorized Apply 39319984039 succeeded. Live API reads confirmed the target main
 policy and only `prod`; normal Google-user retrieval matched the reviewed saved
 plan bytes. No manual IAM grant or WIF relaxation was used. Temporary recovery
-jobs/scripts, encryption recipient/tools, moved blocks and provider alias are
-removed in the cleanup source; validate its normal Plan before claiming final
-state/provider convergence. The assistant's earlier recommendation to restore
-legacy review/push restrictions was incorrect and is withdrawn.
+jobs/scripts, encryption recipient/tools, moved blocks and provider alias were
+removed in signed cleanup 6e333d2d6fb4469310a68d96986ff5c08bc59bee. Exact-head Check
+39321472606 passed, then an ordinary direct push landed that commit on main.
+The unmodified upstream Plan 39321902718 succeeded; receipt 12220696806 was
+downloaded directly from private GCS and digest-verified. Its full rendering
+reported no changes, and the refreshed state contained only module-managed
+addresses with no legacy GitHub provider alias. Apply 39322317684 successfully
+applied those exact no-op bytes, completing state/provider convergence. The
+migration and temporary-source cleanup are complete. The assistant's earlier
+recommendation to restore legacy review/push restrictions was incorrect and
+is withdrawn.
 
 ## Documentation
 
