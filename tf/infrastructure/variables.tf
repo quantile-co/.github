@@ -1,5 +1,5 @@
 variable "gcp_billing_account" {
-  description = "Authorized billing account for .github's existing state project."
+  description = "Authorized billing account for the state project."
   type        = string
   nullable    = false
 }
@@ -13,7 +13,6 @@ variable "gcp_folder_id" {
 variable "gcp_maintainers" {
   description = "Google account emails allowed to read saved plans, not Terraform state."
   type        = set(string)
-  default     = []
   nullable    = false
 }
 
