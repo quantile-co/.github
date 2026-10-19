@@ -11,7 +11,7 @@ with source changes; keep private recovery evidence outside Git.
 This repository consumes Factory's Terraform modules, Nix tools, native policies,
 Pi skills and reusable Check/Test/Plan/Apply workflows. Use the upstream behavior
 as-is rather than preserving the old downstream architecture. The shared pin is
-`aa1f81936ef7e12bb77cc2f1ddbbc96039fb177f`; update the flake/Devenv pins and locks,
+`78fcee21c07760b2696fac3bb929734309f3aaf3`; update the flake/Devenv pins and locks,
 Terraform module sources and workflow callers together when appropriate.
 `devenv.nix` owns local task orchestration and native config links. Imports do not
 install hooks or run checks. Hook installation is explicit and shared across Git
@@ -23,6 +23,21 @@ Nix updates must synchronize `flake.lock` and `devenv.lock`. Provider updates mu
 respect the pinned module's constraints. Do not weaken Check to merge bot PRs.
 Keep checks/tests small and behavior-focused; avoid redundant validation and
 new downstream policy frameworks.
+
+#implementation #verification [[org-shared-checks]]
+The user approved replacing embedded check logic with Factory-owned commands.
+Dependabot's checker verifies the selected policy against the Git index;
+check-devenv-locks --ci owns working-copy and CI-index validation. OpenTofu's
+nonempty checker selects tracked source, and its backend-free checker runs
+TFLint as a companion with the same isolated module data. No downstream hash or
+DEVENV_STATE layout knowledge remains. Task order, roots and native selections
+stay consumer-owned. Factory source 78fcee2 passed Check 39329979854 and landed
+normally before adoption. The flake/Devenv pins and locks, all four workflow
+callers and both Terraform module references were updated together; Terraform
+module contents and provider locks are unchanged. Local backend-free check:all
+and test:all passed. This also adopts shared nonempty SecretSpec validation and
+the 10-minute Check/Test, 20-minute Plan/Apply budgets. No production workflow
+was run for this change.
 
 ## Repository and workflow policy
 
@@ -41,8 +56,9 @@ Plan and Apply delegate to Factory; credentialed jobs use protected main/prod,
 maintainer/triggering-actor guards and WIF. Plan/Apply share production
 concurrency and backend locks. Explicitly forward `GH_REPO_TOKEN` and the shared
 organization Cachix token; never use `secrets: inherit`. The called workflows
-enter the selected SecretSpec shell and separately reject empty credentials.
-SecretSpec alone accepts present-but-empty env values. Cache publishing is
+enter the selected SecretSpec shell, whose shared Factory loader rejects all
+empty required exports using native SecretSpec requiredness reports.
+SecretSpec's env provider alone accepts present-but-empty values. Cache publishing is
 main-only; keep signature verification and credentials outside persisted stores.
 
 ## Infrastructure and deployment

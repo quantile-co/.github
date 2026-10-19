@@ -15,4 +15,4 @@ jobs:
   all:
     name: All
     if: github.ref != 'refs/heads/main'
-    uses: quantile-co/factory/.github/workflows/check.yaml@aa1f81936ef7e12bb77cc2f1ddbbc96039fb177f
+    uses: quantile-co/factory/.github/workflows/check.yaml@78fcee21c07760b2696fac3bb929734309f3aaf3

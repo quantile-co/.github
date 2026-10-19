@@ -10,7 +10,7 @@ permissions:
 jobs:
   production:
     name: Infrastructure
-    uses: quantile-co/factory/.github/workflows/plan.yaml@aa1f81936ef7e12bb77cc2f1ddbbc96039fb177f
+    uses: quantile-co/factory/.github/workflows/plan.yaml@78fcee21c07760b2696fac3bb929734309f3aaf3
     with:
       tf_state_bucket: ${{ vars.TF_STATE_BUCKET }}
       gcp_folder_id: ${{ vars.GCP_QUANTILE_CO_FOLDER_ID }}

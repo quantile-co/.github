@@ -97,21 +97,10 @@ in
         set -euo pipefail
         # Validate the flake and the tracked native Dependabot copy.
         ${exe pkgs.nix} flake check .
-        ${exe pkgs.git} show :.github/dependabot.yml |
-          ${lib.getExe' pkgs.diffutils "cmp"} -s - ${dependabotFile} || {
-            echo 'Commit the selected Dependabot configuration.' >&2
-            exit 1
-          }
-        # The CLI and Factory module input must agree; CI compares the index
-        # so an uncommitted lock change cannot hide revision drift.
+        ${exe config.quantile.dependabot.check.package} ${dependabotFile}
         ${
           exe inputs.factory.packages.${pkgs.stdenv.hostPlatform.system}.check-devenv-locks
-        } --flake-input factory flake.lock devenv.lock factory
-        if [ "''${CI:-}" = true ]; then
-          ${
-            exe inputs.factory.packages.${pkgs.stdenv.hostPlatform.system}.check-devenv-locks
-          } --git-index --flake-input factory flake.lock devenv.lock factory
-        fi
+        } --ci --flake-input factory flake.lock devenv.lock factory
         # Read-only checks: formatting fixes are only in fix:all.
         ${exe config.quantile.prek.check.package}
         ${exe config.quantile.nixfmt.check.package}
@@ -129,20 +118,9 @@ in
         ${exe config.quantile.yamllint.check.package}
         ${exe config.quantile.taplo.check.package}
         ${exe config.quantile.taplo.format.package}
-        # Exclude non-Terraform files but retain safe handling of spaced paths.
-        git ls-files -z -- ${lib.escapeShellArg terraformSourceDir} |
-          while IFS= read -r -d "" file; do
-            case "$file" in *.tf|*.tofu) printf '%s\0' "$file" ;; esac
-          done | xargs -0 -r ${exe config.quantile.opentofu.nonempty.package}
-        # OpenTofu initializes modules without the remote backend. TFLint must
-        # reuse that isolated module data rather than a checkout's .terraform.
+        ${exe config.quantile.opentofu.nonempty.package} ${lib.escapeShellArg terraformSourceDir}
         TF_DIR=${lib.escapeShellArg terraformSourceDir} ${exe config.quantile.opentofu.format.package}
-        TF_DIR=${lib.escapeShellArg terraformRoot} ${exe config.quantile.opentofu.check.package}
-        : "''${DEVENV_STATE:?Devenv must provide isolated Terraform data}"
-        tf_root=$(cd ${lib.escapeShellArg terraformRoot} && pwd -P)
-        tf_hash=$(printf '%s' "$tf_root" | sha256sum | cut -d ' ' -f1)
-        TF_DATA_DIR="$DEVENV_STATE/tofu-check/$tf_hash" \
-          TF_DIR=${lib.escapeShellArg terraformRoot} ${exe config.quantile.tflint.check.package}
+        TF_DIR=${lib.escapeShellArg terraformRoot} ${exe config.quantile.opentofu.check.package} -- ${exe config.quantile.tflint.check.package}
       '';
     };
 

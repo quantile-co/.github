@@ -150,17 +150,17 @@
         "nixpkgs": "nixpkgs_5"
       },
       "locked": {
-        "lastModified": 1792431883,
-        "narHash": "sha256-+eUoEIthZKfQmJgEWPCzSMKz1UJet5CYOv1++/1xHHw=",
+        "lastModified": 1792446316,
+        "narHash": "sha256-+WWuoLCl7yX/1a/piTdoOBzQfsKN3Dk9B7OQ+Z2WgkY=",
         "owner": "quantile-co",
         "repo": "factory",
-        "rev": "aa1f81936ef7e12bb77cc2f1ddbbc96039fb177f",
+        "rev": "78fcee21c07760b2696fac3bb929734309f3aaf3",
         "type": "github"
       },
       "original": {
         "owner": "quantile-co",
         "repo": "factory",
-        "rev": "aa1f81936ef7e12bb77cc2f1ddbbc96039fb177f",
+        "rev": "78fcee21c07760b2696fac3bb929734309f3aaf3",
         "type": "github"
       }
     },
