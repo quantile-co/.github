@@ -11,7 +11,7 @@ with source changes; keep private recovery evidence outside Git.
 This repository consumes Factory's Terraform modules, Nix tools, native policies,
 Pi skills and reusable Check/Test/Plan/Apply workflows. Use the upstream behavior
 as-is rather than preserving the old downstream architecture. The shared pin is
-`78fcee21c07760b2696fac3bb929734309f3aaf3`; update the flake/Devenv pins and locks,
+`92ef45786d2f003559ffc9d41f56bc7a8763c7d9`; update the flake/Devenv pins and locks,
 Terraform module sources and workflow callers together when appropriate.
 `devenv.nix` owns local task orchestration and native config links. Imports do not
 install hooks or run checks. Hook installation is explicit and shared across Git
@@ -38,6 +38,17 @@ module contents and provider locks are unchanged. Local backend-free check:all
 and test:all passed. This also adopts shared nonempty SecretSpec validation and
 the 10-minute Check/Test, 20-minute Plan/Apply budgets. No production workflow
 was run for this change.
+
+#preference #verification [[org-factory-consumer]]
+The consumer must pin the latest reviewed Factory main after upstream source
+and outcome commits are finished, including documentation-only commits, rather
+than intentionally retaining an earlier implementation-only SHA. Initial
+adoption c569f21 passed Check 39330886727 and landed normally. Final Factory
+main 92ef45786d2f003559ffc9d41f56bc7a8763c7d9 passed Check 39331840904 and was
+published and synced before this final pin alignment. All consumer references
+and both locks now select that SHA; local backend-free check:all and test:all
+passed again. No Terraform module content or provider-lock changes and no
+production Plan/Apply.
 
 ## Repository and workflow policy
 
