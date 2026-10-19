@@ -8,7 +8,7 @@ terraform {
     }
     google = {
       source  = "registry.opentofu.org/hashicorp/google"
-      version = "= 8.4.0"
+      version = "8.7.0"
     }
     random = {
       source  = "registry.opentofu.org/hashicorp/random"
