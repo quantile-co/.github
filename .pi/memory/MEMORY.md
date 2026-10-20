@@ -7,11 +7,19 @@ with source changes; keep private recovery evidence outside Git.
 
 ## Factory consumer
 
+#decision [[declared-runtime-dependencies]]
+All required commands and native runtime dependencies must come from pinned
+Devenv/Nix inputs or locked language packages, not host installations or global
+packages. This applies to local and workflow tasks, including deployment tools.
+Restricted-PATH and isolated-cache validation must expose undeclared tools;
+a successful run with the developer's usual environment is insufficient.
+Nix/direnv bootstrap prerequisites remain explicit.
+
 #decision [[org-factory-consumer]] [[org-tool-policy]]
 This repository consumes Factory's Terraform modules, Nix tools, native policies,
 Pi skills and reusable Check/Test/Plan/Apply workflows. Use the upstream behavior
 as-is rather than preserving the old downstream architecture. The shared pin is
-`5a7f9bfee92874c9b03d4d8cb768b5369725fe08`; update the flake/Devenv pins and locks,
+`385fda43eadfe7cd6b7fea9b2faab3463011f98f`; update the flake/Devenv pins and locks,
 Terraform module sources and workflow callers together when appropriate.
 `devenv.nix` owns local task orchestration and native config links. Imports do not
 install hooks or run checks. Hook installation is explicit and shared across Git
@@ -134,6 +142,16 @@ consumer-selected, not implicitly activated. Signed adoption
 `16f111342b1318e9f42f3ee3229105fbafd8e887` passed exact-head Check `39384866409`
 (`All / All`) and fast-forwarded protected main through normal pre-push checks.
 No manual Test, Plan or Apply was dispatched for this source-only adoption.
+
+#verification [[declared-runtime-dependencies]]
+The consumer explicitly selects pinned Nix, Git, Bash, Coreutils and Diffutils.
+The `.envrc` bootstrap enables flakes without depending on a user's Nix config.
+Local backend-free `test:all` passed with only Nix-store PATH entries and isolated
+HOME/XDG caches, then passed again in a fresh detached worktree without existing
+Terraform module/provider caches. No remote-state read, production workflow or
+provider-backed test ran. Factory's native-tool implementation `973b7c1` and
+outcome `310430e` passed exact-head Checks `39391893587` and `39392233804` and
+landed normally. Terraform module contents and provider locks are unchanged.
 
 ## Repository and workflow policy
 
