@@ -58,6 +58,14 @@ in
     pkgs.ripgrep
   ];
 
+  # Scan with pinned Terraform and security packs alongside local rules.
+  quantile.semgrep.check.configs = lib.attrVals [
+    "owasp-top-ten"
+    "secrets"
+    "security-audit"
+    "terraform"
+  ] config.quantile.semgrep.packs;
+
   # Select only the declaration file in the store; runtime values stay in the shell.
   env.SECRETSPEC_FILE = "${config.quantile.secretspec.configFile}";
   enterShell = lib.mkBefore config.quantile.secretspec.shellHook;
@@ -127,7 +135,8 @@ in
         ${exe config.quantile.taplo.format.package}
         ${exe config.quantile.opentofu.nonempty.package} ${lib.escapeShellArg terraformSourceDir}
         TF_DIR=${lib.escapeShellArg terraformSourceDir} ${exe config.quantile.opentofu.format.package}
-        TF_DIR=${lib.escapeShellArg terraformRoot} ${exe config.quantile.opentofu.check.package} -- ${exe config.quantile.tflint.check.package}
+        TF_DIR=${lib.escapeShellArg terraformRoot} ${exe config.quantile.opentofu.check.package}
+        TF_DIR=${lib.escapeShellArg terraformRoot} ${exe config.quantile.tflint.check.package}
       '';
     };
 
@@ -135,6 +144,7 @@ in
       description = "Run all fixes.";
       after = [ "devenv:files" ];
       exec = ''
+        set -euo pipefail
         TF_DIR=${lib.escapeShellArg terraformSourceDir} ${exe config.quantile.opentofu.fix.package}
         ${exe config.quantile.nixfmt.fix.package}
         ${exe config.quantile.taplo.fix.package}

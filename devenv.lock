@@ -147,20 +147,21 @@
         "llm-agents": "llm-agents",
         "mk-shell-bin": "mk-shell-bin",
         "nix2container": "nix2container",
-        "nixpkgs": "nixpkgs_5"
+        "nixpkgs": "nixpkgs_5",
+        "semgrep-rules": "semgrep-rules"
       },
       "locked": {
-        "lastModified": 1792452943,
-        "narHash": "sha256-ew3REIK0lfW74byhNOCkQ7WVrEAZnWJwM7KHaxQBgts=",
+        "lastModified": 1792472007,
+        "narHash": "sha256-TaF7OFB/zYkKQLghYe6UnZTWlauZKflxF73ze82blT4=",
         "owner": "quantile-co",
         "repo": "factory",
-        "rev": "c0fd54801c96766033ba8fd59cb8fb126044660c",
+        "rev": "99acec8fe90d0b2aeb74b86e8e41cd94f1731cbc",
         "type": "github"
       },
       "original": {
         "owner": "quantile-co",
         "repo": "factory",
-        "rev": "c0fd54801c96766033ba8fd59cb8fb126044660c",
+        "rev": "99acec8fe90d0b2aeb74b86e8e41cd94f1731cbc",
         "type": "github"
       }
     },
@@ -689,6 +690,23 @@
       "original": {
         "owner": "oxalica",
         "repo": "rust-overlay",
+        "type": "github"
+      }
+    },
+    "semgrep-rules": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1792098295,
+        "narHash": "sha256-4wnmue3YxZ6alCelkYHbQTXgGKO/n4EWdLAXQmFXraE=",
+        "owner": "semgrep",
+        "repo": "semgrep-rules",
+        "rev": "17e31e11ebac99fb7dfe1cd288f7a32151b6f3f9",
+        "type": "github"
+      },
+      "original": {
+        "owner": "semgrep",
+        "ref": "develop",
+        "repo": "semgrep-rules",
         "type": "github"
       }
     },
