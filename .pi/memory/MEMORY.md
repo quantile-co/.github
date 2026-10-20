@@ -13,7 +13,9 @@ README starts Development with explicit Git-hook installation, then separates
 Checks and Tests. The adopted Factory revision also corrects the Taplo test's
 racy diagnostic assertion; upstream tool versions, Terraform module contents
 and shared workflow protections are unchanged. Local backend-free `check:all`
-and `test:all` passed with the new pin; no production workflow ran.
+and `test:all` passed with the new pin; no production workflow ran. Signed
+`6b82a43` passed exact-head Check `39491580828` and landed by protected
+fast-forward. The Factory pin includes its reviewed publication notes.
 
 #decision [[declared-runtime-dependencies]]
 All required commands and native runtime dependencies must come from pinned
