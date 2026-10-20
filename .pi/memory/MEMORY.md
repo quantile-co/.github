@@ -130,7 +130,10 @@ callers and Terraform module refs to that final SHA. Hook installation is
 explicitly named `install:git:hooks`. Local backend-free `test:all` (including
 Check) passed. Terraform module contents, provider locks and backend are
 unchanged; no production workflow was dispatched. Fetched optional skills remain
-consumer-selected, not implicitly activated.
+consumer-selected, not implicitly activated. Signed adoption
+`16f111342b1318e9f42f3ee3229105fbafd8e887` passed exact-head Check `39384866409`
+(`All / All`) and fast-forwarded protected main through normal pre-push checks.
+No manual Test, Plan or Apply was dispatched for this source-only adoption.
 
 ## Repository and workflow policy
 
