@@ -118,9 +118,7 @@ in
         # Validate the flake and the tracked native Dependabot copy.
         ${exe pkgs.nix} flake check .
         ${exe config.quantile.dependabot.check.package} ${dependabotFile}
-        ${
-          exe inputs.factory.packages.${pkgs.stdenv.hostPlatform.system}.check-devenv-locks
-        } --ci --flake-input factory flake.lock devenv.lock factory
+        ${exe inputs.factory.packages.${pkgs.stdenv.hostPlatform.system}.check-devenv-locks}
         # Read-only checks: formatting fixes are only in fix:all.
         ${exe config.quantile.prek.check.package}
         ${exe config.quantile.nixfmt.check.package}

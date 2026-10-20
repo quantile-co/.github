@@ -7,6 +7,14 @@ with source changes; keep private recovery evidence outside Git.
 
 ## Factory consumer
 
+The consumer uses `check-devenv-locks` without arguments: Factory supplies the
+standard `factory` input and lock paths, preserving CI Git-index checks. The
+README starts Development with explicit Git-hook installation, then separates
+Checks and Tests. The adopted Factory revision also corrects the Taplo test's
+racy diagnostic assertion; upstream tool versions, Terraform module contents
+and shared workflow protections are unchanged. Local backend-free `check:all`
+and `test:all` passed with the new pin; no production workflow ran.
+
 #decision [[declared-runtime-dependencies]]
 All required commands and native runtime dependencies must come from pinned
 Devenv/Nix inputs or locked language packages, not host installations or global
@@ -19,7 +27,7 @@ Nix/direnv bootstrap prerequisites remain explicit.
 This repository consumes Factory's Terraform modules, Nix tools, native policies,
 Pi skills and reusable Check/Test/Plan/Apply workflows. Use the upstream behavior
 as-is rather than preserving the old downstream architecture. The shared pin is
-`b9f948bcac26b50257b90186f499acfd7e7a8b2c`; update the flake/Devenv pins and locks,
+`8293b5698cdf411da2fdc2b4fe969031796c8d95`; update the flake/Devenv pins and locks,
 Terraform module sources and workflow callers together when appropriate.
 `devenv.nix` owns local task orchestration and native config links. Imports do not
 install hooks or run checks. Hook installation is explicit and shared across Git
