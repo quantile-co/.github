@@ -163,6 +163,10 @@ project link. It discovers task descriptions, implementations and dependencies
 from the current Devenv project without assuming task names or running them.
 All inputs/locks, workflow callers and Terraform sources align to the reviewed
 upstream publication. No Terraform module content or provider lock changed.
+Backend-free local Check/Test and task listing passed; the shared skill link was
+verified. Signed adoption `8959ae21d74e07648e2a7e64e273c9c68001bca3` passed
+exact-head Check `39468749480` and normally fast-forwarded main. No production
+workflow or remote state operation was dispatched for this adoption.
 
 ## Repository and workflow policy
 
