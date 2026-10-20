@@ -99,7 +99,7 @@ in
   };
 
   tasks = {
-    "git:hooks:install" = {
+    "install:git:hooks" = {
       description = "Install Git hooks.";
       after = [ "devenv:files" ];
       exec = exe config.quantile.git.prePush.install.package;

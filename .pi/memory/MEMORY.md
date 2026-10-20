@@ -11,7 +11,7 @@ with source changes; keep private recovery evidence outside Git.
 This repository consumes Factory's Terraform modules, Nix tools, native policies,
 Pi skills and reusable Check/Test/Plan/Apply workflows. Use the upstream behavior
 as-is rather than preserving the old downstream architecture. The shared pin is
-`0764e6f5f7e4d7f569f8151dcb702f87d62137a6`; update the flake/Devenv pins and locks,
+`5a7f9bfee92874c9b03d4d8cb768b5369725fe08`; update the flake/Devenv pins and locks,
 Terraform module sources and workflow callers together when appropriate.
 `devenv.nix` owns local task orchestration and native config links. Imports do not
 install hooks or run checks. Hook installation is explicit and shared across Git
@@ -121,6 +121,16 @@ process-local two-CPU affinity and Git HTTP/1.1 after transient GitHub clone
 resets and a host-specific Semgrep io_uring allocation error; no checker was
 disabled or policy weakened. No raw plan, IAM policy, provider values or state
 were stored in Git.
+
+#implementation #verification [[org-factory-consumer]]
+Factory's fetched-skill/Git-aware secret-scan implementation b90ad44 passed Check
+39383602750; its outcome head 5a7f9bf passed Check 39383963111 and both landed
+normally on protected main. This consumer aligns both inputs/locks, all workflow
+callers and Terraform module refs to that final SHA. Hook installation is
+explicitly named `install:git:hooks`. Local backend-free `test:all` (including
+Check) passed. Terraform module contents, provider locks and backend are
+unchanged; no production workflow was dispatched. Fetched optional skills remain
+consumer-selected, not implicitly activated.
 
 ## Repository and workflow policy
 
