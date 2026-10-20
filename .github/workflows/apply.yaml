@@ -16,7 +16,7 @@ permissions:
 jobs:
   production:
     name: Infrastructure
-    uses: quantile-co/factory/.github/workflows/apply.yaml@99acec8fe90d0b2aeb74b86e8e41cd94f1731cbc
+    uses: quantile-co/factory/.github/workflows/apply.yaml@0764e6f5f7e4d7f569f8151dcb702f87d62137a6
     with:
       plan_artifact_id: ${{ inputs.plan_artifact_id }}
       tf_state_bucket: ${{ vars.TF_STATE_BUCKET }}

@@ -11,7 +11,7 @@ with source changes; keep private recovery evidence outside Git.
 This repository consumes Factory's Terraform modules, Nix tools, native policies,
 Pi skills and reusable Check/Test/Plan/Apply workflows. Use the upstream behavior
 as-is rather than preserving the old downstream architecture. The shared pin is
-`99acec8fe90d0b2aeb74b86e8e41cd94f1731cbc`; update the flake/Devenv pins and locks,
+`0764e6f5f7e4d7f569f8151dcb702f87d62137a6`; update the flake/Devenv pins and locks,
 Terraform module sources and workflow callers together when appropriate.
 `devenv.nix` owns local task orchestration and native config links. Imports do not
 install hooks or run checks. Hook installation is explicit and shared across Git
@@ -98,6 +98,29 @@ merely by pinning or testing source. Review existing service-specific audit
 settings and inherited exemptions as well as the private saved Plan before
 any separately approved Apply. Preserve production guards, receipt-only public
 artifacts and original state backend. No production run is implied by this note.
+
+#verification #deployment [[org-factory-consumer]] [[factory-storage-audit]]
+The signed source alignment 87abdc9 passed exact-head Check 39373002009
+(`All / All`), ordinarily fast-forwarded protected main, and passed manual main
+Test 39373217932. (An unsigned candidate was rejected by protected main;
+identical source was recommitted with a verified SSH signature on a new branch,
+without force-pushing or deleting the original branch.) Authorized Plan
+39373967681 returned receipt artifact 12242885657; privately verified saved
+bytes showed only one new authoritative Cloud Storage audit config with
+ADMIN_READ, DATA_READ and DATA_WRITE, zero exemptions, no updates or deletions.
+Read-only project, folder and organization policies had no existing
+service-specific/allServices audit config or inherited exemption. Following
+separate approval for that exact artifact, protected Apply 39374670110
+succeeded; a fresh project IAM policy read confirmed all three log types and
+zero exemptions. The backend prefix and prior module-managed resources were
+preserved. Factory's outcome-only follow-up 0764e6f passed Check 39375060149
+and fast-forwarded main; all flake/Devenv, workflow and Terraform module pins
+are aligned to that latest reviewed commit without changing executable code.
+Local backend-free test:all passed for the documentation-only pin using
+process-local two-CPU affinity and Git HTTP/1.1 after transient GitHub clone
+resets and a host-specific Semgrep io_uring allocation error; no checker was
+disabled or policy weakened. No raw plan, IAM policy, provider values or state
+were stored in Git.
 
 ## Repository and workflow policy
 

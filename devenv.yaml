@@ -4,7 +4,7 @@ secretspec:
 
 inputs:
   factory:
-    url: github:quantile-co/factory/99acec8fe90d0b2aeb74b86e8e41cd94f1731cbc
+    url: github:quantile-co/factory/0764e6f5f7e4d7f569f8151dcb702f87d62137a6
     flake: true
   nixpkgs:
     follows: factory/nixpkgs
