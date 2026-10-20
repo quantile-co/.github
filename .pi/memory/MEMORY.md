@@ -171,7 +171,10 @@ workflow or remote state operation was dispatched for this adoption.
 #decision [[ci-cold-closure-timeout]]
 Adopt the user-approved 15-minute shared Check/Test budget for cold or partially
 cached Nix closures. Align all Factory references; no checks, cache signatures,
-Terraform module content or production guards change.
+Terraform module content or production guards change. Backend-free local
+Check/Test passed. Signed adoption `e439e3fcf17536ecff5a3305a609a0b8edeb8bee`
+passed Check `39472236748` and normally fast-forwarded main. No production
+dispatch was performed.
 
 ## Repository and workflow policy
 
