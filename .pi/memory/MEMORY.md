@@ -11,7 +11,7 @@ with source changes; keep private recovery evidence outside Git.
 This repository consumes Factory's Terraform modules, Nix tools, native policies,
 Pi skills and reusable Check/Test/Plan/Apply workflows. Use the upstream behavior
 as-is rather than preserving the old downstream architecture. The shared pin is
-`c0fd54801c96766033ba8fd59cb8fb126044660c`; update the flake/Devenv pins and locks,
+`99acec8fe90d0b2aeb74b86e8e41cd94f1731cbc`; update the flake/Devenv pins and locks,
 Terraform module sources and workflow callers together when appropriate.
 `devenv.nix` owns local task orchestration and native config links. Imports do not
 install hooks or run checks. Hook installation is explicit and shared across Git
@@ -79,6 +79,25 @@ protected main. Local `nix flake check path:.`, backend-free Terraform
 format/init/validate and Devenv `test:all` passed on that same source. No
 production Plan or Apply ran. Subsequent historical module review is
 read-only, with no further rollout implied.
+
+#decision #implementation #verification [[org-factory-consumer]] [[factory-semgrep-pinning]]
+The reviewed July Factory source 99acec8 passed exact-head Check 39371988636,
+fast-forwarded its protected main, and passed separately requested main Test
+39372264980. The organization consumer's coordinated Factory pin update selects
+that SHA in its flake/Devenv inputs and locks, all four reusable workflow callers
+and both Terraform module refs. Its native Dependabot copy gains seven-day
+version-update cooldowns. The Semgrep consumer explicitly adds the pinned
+`owasp-top-ten`, `secrets`, `security-audit`, and `terraform` packs beside its
+local rules; Go, JavaScript, Python, Docker and Kubernetes packs are not selected
+for this repo's Nix/Terraform/workflow/prose source. New Factory OpenTofu and
+TFLint check packages are invoked independently with the same root; fixes fail
+on the first error. Local backend-free check:all, test:all and OpenTofu
+format/init/validate passed on the candidate branch. The new GCP module also
+declares authoritative Cloud Storage service audit logging; this is not active
+merely by pinning or testing source. Review existing service-specific audit
+settings and inherited exemptions as well as the private saved Plan before
+any separately approved Apply. Preserve production guards, receipt-only public
+artifacts and original state backend. No production run is implied by this note.
 
 ## Repository and workflow policy
 
