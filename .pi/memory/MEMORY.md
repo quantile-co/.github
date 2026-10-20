@@ -19,7 +19,7 @@ Nix/direnv bootstrap prerequisites remain explicit.
 This repository consumes Factory's Terraform modules, Nix tools, native policies,
 Pi skills and reusable Check/Test/Plan/Apply workflows. Use the upstream behavior
 as-is rather than preserving the old downstream architecture. The shared pin is
-`67a955ddf9ad0a9a2fd335d7486b28d9f78a0243`; update the flake/Devenv pins and locks,
+`b9f948bcac26b50257b90186f499acfd7e7a8b2c`; update the flake/Devenv pins and locks,
 Terraform module sources and workflow callers together when appropriate.
 `devenv.nix` owns local task orchestration and native config links. Imports do not
 install hooks or run checks. Hook installation is explicit and shared across Git
@@ -167,6 +167,11 @@ Backend-free local Check/Test and task listing passed; the shared skill link was
 verified. Signed adoption `8959ae21d74e07648e2a7e64e273c9c68001bca3` passed
 exact-head Check `39468749480` and normally fast-forwarded main. No production
 workflow or remote state operation was dispatched for this adoption.
+
+#decision [[ci-cold-closure-timeout]]
+Adopt the user-approved 15-minute shared Check/Test budget for cold or partially
+cached Nix closures. Align all Factory references; no checks, cache signatures,
+Terraform module content or production guards change.
 
 ## Repository and workflow policy
 
