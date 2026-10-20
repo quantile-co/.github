@@ -152,6 +152,10 @@ Terraform module/provider caches. No remote-state read, production workflow or
 provider-backed test ran. Factory's native-tool implementation `973b7c1` and
 outcome `310430e` passed exact-head Checks `39391893587` and `39392233804` and
 landed normally. Terraform module contents and provider locks are unchanged.
+Final Factory outcome `385fda4` passed Check `39397901879` and landed; every
+consumer pin selects it. Signed adoption `cf98430` passed exact-head Check
+`39398374207` and normally fast-forwarded protected main. Its final local
+backend-free `test:all` passed. No production workflow was dispatched.
 
 ## Repository and workflow policy
 
