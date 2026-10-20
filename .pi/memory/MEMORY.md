@@ -19,7 +19,7 @@ Nix/direnv bootstrap prerequisites remain explicit.
 This repository consumes Factory's Terraform modules, Nix tools, native policies,
 Pi skills and reusable Check/Test/Plan/Apply workflows. Use the upstream behavior
 as-is rather than preserving the old downstream architecture. The shared pin is
-`385fda43eadfe7cd6b7fea9b2faab3463011f98f`; update the flake/Devenv pins and locks,
+`67a955ddf9ad0a9a2fd335d7486b28d9f78a0243`; update the flake/Devenv pins and locks,
 Terraform module sources and workflow callers together when appropriate.
 `devenv.nix` owns local task orchestration and native config links. Imports do not
 install hooks or run checks. Hook installation is explicit and shared across Git
@@ -156,6 +156,13 @@ Final Factory outcome `385fda4` passed Check `39397901879` and landed; every
 consumer pin selects it. Signed adoption `cf98430` passed exact-head Check
 `39398374207` and normally fast-forwarded protected main. Its final local
 backend-free `test:all` passed. No production workflow was dispatched.
+
+#implementation [[devenv-task-discovery]]
+Select Factory's generic `devenv-tasks` skill through an explicit generated
+project link. It discovers task descriptions, implementations and dependencies
+from the current Devenv project without assuming task names or running them.
+All inputs/locks, workflow callers and Terraform sources align to the reviewed
+upstream publication. No Terraform module content or provider lock changed.
 
 ## Repository and workflow policy
 

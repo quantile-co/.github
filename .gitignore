@@ -36,6 +36,7 @@ crash.log
 /.github/actionlint.yaml
 /.pi/settings.json
 /.pi/skills/deploy
+/.pi/skills/devenv-tasks
 /.pi/skills/day-zero-deploy
 /.semgrep
 /.semgrepignore
