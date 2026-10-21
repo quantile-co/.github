@@ -3,22 +3,22 @@ secretspec:
   enable: false
 
 inputs:
-  dot-github:
+  this:
     url: git+file:.
     flake: true
   factory:
-    follows: dot-github/factory
+    follows: this/factory
   nixpkgs:
-    follows: dot-github/nixpkgs
+    follows: this/nixpkgs
   devenv:
-    follows: dot-github/devenv
+    follows: this/devenv
   git-hooks:
-    follows: dot-github/git-hooks
+    follows: this/git-hooks
   go-overlay:
-    follows: dot-github/go-overlay
+    follows: this/go-overlay
   llm-agents:
-    follows: dot-github/llm-agents
+    follows: this/llm-agents
   mk-shell-bin:
-    follows: dot-github/mk-shell-bin
+    follows: this/mk-shell-bin
   nix2container:
-    follows: dot-github/nix2container
+    follows: this/nix2container

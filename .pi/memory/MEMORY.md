@@ -14,8 +14,8 @@ credentials, provider payloads, state or saved plans.
 
 - Consume Factory's modules, tools, native policies and workflow templates as-is;
   do not recreate the obsolete downstream architecture or policy framework.
-- Pin Factory in the local flake; Devenv follows `dot-github/*` and imports the
-  local `nix/default.nix` module through the flake. Coordinate both locks,
+- Pin Factory in the local flake; Devenv follows `this/*` and imports the
+  local `nix/default.nix` module through `inputs.this.nixModules.default`. Coordinate both locks,
   materialized workflows and Terraform module pins.
   During a coordinated update, select the final reviewed upstream revision,
   including its outcome commit. Source declares the current pin.
@@ -32,7 +32,7 @@ credentials, provider payloads, state or saved plans.
 
 PRs are optional; writers may fast-forward main after exact-head required checks.
 Optional PR merges are squash-only. Retain signed commits, linear history,
-strict `All / All`, admin enforcement and no force pushes/deletions. Do not
+strict `All`, admin enforcement and no force pushes/deletions. Do not
 restore legacy required-review or maintainer-only push restrictions, auto-merge,
 merge queues or the removed member-landing ruleset.
 

@@ -18,8 +18,7 @@ in
 {
   imports = [
     inputs.factory.nixModules.default
-    inputs.factory.devenvModules.files
-    inputs."dot-github".nixModules.default
+    inputs.this.nixModules.default
   ];
 
   cachix.pull = [
