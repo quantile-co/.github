@@ -19,7 +19,8 @@ instead of duplicating policies, runbooks or session notes here.
 - [devenv.nix](devenv.nix): shell wiring and check/fix/test/deployment tasks.
 - [flake.nix](flake.nix): pinned Factory inputs.
 - [tf/infrastructure/](tf/infrastructure/): this repository's deployment root.
-- [.github/workflows/](.github/workflows/): CI and protected deployment callers.
+- [nix/default.nix](nix/default.nix): local workflow-template materialization.
+- [.github/workflows/](.github/workflows/): CI and protected deployment workflows.
 
 ## Deployment instructions
 

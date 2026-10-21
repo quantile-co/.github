@@ -12,9 +12,11 @@ credentials, provider payloads, state or saved plans.
 
 ## Consumer conventions
 
-- Consume Factory's modules, tools, native policies and workflows as-is; do not
-  recreate the obsolete downstream architecture or policy framework.
-- Coordinate flake/Devenv locks, workflow callers and Terraform module pins.
+- Consume Factory's modules, tools, native policies and workflow templates as-is;
+  do not recreate the obsolete downstream architecture or policy framework.
+- Pin Factory in the local flake; Devenv follows `dot-github/*` and imports the
+  local `nix/default.nix` module through the flake. Coordinate both locks,
+  materialized workflows and Terraform module pins.
   During a coordinated update, select the final reviewed upstream revision,
   including its outcome commit. Source declares the current pin.
 - `devenv.nix` owns package/configuration selection and task orchestration.
@@ -45,10 +47,11 @@ organization-wide infrastructure. Preserve the existing bucket and
 The production WIF boundary admits approved manual main Plan/Apply jobs in `prod`;
 do not widen it for diagnostics or run Day Zero on this installation.
 
-Plan saves private GCS bytes and publishes a receipt. Apply uses the reviewed
-artifact without replanning, preserving producer, revision, expiry, backend and
-digest checks. Keep main fixed during review, plus environment/actor guards,
-backend locks and production concurrency. A merge does not authorize deployment.
+Native Plan stores saved bytes and optional private diagnostics only in GCS.
+Apply downloads the operator-selected `plan_ref` generation and applies those
+exact bytes without replanning; no GitHub artifact or receipt is produced. Keep
+main fixed during review, plus environment/actor guards, backend locks and
+production concurrency. The native required Check context is `All`. A merge does not authorize deployment.
 Human plan-reader grants cover `plans/`, not state or administration.
 
 ## Completed deployments
