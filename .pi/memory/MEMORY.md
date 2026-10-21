@@ -14,11 +14,10 @@ credentials, provider payloads, state or saved plans.
 
 - Consume Factory's modules, tools, native policies and workflow templates as-is;
   do not recreate the obsolete downstream architecture or policy framework.
-- Pin Factory in the local flake; Devenv follows `this/*` and imports the
-  local `nix/default.nix` module through `inputs.this.nixModules.default`. Coordinate both locks,
-  materialized workflows and Terraform module pins.
-  During a coordinated update, select the final reviewed upstream revision,
-  including its outcome commit. Source declares the current pin.
+- The committed flake lock pins Factory; Devenv follows `this/*` and imports the
+  local `nix/default.nix` module through `inputs.this.nixModules.default`. Coordinate both locks
+  and materialized workflows. Terraform module refs may lag a compatible Factory
+  flake revision; ordinary checks and tests validate consumer behavior.
 - `devenv.nix` owns package/configuration selection and task orchestration.
   Checks are read-only; fixes and shared Git-hook installation are explicit.
   Required tools come from pinned inputs, not undeclared installations.
