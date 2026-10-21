@@ -1,6 +1,6 @@
 # trivy:ignore:AVD-GIT-0001
 module "github" {
-  source = "git::https://github.com/quantile-co/factory.git//tf/modules/project/github?ref=8293b5698cdf411da2fdc2b4fe969031796c8d95"
+  source = "git::https://github.com/quantile-co/factory.git//tf/modules/project/github?ref=d500b2ce146347a5749d55ab4b40b66733002424"
 
   repository_name = ".github"
   description     = "Quantile organization profile."
@@ -13,7 +13,7 @@ module "github" {
 }
 
 module "gcp" {
-  source = "git::https://github.com/quantile-co/factory.git//tf/modules/project/gcp?ref=8293b5698cdf411da2fdc2b4fe969031796c8d95"
+  source = "git::https://github.com/quantile-co/factory.git//tf/modules/project/gcp?ref=d500b2ce146347a5749d55ab4b40b66733002424"
 
   project_prefix  = "github"
   folder_id       = var.gcp_folder_id
