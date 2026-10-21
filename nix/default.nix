@@ -23,13 +23,6 @@ let
       item: lib.hasInfix item.from source
     ) replacements) "Organization workflow template no longer contains its expected patch points";
     lib.replaceStrings (map (item: item.from) replacements) (map (item: item.to) replacements) source;
-  checkWorkflow =
-    let
-      source = builtins.readFile config.quantile.github.workflows.check.configFile;
-    in
-    assert lib.assertMsg (lib.hasInfix "timeout-minutes: 15" source)
-      "Check workflow timeout changed upstream";
-    lib.replaceStrings [ "timeout-minutes: 15" ] [ "timeout-minutes: 30" ] source;
 in
 {
   packages = [
@@ -39,7 +32,7 @@ in
 
   files = {
     ".github/workflows/check.yaml" = {
-      text = checkWorkflow;
+      source = config.quantile.github.workflows.check.configFile;
       copyMode = "copy";
     };
     ".github/workflows/test.yaml" = {
