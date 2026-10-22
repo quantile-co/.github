@@ -21,7 +21,7 @@ credentials, provider payloads, state or saved plans.
 - Local development and CI enter the same pinned direnv shell. `.envrc` runs
   `factory-files write`; selected copies are tracked regular files. Check also
   compares their Git-index contents. Template sources are not runtime paths;
-  Vale assets live in `.vale/styles/`.
+  Vale assets live in `.vale/` (`StylesPath = .vale`).
 - Pnpm owns prepare/check/fix/test entry points under `scripts/pnpm/`, with
   matching workflow wrappers under `scripts/github/`. Checks are read-only;
   fixes and Husky installation are explicit. Required tools come from pinned
