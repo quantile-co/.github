@@ -90,6 +90,7 @@
                 vale
                 yamllint
               ])
+              ++ [ inputs.factory.packages.${pkgs.stdenv.hostPlatform.system}.herdr ]
               ++ (with factory; [
                 pi.package
                 qmd.package
@@ -156,6 +157,7 @@
               ".github/workflows/apply.yaml" = copy (workflow "apply");
               ".github/dependabot.yml" = copy dependabotFile;
               ".pi/settings.json" = copy factory.pi.settingsFile;
+              ".pi/extensions" = copy factory.pi.extensionsDir;
               ".pi/skills/deploy" = copy (factory.pi.skillsDir + "/deploy");
               ".pi/skills/day-zero-deploy" = copy (factory.pi.skillsDir + "/day-zero-deploy");
               ".qmd/index.yml" = copy factory.qmd.configFile;
