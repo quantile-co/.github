@@ -46,8 +46,9 @@ organization-wide infrastructure. Preserve the existing bucket and
 The production WIF boundary admits approved manual main Plan/Apply jobs in `prod`;
 do not widen it for diagnostics or run Day Zero on this installation.
 
-Native Plan stores saved bytes and optional private diagnostics only in GCS.
-Apply downloads the operator-selected `plan_ref` generation and applies those
+Native Plan calls OpenTofu directly and stores saved bytes and optional private
+diagnostics only in GCS. Apply downloads the operator-selected `plan_ref`
+generation and applies those
 exact bytes without replanning; no GitHub artifact or receipt is produced. Keep
 main fixed during review, plus environment/actor guards, backend locks and
 production concurrency. The native required Check context is `All`. A merge does not authorize deployment.

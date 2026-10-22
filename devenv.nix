@@ -115,24 +115,21 @@ in
       after = [ "devenv:files" ];
       exec = ''
         set -euo pipefail
-        # Validate the flake and the tracked native Dependabot copy.
         ${exe pkgs.nix} flake check .
         ${exe config.quantile.dependabot.check.package} ${dependabotFile}
         ${exe inputs.factory.packages.${pkgs.stdenv.hostPlatform.system}.check-devenv-locks}
-        # Read-only checks: formatting fixes are only in fix:all.
         ${exe config.quantile.prek.check.package}
         ${exe config.quantile.nixfmt.check.package}
         ${exe config.quantile.deadnix.check.package}
         ${exe config.quantile.statix.check.package}
         ${exe config.quantile.editorconfig.check.package}
-        ${exe config.quantile.markdownlint-cli2.check.package} '*.md' ':(exclude,glob).pi/memory/**'
+        ${exe config.quantile.markdownlint-cli2.check.package}
         ${exe config.quantile.actionlint.check.package}
-        # Test the native Semgrep policy fixtures before scanning the source.
         ${exe config.quantile.semgrep.test.package}
         ${exe config.quantile.semgrep.check.package}
         ${exe config.quantile.trivy.check.package}
         ${exe config.quantile.typos.check.package}
-        ${exe config.quantile.vale.check.package} '*.md' ':(exclude,glob)**/AGENTS.md' ':(exclude,glob).pi/memory/**' ':(exclude,glob).pi/skills/**'
+        ${exe config.quantile.vale.check.package}
         ${exe config.quantile.yamllint.check.package}
         ${exe config.quantile.taplo.check.package}
         ${exe config.quantile.taplo.format.package}
@@ -161,16 +158,5 @@ in
       exec = "${exe config.quantile.vale.check.package} README.md profile/README.md";
     };
 
-    "plan:infrastructure" = {
-      description = "Plan infrastructure.";
-      env.TF_DIR = terraformRoot;
-      exec = exe config.quantile.opentofu.plan.package;
-    };
-
-    "apply:infrastructure" = {
-      description = "Apply infrastructure.";
-      env.TF_DIR = terraformRoot;
-      exec = exe config.quantile.opentofu.apply.package;
-    };
   };
 }
