@@ -31,6 +31,8 @@ credentials, provider payloads, state or saved plans.
   respect module provider constraints rather than weakening bot checks.
 - Keep `AGENTS.md` a navigation index and use shared deployment skills.
   README changes, including the approved organization profile, need approval.
+  Root README is seeded once and then repository-owned; `profile/README.md` stays
+  static. Gitignore, direnv and Husky pre-push are explicit Factory copies.
 
 ## Repository and deployment policy
 
