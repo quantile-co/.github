@@ -1,12 +1,17 @@
-.terraform/
+# Never expose legacy local state from existing worktrees.
 .devenv/
 .devenv.flake.nix
 .direnv/
-.pre-commit-config.yaml
+/node_modules/
+/.husky/_/
 .envrc.local
 gha-creds-*.json
+.pi/npm/
 result
 result-*
+# Keep local Terraform data, backend overrides, plans, and diagnostics out of Git.
+.terraform/
+.terraform.tfstate.lock.info
 backend_override.tf
 *.tfstate
 *.tfstate.*
@@ -14,33 +19,10 @@ backend_override.tf
 plan.json
 crash.log
 
-# Pi-managed local dependencies
-/.pi/npm/
-
-# Review daily memory logs before staging; keep scratchpad and recovery local.
+# Commit reviewed MEMORY.md and daily logs; only scratchpad and recovery stay local.
 /.pi/memory/SCRATCHPAD.md
 /.pi/memory/recovery/
 
-# Native files and directories are managed by the explicit Devenv files task.
-/.editorconfig
-/.editorconfig-checker.json
-/.markdownlint-cli2.jsonc
-/.cz.toml
-/.shellcheckrc
-/.tflint.hcl
-/taplo.toml
-/trivy.yaml
-/typos.toml
-/.vale.ini
-/.yamllint.yaml
-/.github/actionlint.yaml
-/.pi/settings.json
-/.pi/skills/deploy
-/.pi/skills/devenv-tasks
-/.pi/skills/day-zero-deploy
-/.semgrep
-/.semgrepignore
-/etc/vale/styles
-
-# QMD's native config link and local index stay worktree-local.
-/.qmd/*
+# Keep QMD's writable search index and lock worktree-local.
+/.qmd/index.sqlite*
+/.qmd/.qmd-embed.lock

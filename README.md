@@ -3,7 +3,7 @@
 
 <div align="center">
   <h1>Quantile organization profile</h1>
-  <p><em>GitHub organization profile</em></p>
+  <p><em>Quantile organization profile</em></p>
   <p>
     <a href="#prerequisites">Prerequisites</a> ·
     <a href="#development">Development</a> ·
@@ -25,30 +25,25 @@ After cloning, allow direnv to load the development environment:
 direnv allow
 ```
 
-The devenv shell provides all other project tools.
-
 ## Development
 
 ### Install
 
 ```sh
-devenv tasks run --show-output install:git:hooks
+pnpm install --frozen-lockfile
 ```
 
 ### Checks
 
 ```sh
-# Check source without rewriting it or accessing production state.
-devenv tasks run --show-output check:all
-
-# Apply safe source fixes explicitly.
-devenv tasks run --show-output fix:all
+pnpm run check
+pnpm run fix
 ```
 
 ### Tests
 
 ```sh
-devenv tasks run --show-output --mode single test:all
+pnpm test
 ```
 
 ## Skills

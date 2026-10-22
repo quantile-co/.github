@@ -14,16 +14,21 @@ credentials, provider payloads, state or saved plans.
 
 - Consume Factory's modules, tools, native policies and workflow templates as-is;
   do not recreate the obsolete downstream architecture or policy framework.
-- The committed flake lock pins Factory; Devenv follows `this/*` and imports the
-  local `nix/default.nix` module through `inputs.this.nixModules.default`. Coordinate both locks
-  and materialized workflows. Terraform module refs may lag a compatible Factory
-  flake revision; ordinary checks and tests validate consumer behavior.
-- `devenv.nix` owns package/configuration selection and task orchestration.
-  Checks are read-only; fixes and shared Git-hook installation are explicit.
-  Required tools come from pinned inputs, not undeclared installations.
+- The committed flake lock pins Factory. `flake.nix` declares public packages,
+  development tools, copied native files and small repository-specific workflow
+  substitutions through Factory's `lib.mkFlake`; no local `nix/` module layer is
+  needed. Terraform module refs may lag a compatible Factory flake revision.
+- Local development and CI enter the same pinned direnv shell. `.envrc` runs
+  `factory-files write`; selected copies are tracked regular files. Check also
+  compares their Git-index contents. Template sources are not runtime paths;
+  Vale assets live in `.vale/styles/`.
+- Pnpm owns prepare/check/fix/test entry points under `scripts/pnpm/`, with
+  matching workflow wrappers under `scripts/github/`. Checks are read-only;
+  fixes and Husky installation are explicit. Required tools come from pinned
+  inputs, not undeclared installations.
 - Dependabot's native configuration is a tracked copy selected from Factory.
-  Check validates committed/indexed configuration; synchronize both Nix locks
-  and respect module provider constraints rather than weakening bot checks.
+  Check validates committed/indexed configuration; update the flake lock and
+  respect module provider constraints rather than weakening bot checks.
 - Keep `AGENTS.md` a navigation index and use shared deployment skills.
   README changes, including the approved organization profile, need approval.
 
@@ -36,12 +41,15 @@ restore legacy required-review or maintainer-only push restrictions, auto-merge,
 merge queues or the removed member-landing ruleset.
 
 Check is credential-free and backend-free. Credentialed workflows enter the
-selected runtime SecretSpec shell and reject empty required values. Forward
+same direnv shell and supply provider credentials only at runtime. Forward
 named secrets explicitly, never `secrets: inherit`; never resolve credentials
 into Nix values. Preserve cache signatures and main-only publication.
 
-`tf/infrastructure/` manages this repository and its state project, not
-organization-wide infrastructure. Preserve the existing bucket and
+`tf/` is the single Terraform root; there are no local Terraform modules.
+Workflow wrappers select `TF_DIR=tf`; workflow labels can remain Infrastructure.
+Moving the source directory does not move state or change resource addresses.
+It manages this repository and its state project, not organization-wide
+infrastructure. Preserve the existing bucket and
 `repository/prod` lineage. Q0 owns organization controls, runner profiles and WIF.
 The production WIF boundary admits approved manual main Plan/Apply jobs in `prod`;
 do not widen it for diagnostics or run Day Zero on this installation.

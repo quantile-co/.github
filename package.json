@@ -1,0 +1,15 @@
+{
+  "name": "@quantile-co/github",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.25.0",
+  "scripts": {
+    "prepare": "husky",
+    "check": "./scripts/pnpm/check.sh",
+    "fix": "./scripts/pnpm/fix.sh",
+    "test": "./scripts/pnpm/test.sh"
+  },
+  "devDependencies": {
+    "husky": "9.1.7"
+  }
+}

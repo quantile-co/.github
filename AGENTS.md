@@ -15,11 +15,11 @@ instead of duplicating policies, runbooks or session notes here.
 
 - [README.md](README.md): usage and development entry points.
 - [profile/README.md](profile/README.md): approved public organization profile.
-- [.envrc](.envrc): pinned Devenv CLI and local shell bootstrap.
-- [devenv.nix](devenv.nix): shell wiring and check/fix/test/deployment tasks.
-- [flake.nix](flake.nix): pinned Factory inputs.
-- [tf/infrastructure/](tf/infrastructure/): this repository's deployment root.
-- [nix/default.nix](nix/default.nix): local workflow-template materialization.
+- [.envrc](.envrc): pinned direnv shell and managed-file entry point.
+- [flake.nix](flake.nix): Factory input, packages and development files.
+- [package.json](package.json): install/check/fix/test entry points.
+- [scripts/](scripts/): pnpm tasks and GitHub workflow entry points.
+- [tf/](tf/): this repository's deployment root.
 - [.github/workflows/](.github/workflows/): CI and protected deployment workflows.
 
 ## Deployment instructions
