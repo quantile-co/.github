@@ -160,7 +160,10 @@
               ".pi/extensions" = copy factory.pi.extensionsDir;
               ".pi/skills/deploy" = copy (factory.pi.skillsDir + "/deploy");
               ".pi/skills/day-zero-deploy" = copy (factory.pi.skillsDir + "/day-zero-deploy");
-              ".qmd/index.yml" = copy factory.qmd.configFile;
+              ".qmd/index.yml" = {
+                source = factory.qmd.configFile;
+                mode = "seed";
+              };
               ".semgrep/tf" = copy (factory.semgrep.rulesDir + "/tf");
               ".semgrep/packs/terraform.yaml" = copy factory.semgrep.packs.terraform;
               ".semgrep/packs/github-actions.yaml" = copy factory.semgrep.packs.github-actions;
