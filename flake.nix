@@ -86,6 +86,7 @@
               ++ (with factory; [
                 pi.package
                 qmd.package
+                langfuse.package
                 prek.package
                 prek.tools.package
                 dependabot.check.package
