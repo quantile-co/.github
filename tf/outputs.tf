@@ -3,12 +3,12 @@ output "gcp_tf_state_bucket" {
   value       = module.gcp.tf_state_bucket
 }
 
-output "gcp_tf_state_project_id" {
+output "gcp_project_id" {
   description = "Existing project ID for this repository's state infrastructure."
-  value       = module.gcp.tf_state_project_id
+  value       = module.gcp.project_id
 }
 
-output "gh_repository_id" {
+output "gh_repo_id" {
   description = "Immutable numeric ID of the .github repository."
-  value       = module.github.repository_id
+  value       = module.gh.repo_id
 }

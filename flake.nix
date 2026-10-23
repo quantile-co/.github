@@ -33,16 +33,8 @@
             name:
             let
               source = builtins.readFile factory.github.workflows.${name}.configFile;
-              from = [
-                "group: factory-production"
-                "GCP_TF_STATE_BUCKET: \${{ vars.GCP_TF_STATE_BUCKET }}"
-                "TF_VAR_gcp_folder_id: \${{ vars.GCP_FOLDER_ID }}"
-              ];
-              to = [
-                "group: organization-production"
-                "GCP_TF_STATE_BUCKET: \${{ vars.TF_STATE_BUCKET }}"
-                "TF_VAR_gcp_folder_id: \${{ vars.GCP_QUANTILE_CO_FOLDER_ID }}"
-              ];
+              from = [ "group: factory-production" ];
+              to = [ "group: organization-production" ];
             in
             assert pkgs.lib.assertMsg (pkgs.lib.all (
               text: pkgs.lib.hasInfix text source

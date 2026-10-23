@@ -17,7 +17,7 @@ credentials, provider payloads, state or saved plans.
 - The committed flake lock pins Factory. `flake.nix` declares public packages,
   development tools, copied native files and small repository-specific workflow
   substitutions through Factory's `lib.mkFlake`; no local `nix/` module layer is
-  needed. Terraform module refs may lag a compatible Factory flake revision.
+  needed. Keep Terraform module refs aligned with the reviewed Factory contract.
 - Local development and CI enter the same pinned direnv shell. `.envrc` runs
   `factory-files write`; selected copies are tracked regular files. Check also
   compares their Git-index contents. Template sources are not runtime paths;
@@ -63,6 +63,22 @@ exact bytes without replanning; no GitHub artifact or receipt is produced. Keep
 main fixed during review, plus environment/actor guards, backend locks and
 production concurrency. The native required Check context is `All`. A merge does not authorize deployment.
 Human plan-reader grants cover `plans/`, not state or administration.
+
+The root directly projects required paired `project_owners` into platform owner
+inputs; `project_members` defaults to empty and grants GitHub write only. Confirm
+pairings before publishing `PROJECT_OWNERS`; never infer them from legacy lists.
+Both workflow actors must be owners. See the shared
+[configuration contract](../skills/deploy/references/configuration.md).
+
+The configuration migration retains `github-49cc-tf-state`, `repository/prod`,
+platform instance keys and existing permissions. `module.github` moves explicitly
+to `module.gh`; root outputs become `gcp_project_id` and `gh_repo_id`.
+Before activation, publish the confirmed owner roster and `GCP_TF_STATE_BUCKET`;
+optional `PROJECT_MEMBERS` defaults to `[]`. Retire legacy maintainer,
+billing/folder and `TF_STATE_BUCKET` variables only after callers stop using them.
+The concrete billing account, parent folder and `US` bucket location are verified
+installation values, not runtime overrides. Source migration is not deployment
+or permission to replay an older saved plan.
 
 ## Completed deployments
 
