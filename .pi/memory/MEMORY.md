@@ -70,17 +70,22 @@ pairings before publishing `PROJECT_OWNERS`; never infer them from legacy lists.
 Both workflow actors must be owners. See the shared
 [configuration contract](../skills/deploy/references/configuration.md).
 
-The configuration migration retains `github-49cc-tf-state`, `repository/prod`,
-platform instance keys and existing permissions. `module.github` moves explicitly
-to `module.gh`; root outputs become `gcp_project_id` and `gh_repo_id`.
-Before activation, publish the confirmed owner roster and `GCP_TF_STATE_BUCKET`;
-optional `PROJECT_MEMBERS` defaults to `[]`. Retire legacy maintainer,
-billing/folder and `TF_STATE_BUCKET` variables only after callers stop using them.
+The deployed configuration retains `github-49cc-tf-state`, `repository/prod`,
+platform instance keys and existing permissions. The root uses `module.gh`,
+`gcp_project_id` and `gh_repo_id`, with `PROJECT_OWNERS` and
+`GCP_TF_STATE_BUCKET`; optional `PROJECT_MEMBERS` defaults to `[]`.
+Retire legacy maintainer, billing/folder and `TF_STATE_BUCKET` variables only
+after callers stop using them and with separate approval.
 The concrete billing account, parent folder and `US` bucket location are verified
 installation values, not runtime overrides. Source migration is not deployment
 or permission to replay an older saved plan.
 
 ## Completed deployments
+
+- Configuration contract rollout: approved Apply `39923367928` succeeded on
+  frozen main. The `module.github` → `module.gh` address migration completed;
+  its temporary root moved block was removed afterward. This does not authorize
+  another deployment or manual deletion of legacy variables.
 
 - Factory adoption: Plan `39317595580`, receipt `12217849725`, approved Apply
   `39319984039`. Eleven address moves retained identities; retiring old build
