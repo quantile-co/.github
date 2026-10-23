@@ -86,7 +86,12 @@
               ++ (with factory; [
                 pi.package
                 qmd.package
+                amp.package
+                clickhouse.package
+                clickhousectl.package
+                hunk.package
                 langfuse.package
+                tailscale.package
                 prek.package
                 prek.tools.package
                 dependabot.check.package
