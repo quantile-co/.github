@@ -24,6 +24,16 @@
             inherit source;
             mode = "copy";
           };
+          workflow =
+            name:
+            let
+              source = builtins.readFile factory.github.workflows.${name}.configFile;
+              marker = "group: factory-production";
+            in
+            assert lib.assertMsg (lib.hasInfix marker source) "Organization workflow concurrency changed";
+            pkgs.writeText "${name}.yaml" (
+              builtins.replaceStrings [ marker ] [ "group: organization-production" ] source
+            );
           dependabotFile = pkgs.writeText "dependabot.yml" (
             builtins.replaceStrings [ "directory: /tf/infrastructure" ] [ "directory: /tf" ] (
               builtins.readFile (
@@ -172,8 +182,8 @@
               ".github/actionlint.yaml" = copy factory.actionlint.configFile;
               ".github/workflows/check.yaml" = copy factory.github.workflows.check.configFile;
               ".github/workflows/test.yaml" = copy factory.github.workflows.test.configFile;
-              # Plan/Apply are temporary repository-owned migration bridges.
-              # Restore shared templates only after the verified backend cutover.
+              ".github/workflows/plan.yaml" = copy (workflow "plan");
+              ".github/workflows/apply.yaml" = copy (workflow "apply");
               ".github/dependabot.yml" = copy dependabotFile;
               ".pi/settings.json" = copy factory.pi.settingsFile;
               ".qmd/index.yml" = {

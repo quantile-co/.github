@@ -1,21 +1,5 @@
 # Organization repository memory
 
-## Prepared backend cutover — not deployed
-
-The source target is `.github/prod/infrastructure`, following the actual repository name,
-environment and Terraform layer. Production still uses `repository/prod`;
-this change has not migrated state. Do not activate this source on main or run
-production Plan/Apply against the new prefix until a separately approved cutover
-moves the existing lineage. No old-prefix runtime fallback is provided.
-
-Quiesce production writers, verify the destination is unused and preserve a
-restricted state backup. Use native backend state migration, not
-`init -reconfigure` as a substitute for moving state. Coordinate every backend
-writer and remote-state reader, verify lineage, resource addresses and outputs,
-and review a fresh no-op Plan afterward. Prior saved-plan approvals do not carry
-over. Keep the existing bucket, IAM, resource identities and protections.
-Below, older prefix references describe the existing deployment or its history.
-
 Current source, tests and deployment skills take precedence.
 
 ## Memory policy
@@ -82,7 +66,8 @@ The GitHub app maps the Infrastructure layer internally to `tf/`.
 Moving the source directory does not move state or change resource addresses.
 It manages this repository and its state project, not organization-wide
 infrastructure. Preserve the existing bucket and
-`repository/prod` lineage. Q0 owns organization controls, runner profiles and WIF.
+`.github/prod/infrastructure` backend and existing lineage. Q0 owns organization
+controls, runner profiles and WIF.
 The production WIF boundary admits approved manual main Plan/Apply jobs in `prod`;
 do not widen it for diagnostics or run Day Zero on this installation.
 
@@ -106,7 +91,7 @@ WIF/IAM. No Actions roster is read by the app. Any existing unmanaged roster
 variable may be retired only with separate approval. See the installed shared
 [configuration contract](../../node_modules/@quantile-co/factory-pi/skills/deploy/references/configuration.md).
 
-Retain `github-49cc-tf-state`, `repository/prod`, platform instance keys and
+Retain `github-49cc-tf-state`, `.github/prod/infrastructure`, platform instance keys and
 existing permissions. Keep `module.gh`, `gcp_project_id`, `gh_repo_id` and
 `GCP_TF_STATE_BUCKET` without fallback names or state-migration scaffolding.
 The concrete billing account, parent folder and `US` bucket location are verified
@@ -114,6 +99,16 @@ installation values, not runtime overrides. Source migration is not deployment
 or permission to replay an older saved plan.
 
 ## Completed deployments
+
+- Backend cutover: protected migration `40171954208` on `f4a7412` moved
+  `repository/prod` to `.github/prod/infrastructure` in the existing bucket.
+  Native OpenTofu retained lineage and operational state with serial +1;
+  only transient `check_results` normalization was excluded from comparison.
+  Exact backups and private diagnostics stay under `state-backups/`, outside
+  `plans/`. The old live state object was retired conditionally after verification.
+  Temporary migration tooling was removed; normal workflows use only the new
+  prefix. No resource Plan/Apply ran. Prior saved plans are not approved for reuse.
+
 
 - Native workspace activation: protected Plan `40154328955` on `7bd34b0`
   confirmed no infrastructure changes. Separately approved CLI cleanup removed
