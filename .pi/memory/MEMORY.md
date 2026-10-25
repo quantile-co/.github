@@ -99,6 +99,13 @@ or permission to replay an older saved plan.
 
 ## Completed deployments
 
+- Native workspace activation: protected Plan `40154328955` on `7bd34b0`
+  confirmed no infrastructure changes. Separately approved CLI cleanup removed
+  the unused, unmanaged `PROJECT_OWNERS` repository variable; no owner/member
+  Actions roster remains. No Apply or state migration was needed. Existing
+  project IAM and Storage audit configuration were verified unchanged. This
+  completed cleanup is not authorization for another deployment or IAM cleanup.
+
 - Configuration contract rollout: approved Apply `39923367928` succeeded on
   frozen main. The `module.github` → `module.gh` address migration completed;
   its temporary root moved block was removed afterward. This does not authorize
