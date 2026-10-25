@@ -48,7 +48,6 @@ const fs = require("node:fs"), path = require("node:path"), a = process.argv.sli
 fs.appendFileSync(${JSON.stringify(storageLog)}, JSON.stringify({args:a,env:process.env})+"\\n");
 if(a.slice(0,3).join(" ") === "storage cp --recursive") fs.copyFileSync(path.join(a[3],"plan.tfplan"),${JSON.stringify(saved)});
 else if(a.slice(0,3).join(" ") === "storage objects describe") console.log("42");
-else if(a[0] === "storage" && a[1] === "ls") console.log("[]");
 else if(a[0] === "storage" && a[1] === "cp" && a[2].endsWith("#42")) fs.copyFileSync(${JSON.stringify(saved)},a[3]);
 else if(a[0] !== "storage" || a[1] !== "cp") process.exit(82);
 `,

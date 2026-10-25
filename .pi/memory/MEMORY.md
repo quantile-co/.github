@@ -104,11 +104,18 @@ or permission to replay an older saved plan.
   `repository/prod` to `.github/prod/infrastructure` in the existing bucket.
   Native OpenTofu retained lineage and operational state with serial +1;
   only transient `check_results` normalization was excluded from comparison.
-  Exact backups and private diagnostics stay under `state-backups/`, outside
-  `plans/`. The old live state object was retired conditionally after verification.
+  Recovery copies were kept outside `plans/` until the approved cleanup below.
+  The old live state object was retired conditionally after verification.
   Temporary migration tooling was removed; normal workflows use only the new
-  prefix. No resource Plan/Apply ran. Prior saved plans are not approved for reuse.
+  prefix. No resource Plan/Apply ran during migration. Prior saved plans are not
+  approved for reuse.
 
+- Post-cutover lifecycle: Test `40174600082`, no-op Plan `40174691796` and
+  approved exact-plan Apply `40175154636` succeeded without resource changes.
+  Maintenance Apply `40177092796` used reviewed no-op Plan `40176805207` and
+  retired 23 exact obsolete recovery/state generations. Live state, saved plans,
+  locks and bucket protections were excluded. The temporary maintenance block and
+  fixture support were removed; no maintenance framework remains.
 
 - Native workspace activation: protected Plan `40154328955` on `7bd34b0`
   confirmed no infrastructure changes. Separately approved CLI cleanup removed

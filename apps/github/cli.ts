@@ -132,46 +132,6 @@ for (const phase of ["plan", "apply"] as const) {
           : ["-chdir=tf", "apply", "-input=false", planFile],
         { logFile, append: true, signal },
       );
-      if (phase === "apply" && options.tfLayer === "infrastructure") {
-        const objects = JSON.parse(
-          await storage(
-            "gcloud",
-            [
-              "storage",
-              "ls",
-              "--all-versions",
-              "--json",
-              `gs://${options.gcpTfStateBucket}/**`,
-            ],
-            { signal },
-          ),
-        );
-        let retired = 0;
-        for (const row of objects) {
-          const { name, timeDeleted } = row.metadata ?? {};
-          if (typeof name !== "string" || name.endsWith(".tflock")) continue;
-          if (
-            name.startsWith("state-backups/") ||
-            (timeDeleted &&
-              (name === "repository/prod/default.tfstate" ||
-                name === ".github/prod/infrastructure/default.tfstate"))
-          ) {
-            if (
-              !/^[1-9][0-9]*$/.test(row.metadata.generation) ||
-              row.url !==
-                `gs://${options.gcpTfStateBucket}/${name}#${row.metadata.generation}`
-            )
-              throw new Error("Unexpected cleanup object generation URL");
-            await storage("gcloud", ["storage", "rm", row.url], {
-              logFile,
-              append: true,
-              signal,
-            });
-            retired++;
-          }
-        }
-        console.log(`Retired ${retired} obsolete GCS object generations.`);
-      }
     };
     const storage = processRunner(environment);
     if (phase === "plan")
