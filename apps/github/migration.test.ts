@@ -93,29 +93,19 @@ test("preserves numeric lexemes outside JavaScript integer precision", () => {
   );
 });
 
-test("rejects source workspaces, locks, unknown nested prefixes and pagination", () => {
+test("rejects immediate source workspaces, locks and pagination", () => {
   const prefix = "example/prod";
   const inventory = {
     items: [{ name: `${prefix}/default.tfstate` }],
-    prefixes: [`${prefix}/application/`],
+    prefixes: [`${prefix}/application/`, `${prefix}/migrations/`],
   };
-  const sources = [prefix, `${prefix}/application`];
-  assert.doesNotThrow(() => verifySourceInventory(prefix, sources, inventory));
+  assert.doesNotThrow(() => verifySourceInventory(prefix, inventory));
   for (const listing of [
     { items: [...inventory.items, { name: `${prefix}/other.tfstate` }] },
     { items: [...inventory.items, { name: `${prefix}/other.tflock` }] },
-    { ...inventory, prefixes: [`${prefix}/unknown/`] },
     { ...inventory, nextPageToken: "more" },
   ])
-    assert.throws(
-      () => verifySourceInventory(prefix, sources, listing),
-      /inventory/,
-    );
-  // This repository has only one source root, so no nested prefix is approved.
-  assert.throws(
-    () => verifySourceInventory(prefix, [prefix], inventory),
-    /inventory/,
-  );
+    assert.throws(() => verifySourceInventory(prefix, listing), /inventory/);
 });
 
 test("captures stdout and private diagnostics without printing provider output", async (t) => {
