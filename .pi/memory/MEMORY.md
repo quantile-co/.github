@@ -1,5 +1,21 @@
 # Organization repository memory
 
+## Prepared backend cutover — not deployed
+
+The source target is `.github/prod/infrastructure`, following the actual repository name,
+environment and Terraform layer. Production still uses `repository/prod`;
+this change has not migrated state. Do not activate this source on main or run
+production Plan/Apply against the new prefix until a separately approved cutover
+moves the existing lineage. No old-prefix runtime fallback is provided.
+
+Quiesce production writers, verify the destination is unused and preserve a
+restricted state backup. Use native backend state migration, not
+`init -reconfigure` as a substitute for moving state. Coordinate every backend
+writer and remote-state reader, verify lineage, resource addresses and outputs,
+and review a fresh no-op Plan afterward. Prior saved-plan approvals do not carry
+over. Keep the existing bucket, IAM, resource identities and protections.
+Below, older prefix references describe the existing deployment or its history.
+
 Current source, tests and deployment skills take precedence.
 
 ## Memory policy
