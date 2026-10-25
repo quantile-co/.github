@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "vite build",
-    "check": "node --import tsx --test cli.test.ts"
+    "check": "node --import tsx --test cli.test.ts migration.test.ts"
   },
   "dependencies": {
     "@quantile-co/factory-github": "0.1.0",

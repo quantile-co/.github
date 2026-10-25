@@ -11,7 +11,8 @@
     "fix": "pnpm --filter @quantile-co/organization-repo-cli fix",
     "test": "pnpm run check && turbo run test --cache=local:rw",
     "github:plan": "tsx apps/github/cli.ts plan",
-    "github:apply": "tsx apps/github/cli.ts apply"
+    "github:apply": "tsx apps/github/cli.ts apply",
+    "github:migrate": "tsx apps/github/migration.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.15",
