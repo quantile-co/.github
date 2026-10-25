@@ -152,10 +152,16 @@ for (const phase of ["plan", "apply"] as const) {
           if (typeof name !== "string" || name.endsWith(".tflock")) continue;
           if (
             name.startsWith("state-backups/") ||
-            name === "repository/prod/default.tfstate" ||
-            (name === ".github/prod/infrastructure/default.tfstate" &&
-              timeDeleted)
+            (timeDeleted &&
+              (name === "repository/prod/default.tfstate" ||
+                name === ".github/prod/infrastructure/default.tfstate"))
           ) {
+            if (
+              !/^[1-9][0-9]*$/.test(row.metadata.generation) ||
+              row.url !==
+                `gs://${options.gcpTfStateBucket}/${name}#${row.metadata.generation}`
+            )
+              throw new Error("Unexpected cleanup object generation URL");
             await storage("gcloud", ["storage", "rm", row.url], {
               logFile,
               append: true,
