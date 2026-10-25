@@ -584,16 +584,6 @@ async function main(env: NodeJS.ProcessEnv, signal: AbortSignal) {
         throw new MigrationFailure("Backup readback differs");
       const directory = join(scratch, state.layer);
       mkdirSync(directory, { mode: 0o700 });
-      writeFileSync(
-        join(directory, "backend.tf"),
-        'terraform {\n  backend "gcs" {}\n}\n',
-        { mode: 0o600, flag: "wx" },
-      );
-      writeFileSync(
-        join(directory, ".terraform.lock.hcl"),
-        readFileSync(join(state.directory, ".terraform.lock.hcl")),
-        { mode: 0o600, flag: "wx" },
-      );
       const localEnv = {
         ...providerEnv,
         TF_DATA_DIR: join(directory, ".terraform"),
@@ -602,7 +592,7 @@ async function main(env: NodeJS.ProcessEnv, signal: AbortSignal) {
       await command(
         "tofu",
         [
-          `-chdir=${directory}`,
+          `-chdir=${state.directory}`,
           "init",
           "-input=false",
           "-lockfile=readonly",
@@ -611,21 +601,9 @@ async function main(env: NodeJS.ProcessEnv, signal: AbortSignal) {
         ],
         localEnv,
       );
-      if (
-        (
-          await command(
-            "tofu",
-            [`-chdir=${directory}`, "workspace", "list", "-no-color"],
-            localEnv,
-          )
-        )
-          .toString()
-          .trim() !== "* default"
-      )
-        throw new MigrationFailure("Unexpected state workspaces");
       const before = await command(
         "tofu",
-        [`-chdir=${directory}`, "state", "pull"],
+        [`-chdir=${state.directory}`, "state", "pull"],
         localEnv,
       );
       if (stateDigest(before) !== stateDigest(state.before))
@@ -640,7 +618,7 @@ async function main(env: NodeJS.ProcessEnv, signal: AbortSignal) {
       stage = `${state.layer}:native-migration`;
       await migrateBackend(
         [
-          `-chdir=${directory}`,
+          `-chdir=${state.directory}`,
           "init",
           "-migrate-state",
           "-input=true",
@@ -657,7 +635,7 @@ async function main(env: NodeJS.ProcessEnv, signal: AbortSignal) {
       stage = `${state.layer}:verify`;
       const after = await command(
         "tofu",
-        [`-chdir=${directory}`, "state", "pull"],
+        [`-chdir=${state.directory}`, "state", "pull"],
         localEnv,
       );
       verifyTransition(before, after);
