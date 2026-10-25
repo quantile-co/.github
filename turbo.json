@@ -1,0 +1,37 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "cacheDir": ".turbo/cache",
+  "remoteCache": {
+    "enabled": false
+  },
+  "globalDependencies": ["flake.nix", "flake.lock", "tsconfig.json"],
+  "globalPassThroughEnv": [
+    "NIX_CONFIG",
+    "NIX_PATH",
+    "NIX_SSL_CERT_FILE",
+    "SSL_CERT_FILE",
+    "pnpm_config_offline",
+    "npm_config_offline",
+    "TRIVY_SKIP_DB_UPDATE",
+    "TRIVY_SKIP_JAVA_DB_UPDATE",
+    "TRIVY_SKIP_CHECK_UPDATE",
+    "TRIVY_OFFLINE_SCAN"
+  ],
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
+    },
+    "check": {
+      "dependsOn": ["^build"],
+      "cache": false
+    },
+    "fix": {
+      "cache": false
+    },
+    "test": {
+      "dependsOn": ["build"],
+      "cache": false
+    }
+  }
+}

@@ -14,18 +14,32 @@ credentials, provider payloads, state or saved plans.
 
 - Consume Factory's modules, tools, native policies and workflow templates as-is;
   do not recreate the obsolete downstream architecture or policy framework.
-- The committed flake lock pins Factory. `flake.nix` declares public packages,
-  development tools, copied native files and small repository-specific workflow
-  substitutions through Factory's `lib.mkFlake`; no local `nix/` module layer is
-  needed. Keep Terraform module refs aligned with the reviewed Factory contract.
-- Local development and CI enter the same pinned direnv shell. `.envrc` runs
-  `factory-files write`; selected copies are tracked regular files. Check also
-  compares their Git-index contents. Template sources are not runtime paths;
-  Vale assets live in `.vale/` (`StylesPath = .vale`).
-- Pnpm owns prepare/check/fix/test entry points under `scripts/pnpm/`, with
-  matching workflow wrappers under `scripts/github/`. Checks are read-only;
-  fixes and Husky installation are explicit. Required tools come from pinned
-  inputs, not undeclared installations.
+- The committed flake lock pins Factory. `flake.nix` evaluates native Factory
+  modules with `pkgs` and the pinned `factory.inputs`, explicitly selecting tools,
+  native files and workflow concurrency. No local `nix/` or `etc/` layer is needed.
+  Keep Terraform module refs aligned with the reviewed Factory contract.
+- Local development and CI enter the same pinned direnv shell. Explicit shell
+  hooks reconcile native files before setting checkout-local Pi memory. `.envrc`
+  retains only local configuration, pre-evaluation cache trust and shell entry.
+  Copies are tracked regular files; Check compares their Git-index contents too.
+  Template sources are not runtime paths; Vale assets live in `.vale/`.
+- Pnpm owns frozen installation and Husky prepare. Two small apps replace scripts:
+  `apps/repo` owns checks/fixes/tests; `apps/github` owns protected Plan/Apply.
+  Vite builds Node CLI artifacts; TypeScript checking stays separate. Turbo caches
+  only reproducible `dist/**` outputs locally. Checks, fixes and tests are uncached;
+  there is no remote Turbo cache. Plan/Apply use locked tsx outside Turbo and need
+  no build prerequisite. Checks/fixes never install dependencies or hooks, and
+  automatic pnpm installation is disabled. Each workflow installs frozen
+  dependencies immediately before its pnpm task in the same run block.
+- Factory Pi and saved-plan transport are exact-version public npm dependencies,
+  pinned with integrity in this repository's lockfile. Pi loads the prebuilt
+  package through native settings, with independently pinned Herdr integration.
+  Do not copy shared extension/skill trees or require physical Pi SDK peers.
+  Run `pnpm run skills:sync` explicitly after installation to select the packaged
+  deployment skills and pinned Terraform style skill. Review `skills-lock.json`;
+  ignored `.agents/skills/` is generated. Never sync during install, builds,
+  shell entry or Pi startup. Keep QMD configuration seeded and repository-owned.
+  No placeholder Build or Update workflow is needed here.
 - Dependabot's native configuration is a tracked copy selected from Factory.
   Check validates committed/indexed configuration; update the flake lock and
   respect module provider constraints rather than weakening bot checks.
@@ -48,7 +62,7 @@ named secrets explicitly, never `secrets: inherit`; never resolve credentials
 into Nix values. Preserve cache signatures and main-only publication.
 
 `tf/` is the single Terraform root; there are no local Terraform modules.
-Workflow wrappers select `TF_DIR=tf`; workflow labels can remain Infrastructure.
+The GitHub app maps the Infrastructure layer internally to `tf/`.
 Moving the source directory does not move state or change resource addresses.
 It manages this repository and its state project, not organization-wide
 infrastructure. Preserve the existing bucket and
@@ -56,26 +70,29 @@ infrastructure. Preserve the existing bucket and
 The production WIF boundary admits approved manual main Plan/Apply jobs in `prod`;
 do not widen it for diagnostics or run Day Zero on this installation.
 
-Native Plan calls OpenTofu directly and stores saved bytes and optional private
-diagnostics only in GCS. Apply downloads the operator-selected `plan_ref`
-generation and applies those
-exact bytes without replanning; no GitHub artifact or receipt is produced. Keep
-main fixed during review, plus environment/actor guards, backend locks and
-production concurrency. The native required Check context is `All`. A merge does not authorize deployment.
-Human plan-reader grants cover `plans/`, not state or administration.
+The repository-owned Commander app uses Factory's shared saved-plan transport.
+Plan stores saved bytes and private diagnostics only in GCS; Apply uses the
+operator-selected `gh_plan_ref` generation without replanning. Local review uses
+`GH_PLAN_REF`; do not add aliases or arbitrary directory/backend options. Map
+`GH_REPO_TOKEN` internally to provider credentials only; storage receives neither
+the repository token nor ambient Terraform inputs. No GitHub artifact or receipt
+is produced. Keep main fixed during review, plus main/prod guards, backend locks
+and production concurrency. The required Check context is `All`; it includes
+mocked CLI boundary tests. A merge does not authorize deployment. Human
+plan-reader grants cover `plans/`, not state or administration.
 
-The root directly projects required paired `project_owners` into platform owner
-inputs; `project_members` defaults to empty and grants GitHub write only. Confirm
-pairings before publishing `PROJECT_OWNERS`; never infer them from legacy lists.
-Both workflow actors must be owners. See the shared
-[configuration contract](../skills/deploy/references/configuration.md).
+Paired owner/member records live in `tf/main.tf` locals and project directly to
+platform modules. Only the trusted WIF pool remains a Terraform runtime input.
+Members receive GitHub write only, without GCP or deployment grants. The removal
+of both original-actor and triggering-actor YAML roster checks is intentional;
+authorization remains in repository/environment policy and existing source-defined
+WIF/IAM. No Actions roster is read by the app. Any existing unmanaged roster
+variable may be retired only with separate approval. See the installed shared
+[configuration contract](../../node_modules/@quantile-co/factory-pi/skills/deploy/references/configuration.md).
 
-The deployed configuration retains `github-49cc-tf-state`, `repository/prod`,
-platform instance keys and existing permissions. The root uses `module.gh`,
-`gcp_project_id` and `gh_repo_id`, with `PROJECT_OWNERS` and
-`GCP_TF_STATE_BUCKET`; optional `PROJECT_MEMBERS` defaults to `[]`.
-Retire legacy maintainer, billing/folder and `TF_STATE_BUCKET` variables only
-after callers stop using them and with separate approval.
+Retain `github-49cc-tf-state`, `repository/prod`, platform instance keys and
+existing permissions. Keep `module.gh`, `gcp_project_id`, `gh_repo_id` and
+`GCP_TF_STATE_BUCKET` without fallback names or state-migration scaffolding.
 The concrete billing account, parent folder and `US` bucket location are verified
 installation values, not runtime overrides. Source migration is not deployment
 or permission to replay an older saved plan.

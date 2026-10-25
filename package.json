@@ -2,14 +2,26 @@
   "name": "@quantile-co/github",
   "private": true,
   "type": "module",
-  "packageManager": "pnpm@11.25.0",
+  "packageManager": "pnpm@12.9.0",
   "scripts": {
     "prepare": "husky",
-    "check": "./scripts/pnpm/check.sh",
-    "fix": "./scripts/pnpm/fix.sh",
-    "test": "./scripts/pnpm/test.sh"
+    "build": "turbo run build --cache=local:rw",
+    "skills:sync": "skills experimental_sync --agent pi --copy --yes --include @quantile-co/factory-pi#deploy @quantile-co/factory-pi#day-zero-deploy @quantile-co/factory-pi#terraform-style-guide",
+    "check": "pnpm run build && turbo run check --cache=local:rw",
+    "fix": "pnpm --filter @quantile-co/organization-repo-cli fix",
+    "test": "pnpm run check && turbo run test --cache=local:rw",
+    "github:plan": "tsx apps/github/cli.ts plan",
+    "github:apply": "tsx apps/github/cli.ts apply"
   },
   "devDependencies": {
-    "husky": "9.1.7"
+    "@biomejs/biome": "2.5.15",
+    "@quantile-co/factory-pi": "0.1.0",
+    "@types/node": "26.6.5",
+    "husky": "9.1.7",
+    "skills": "1.7.4",
+    "tsx": "4.23.15",
+    "turbo": "2.11.10",
+    "typescript": "7.0.2",
+    "vite": "8.3.5"
   }
 }

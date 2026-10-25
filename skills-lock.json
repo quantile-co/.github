@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "skills": {
+    "day-zero-deploy": {
+      "source": "@quantile-co/factory-pi",
+      "sourceType": "node_modules",
+      "skillPath": "skills/day-zero-deploy/SKILL.md",
+      "version": "0.1.0",
+      "computedHash": "8d0a567b1400fd326e8d66cca1342209b811d64fa870885d58b585c9d079b1c2"
+    },
+    "deploy": {
+      "source": "@quantile-co/factory-pi",
+      "sourceType": "node_modules",
+      "skillPath": "skills/deploy/SKILL.md",
+      "version": "0.1.0",
+      "computedHash": "6f4396c6e477a4ade35b90bc3749ccb259c4cac952ec64af8c93eda5dcb7a0ce"
+    },
+    "terraform-style-guide": {
+      "source": "hashicorp/agent-skills",
+      "ref": "f706481af9b8fedb66de909f6243ad29601afa0c",
+      "sourceType": "github",
+      "skillPath": "plugins/terraform/skills/terraform-style-guide/SKILL.md",
+      "computedHash": "3b914c5ae01a7101d45b5222fbc38e0be6eb7412deba5f54d471905f22af70c6",
+      "via": "@quantile-co/factory-pi"
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "@quantile-co/organization-github-cli",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "check": "node --import tsx --test cli.test.ts"
+  },
+  "dependencies": {
+    "@quantile-co/factory-github": "0.1.0",
+    "commander": "15.0.0"
+  }
+}

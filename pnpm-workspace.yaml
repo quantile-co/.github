@@ -1,0 +1,9 @@
+allowBuilds:
+  esbuild: false
+# Exact versions of the reviewed, checksum-verified Factory release.
+minimumReleaseAgeExclude:
+  - '@quantile-co/factory-github@0.1.0'
+  - '@quantile-co/factory-pi@0.1.0'
+packages:
+  - apps/*
+verifyDepsBeforeRun: false
