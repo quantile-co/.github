@@ -5,11 +5,11 @@
   "packageManager": "pnpm@12.9.0",
   "scripts": {
     "prepare": "husky",
-    "build": "turbo run build --cache=local:rw",
+    "build": "TURBO_CACHE=\"${TURBO_CACHE:-local:rw}\" turbo run build",
     "skills:sync": "skills experimental_sync --agent pi --copy --yes --include @quantile-co/factory-pi#deploy @quantile-co/factory-pi#day-zero-deploy @quantile-co/factory-pi#terraform-style-guide",
-    "check": "pnpm run build && turbo run check --cache=local:rw",
+    "check": "pnpm run build && TURBO_CACHE=\"${TURBO_CACHE:-local:rw}\" turbo run check",
     "fix": "pnpm --filter @quantile-co/organization-repo-cli fix",
-    "test": "pnpm run check && turbo run test --cache=local:rw",
+    "test": "pnpm run check && TURBO_CACHE=\"${TURBO_CACHE:-local:rw}\" turbo run test",
     "github:plan": "tsx apps/github/cli.ts plan",
     "github:apply": "tsx apps/github/cli.ts apply"
   },

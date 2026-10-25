@@ -26,8 +26,8 @@ credentials, provider payloads, state or saved plans.
 - Pnpm owns frozen installation and Husky prepare. Two small apps replace scripts:
   `apps/repo` owns checks/fixes/tests; `apps/github` owns protected Plan/Apply.
   Vite builds Node CLI artifacts; TypeScript checking stays separate. Turbo caches
-  only reproducible `dist/**` outputs locally. Checks, fixes and tests are uncached;
-  there is no remote Turbo cache. Plan/Apply use locked tsx outside Turbo and need
+  only reproducible `dist/**` outputs. Checks, fixes and tests are uncached;
+  local caching is the default, with runtime opt-in for Namespace remote caching. Plan/Apply use locked tsx outside Turbo and need
   no build prerequisite. Checks/fixes never install dependencies or hooks, and
   automatic pnpm installation is disabled. Each workflow installs frozen
   dependencies immediately before its pnpm task in the same run block.
@@ -48,6 +48,17 @@ credentials, provider payloads, state or saved plans.
   Root README is seeded once and then repository-owned; `profile/README.md` stays
   static. Gitignore, direnv and Husky pre-push are explicit Factory copies.
 
+## Turbo caching
+
+Local caching remains the default. CI persists .turbo/cache on the existing
+Restricted Namespace volume and may use remote team main in this repository's
+workspace. The native TURBO_TOKEN secret is a server-scoped reader at
+organization/repository scope, overridden by a cache-only writer in the dedicated
+main-only turbo-cache environment for manual Test. External/fork PRs receive no
+remote token; developers use reader-scoped credentials. Checks/tests/fixes and
+Plan/Apply remain uncached. Live credential provisioning and Restricted-runner
+authentication/hit/write-denial qualification are separate pending operations.
+
 ## Repository and deployment policy
 
 PRs are optional; writers may fast-forward main after exact-head required checks.
@@ -56,7 +67,7 @@ strict `All`, admin enforcement and no force pushes/deletions. Do not
 restore legacy required-review or maintainer-only push restrictions, auto-merge,
 merge queues or the removed member-landing ruleset.
 
-Check is credential-free and backend-free. Credentialed workflows enter the
+Check has no production/cache-writer credentials and remains backend-free. Credentialed workflows enter the
 same direnv shell and supply provider credentials only at runtime. Forward
 named secrets explicitly, never `secrets: inherit`; never resolve credentials
 into Nix values. Preserve cache signatures and main-only publication.
