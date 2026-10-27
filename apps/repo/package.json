@@ -1,5 +1,5 @@
 {
-  "name": "@quantile-co/organization-repo-cli",
+  "name": "@quantile-co/github-repo-cli",
   "version": "0.0.0",
   "private": true,
   "type": "module",

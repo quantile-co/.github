@@ -12,6 +12,9 @@ credentials, provider payloads, state or saved plans.
 
 ## Consumer conventions
 
+JS/TS app names use `@quantile-co/github-<app>`, adding `-cli` for CLI apps.
+The root remains `@quantile-co/github`; `github` is the slug for `.github`.
+
 - Consume Factory's modules, tools, native policies and workflow templates as-is;
   do not recreate the obsolete downstream architecture or policy framework.
 - The committed flake lock pins Factory. `flake.nix` evaluates native Factory
