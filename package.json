@@ -14,7 +14,7 @@
     "github:apply": "tsx apps/github/cli.ts apply"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.5.15",
+    "@biomejs/biome": "2.6.2",
     "@quantile-co/factory-pi": "0.1.0",
     "@types/node": "26.6.5",
     "husky": "9.1.7",
