@@ -55,13 +55,18 @@ The root remains `@quantile-co/github`; `github` is the slug for `.github`.
 
 Local caching remains the default. CI persists .turbo/cache on the existing
 Restricted Namespace volume and may use remote team main in this repository's
-workspace. The native TURBO_TOKEN secret is a server-scoped reader at
-organization/repository scope, overridden by a cache-only writer in the existing
-prod environment for trusted main Test/Build. Test, Build, Plan and Apply use prod
-where they exist; no separate cache environment is used. External/fork PRs receive
-no remote token; developers use reader-scoped credentials. Checks/tests/fixes and
-Plan/Apply remain uncached. CI readers and expiring, cache-only prod writers are
-installed; rotate the current 90-day credentials before 2027-01-23.
+workspace. Use one expiring, cache-only read/write TURBO_TOKEN organization
+secret restricted to selected repositories, without repository or environment
+shadowing copies. As with Cachix, authorized repository workflow writers are
+trusted across the shared remote cache. Main-only publication is workflow policy,
+not a secret-release boundary. Check uses remote:r; trusted main Test/Build may
+use remote:rw. External/fork PRs receive no remote token; developers use user-bound,
+server-scoped readers. Keep prod/provider protections and platform-enforced
+main-only volume snapshot publication unchanged. Checks/tests/fixes and Plan/Apply
+remain uncached. Credential changes require separate approval and live verification;
+this policy does not establish that the bindings have been migrated.
+The original 2026-10-25 setup installed CI readers and cache-only prod writers;
+rotate its 90-day credentials before 2027-01-23.
 On 2026-10-25, population run 40190287932 and verification run 40191588870
 qualified all four cache layers on quantile-4x8: Turbo local-only and remote-only
 hits, changed-input misses, Nix store reuse with builds/substitutions disabled,
@@ -80,8 +85,10 @@ strict `All`, admin enforcement and no force pushes/deletions. Do not
 restore legacy required-review or maintainer-only push restrictions, auto-merge,
 merge queues or the removed member-landing ruleset.
 
-Check has no production/cache-writer credentials and remains backend-free. Credentialed workflows enter the
-same direnv shell and supply provider credentials only at runtime. Forward
+Check has no production provider credentials and remains backend-free. Its Turbo
+remote reads use the organization cache credential with a client read-only flag,
+not a server-enforced reader grant. Credentialed main workflows enter the same
+direnv shell and supply provider credentials only at runtime. Forward
 named secrets explicitly, never `secrets: inherit`; never resolve credentials
 into Nix values. Preserve cache signatures and main-only publication.
 
