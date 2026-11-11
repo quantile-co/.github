@@ -2,7 +2,7 @@
   description = "Quantile organization profile";
 
   inputs = {
-    factory.url = "github:quantile-co/factory/main";
+    factory.url = "github:quantile-co/factory/873e8f49bb4086938cbfab9ee9eaf1664f47a8dd";
     nixpkgs.follows = "factory/nixpkgs";
   };
 
@@ -50,11 +50,17 @@
         {
           quantile-co.factory = {
             github.workflows.layers = [ "infrastructure" ];
+            github.workflows.otelJobs = [ "test" ];
             flake.packages.direnv = pkgs.direnv;
             flake.devShell = {
               shellHook = lib.concatStringsSep "\n" [
                 factory.files.shellHook
                 factory.pi.shellHook
+                ''
+                  export OTEL_COLLECTOR_BINARY=${lib.getExe factory.otelcol-contrib.package}
+                  export OTEL_COLLECTOR_CONFIG=${factory.otelcol-contrib.hostConfigFile}
+                  export OTEL_COLLECTOR_DOCKER_CONFIG=${factory.otelcol-contrib.dockerConfigFile}
+                ''
               ];
               packages = [
                 pkgs.bash
@@ -87,6 +93,7 @@
                 pkgs.clickhouse
                 pkgs.tailscale
                 factory.clickhousectl.package
+                factory.otelcol-contrib.package
                 factory.langfuse.package
                 factory.pi.package
                 factory.qmd.package

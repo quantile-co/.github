@@ -78,6 +78,17 @@ Repository/profile isolation, Restricted access and main-only publication were
 unchanged. Other profiles are not implicitly warm. Temporary diagnostics were
 removed. The rejected separate-environment plans are obsolete and must not be applied.
 
+## Managed runner telemetry
+
+Only protected manual Test opts into Factory’s shared OTel collector. The exact
+published `@quantile-co/factory-otel@0.1.0` supplies `pnpm otel`; native
+`otelcol-contrib` and nonsecret config paths come from the pinned Factory flake.
+Runtime-only `CLICKSTACK_OTLP_ENDPOINT` and `CLICKSTACK_API_KEY` are withheld from
+Nix/shell evaluation and dependency installation, then stripped from the workload.
+No PR keys, automatic startup, Docker socket access or infrastructure changes.
+Missing credentials leave Test operational without telemetry. Live ingestion
+requires separately approved runtime configuration and qualification.
+
 ## Repository and deployment policy
 
 PRs are optional; writers may fast-forward main after exact-head required checks.
