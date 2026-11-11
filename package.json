@@ -18,7 +18,7 @@
   "devDependencies": {
     "@biomejs/biome": "2.5.15",
     "@quantile-co/factory-otel": "0.1.0",
-    "@quantile-co/factory-pi": "0.1.0",
+    "@quantile-co/factory-pi": "0.1.1",
     "@types/node": "26.6.5",
     "husky": "9.1.7",
     "skills": "1.7.4",
