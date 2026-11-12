@@ -200,8 +200,8 @@ importers:
   apps/amp:
     dependencies:
       '@quantile-co/factory-amp':
-        specifier: 0.1.1
-        version: 0.1.1
+        specifier: 0.1.2
+        version: 0.1.2
       commander:
         specifier: 15.0.0
         version: 15.0.0
@@ -528,8 +528,8 @@ packages:
   '@oxc-project/types@0.155.0':
     resolution: {integrity: sha512-SeE8JPwW1xs1tHeNycjUtUBdhorRa8o4jlvjwk49R7/Z291i+4DQa7JJIgOm/TaYQZx+QrPQbVJ/9c8dMIZN8Q==}
 
-  '@quantile-co/factory-amp@0.1.1':
-    resolution: {integrity: sha512-uiGOT0GPNBtSqkk/8/Lx1Ne+dpPVWHNkpL+P1lLBldCqcERSLv24jj6wDHQT/WkylMia4fYyyIgVWRGbaKjp5w==}
+  '@quantile-co/factory-amp@0.1.2':
+    resolution: {integrity: sha512-6qT8+0qq+10jPlf8gtnLS0g11FoqfW+Ys+o77PwlZ7cHBVBH/KrHvMMlagmfXDSyWjkjpL8L0YmPncDuwpn+bw==}
     engines: {node: '>=24'}
 
   '@quantile-co/factory-github@0.1.0':
@@ -1229,7 +1229,7 @@ snapshots:
 
   '@oxc-project/types@0.155.0': {}
 
-  '@quantile-co/factory-amp@0.1.1':
+  '@quantile-co/factory-amp@0.1.2':
     dependencies:
       '@quantile-co/factory-otel': 0.1.0
 
