@@ -52,7 +52,7 @@ else if(a[0] === "storage" && a[1] === "cp" && a[2].endsWith("#42")) fs.copyFile
 else if(a[0] !== "storage" || a[1] !== "cp") process.exit(82);
 `,
     );
-    const invoke = (phase: "plan" | "apply") =>
+    const invoke = (phase: "plan" | "apply", withHindsightToken = true) =>
       spawnSync(
         process.execPath,
         [
@@ -74,6 +74,10 @@ else if(a[0] !== "storage" || a[1] !== "cp") process.exit(82);
             ...process.env,
             PATH: `${bin}:${process.env.PATH}`,
             GH_REPO_TOKEN: "fixture-credential",
+            HINDSIGHT_API_TOKEN: withHindsightToken
+              ? "fixture-hindsight-token"
+              : undefined,
+            TF_VAR_hindsight_api_token: "unapproved-hindsight-token",
             GITHUB_TOKEN: "unapproved-native",
             REST_API_BEARER: "unapproved-native",
             TF_VAR_unapproved: "must-not-leak",
@@ -88,11 +92,18 @@ else if(a[0] !== "storage" || a[1] !== "cp") process.exit(82);
         },
       );
     for (const phase of ["plan", "apply"] as const) {
+      const missingToken = invoke(phase, false);
+      assert.notEqual(missingToken.status, 0);
+      assert.match(missingToken.stderr, /Missing HINDSIGHT_API_TOKEN/);
+      assert.equal(existsSync(providerLog), false);
+      assert.equal(existsSync(storageLog), false);
+    }
+    for (const phase of ["plan", "apply"] as const) {
       const result = invoke(phase);
       assert.equal(result.status, 0, result.stderr);
       assert.doesNotMatch(
         result.stdout + result.stderr,
-        /fixture-credential|private-provider-diagnostic/,
+        /fixture-credential|fixture-hindsight-token|private-provider-diagnostic/,
       );
     }
     assert.match(readFileSync(join(root, "summary"), "utf8"), /456\/1\/42/);
@@ -121,6 +132,11 @@ else if(a[0] !== "storage" || a[1] !== "cp") process.exit(82);
       assert.equal(call.env.GITHUB_TOKEN, "fixture-credential");
       assert.equal(call.env.REST_API_BEARER, "fixture-credential");
       assert.equal(call.env.TF_VAR_gcp_wif_pool, "approved-pool");
+      assert.equal(
+        call.env.TF_VAR_hindsight_api_token,
+        "fixture-hindsight-token",
+      );
+      assert.equal(call.env.HINDSIGHT_API_TOKEN, undefined);
       assert.equal(call.env.TF_VAR_unapproved, undefined);
       assert.equal(call.env.TF_BACKEND_PREFIX, undefined);
     }
@@ -138,16 +154,57 @@ else if(a[0] !== "storage" || a[1] !== "cp") process.exit(82);
       assert.equal(call.env.GITHUB_TOKEN, undefined);
       assert.equal(call.env.REST_API_BEARER, undefined);
       assert.equal(call.env.TF_VAR_gcp_wif_pool, undefined);
+      assert.equal(call.env.TF_VAR_hindsight_api_token, undefined);
+      assert.equal(call.env.HINDSIGHT_API_TOKEN, undefined);
     }
     writeFileSync(fail, "fail");
     const failed = invoke("plan");
     assert.equal(failed.status, 7);
     assert.doesNotMatch(
       failed.stdout + failed.stderr,
-      /fixture-credential|private-provider-diagnostic/,
+      /fixture-credential|fixture-hindsight-token|private-provider-diagnostic/,
     );
     assert.equal(existsSync(join(root, "saved-plan")), false);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
+});
+
+test("Hindsight provisioning is ephemeral, protected and separate from memory cutover", () => {
+  const source = (path: string) =>
+    readFileSync(new URL(`../../${path}`, import.meta.url), "utf8");
+  const variable = source("tf/variables.tf").match(
+    /variable "hindsight_api_token" \{([\s\S]*?)\n\}/,
+  )?.[1];
+  assert.ok(variable);
+  assert.match(variable, /sensitive\s*=\s*true/);
+  assert.match(variable, /ephemeral\s*=\s*true/);
+  assert.doesNotMatch(variable, /default\s*=/);
+  assert.match(
+    source("tf/providers.tf"),
+    /bearer_token\s*=\s*var\.hindsight_api_token/,
+  );
+  assert.match(source("tf/main.tf"), /restapi\s*=\s*restapi\.hindsight/);
+  assert.match(source("tf/main.tf"), /bank_id\s*=\s*"quantile-co--github"/);
+  assert.match(source("tf/main.tf"), /name\s*=\s*"quantile-co\/\.github"/);
+  for (const phase of ["plan", "apply"]) {
+    const workflow = source(`.github/workflows/${phase}.yaml`);
+    assert.match(
+      workflow,
+      /HINDSIGHT_API_TOKEN: \$\{\{ secrets\.HINDSIGHT_API_TOKEN \}\}/,
+    );
+    assert.match(workflow, /refs\/heads\/main/);
+    assert.match(workflow, /environment: prod/);
+    assert.match(workflow, /group: organization-production/);
+  }
+  for (const phase of ["check", "test"]) {
+    assert.doesNotMatch(
+      source(`.github/workflows/${phase}.yaml`),
+      /HINDSIGHT_API_TOKEN/,
+    );
+  }
+  assert.match(source(".pi/settings.json"), /npm:pi-memory@0\.4\.2/);
+  assert.doesNotMatch(source(".pi/settings.json"), /hindsight-coding-agents/);
+  assert.ok(source(".pi/memory/MEMORY.md").length > 0);
+  assert.ok(source(".qmd/index.yml").length > 0);
 });

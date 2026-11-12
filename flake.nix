@@ -2,7 +2,8 @@
   description = "Quantile organization profile";
 
   inputs = {
-    factory.url = "github:quantile-co/factory/f7bf8fd002bc1df2f6a1b51ec17e0db4079f0bfa";
+    # Provisioning stage: retain legacy memory until the bank/import is verified.
+    factory.url = "github:quantile-co/factory/5ff0a140390cd040fdafdc5ad2881c3638b51afe";
     nixpkgs.follows = "factory/nixpkgs";
   };
 
@@ -49,8 +50,11 @@
         in
         {
           quantile-co.factory = {
-            github.workflows.layers = [ "infrastructure" ];
-            github.workflows.otelJobs = [ "test" ];
+            github.workflows = {
+              layers = [ "infrastructure" ];
+              otelJobs = [ "test" ];
+              hindsight = true;
+            };
             flake.packages.direnv = pkgs.direnv;
             flake.devShell = {
               shellHook = lib.concatStringsSep "\n" [

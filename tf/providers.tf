@@ -1,4 +1,10 @@
-# Credentials come from the protected runtime, never Terraform variables.
+# Credentials come from protected runtime; Hindsight uses an ephemeral input.
+provider "restapi" {
+  alias        = "hindsight"
+  uri          = "https://api.hindsight.vectorize.io"
+  bearer_token = var.hindsight_api_token
+}
+
 provider "google" {}
 
 provider "github" {
