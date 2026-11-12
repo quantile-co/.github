@@ -2,8 +2,7 @@
   description = "Quantile organization profile";
 
   inputs = {
-    # Provisioning stage: retain legacy memory until the bank/import is verified.
-    factory.url = "github:quantile-co/factory/5ff0a140390cd040fdafdc5ad2881c3638b51afe";
+    factory.url = "github:quantile-co/factory/7d3121912d8a28a9ab85c7005f3ab7ff4ef9e481";
     nixpkgs.follows = "factory/nixpkgs";
   };
 
@@ -50,6 +49,7 @@
         in
         {
           quantile-co.factory = {
+            hindsight.bankId = "quantile-co--github";
             github.workflows = {
               layers = [ "infrastructure" ];
               otelJobs = [ "test" ];
@@ -59,7 +59,7 @@
             flake.devShell = {
               shellHook = lib.concatStringsSep "\n" [
                 factory.files.shellHook
-                factory.pi.shellHook
+                factory.hindsight.shellHook
                 ''
                   export OTEL_COLLECTOR_BINARY=${lib.getExe factory.otelcol-contrib.package}
                   export OTEL_COLLECTOR_CONFIG=${factory.otelcol-contrib.hostConfigFile}
@@ -100,7 +100,7 @@
                 factory.otelcol-contrib.package
                 factory.langfuse.package
                 factory.pi.package
-                factory.qmd.package
+                factory.hindsight.package
                 factory.prek.package
                 factory.prek.tools.package
                 factory.dependabot.check.package
@@ -196,11 +196,8 @@
               ".github/workflows/plan.yaml" = copy (workflow "plan");
               ".github/workflows/apply.yaml" = copy (workflow "apply");
               ".github/dependabot.yml" = copy dependabotFile;
-              ".pi/settings.json" = copy factory.pi.settingsFile;
-              ".qmd/index.yml" = {
-                source = factory.qmd.configFile;
-                mode = "seed";
-              };
+              ".pi/settings.json" = copy factory.hindsight.piSettingsFile;
+              ".pi/hindsight.json" = copy factory.hindsight.configFile;
               ".semgrep/tf" = copy (factory.semgrep.rulesDir + "/tf");
               ".semgrep/tests/tf" = copy (factory.semgrep.test.fixturesDir + "/tf");
               ".semgrep/packs/typescript.yaml" = copy factory.semgrep.packs.typescript;

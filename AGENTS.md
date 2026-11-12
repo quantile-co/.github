@@ -3,13 +3,12 @@
 This is the public `quantile-co/.github` repository, not an application's
 `.github/` directory.
 
-Read [project memory](.pi/memory/MEMORY.md) before working here. It holds
-repository rules, decisions, preferences and operational context. Source,
-tests and current workflows take precedence over historical notes.
+Repository memory: [Hindsight workflow](.agents/skills/hindsight/SKILL.md) and
+[native configuration](.pi/hindsight.json).
 
 **Maintain this file as a lightweight navigation index.** Only add or update
-pointers to repository entry points. Put durable guidance in `MEMORY.md`
-instead of duplicating policies, runbooks or session notes here.
+pointers to repository entry points. Link to the Hindsight workflow rather than
+duplicating policies, runbooks or session notes here.
 
 ## Repository map
 

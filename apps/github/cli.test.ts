@@ -170,7 +170,7 @@ else if(a[0] !== "storage" || a[1] !== "cp") process.exit(82);
   }
 });
 
-test("Hindsight provisioning is ephemeral, protected and separate from memory cutover", () => {
+test("Hindsight provisioning is ephemeral and protected; native memory is repository-scoped", () => {
   const source = (path: string) =>
     readFileSync(new URL(`../../${path}`, import.meta.url), "utf8");
   const variable = source("tf/variables.tf").match(
@@ -203,8 +203,44 @@ test("Hindsight provisioning is ephemeral, protected and separate from memory cu
       /HINDSIGHT_API_TOKEN/,
     );
   }
-  assert.match(source(".pi/settings.json"), /npm:pi-memory@0\.4\.2/);
-  assert.doesNotMatch(source(".pi/settings.json"), /hindsight-coding-agents/);
-  assert.ok(source(".pi/memory/MEMORY.md").length > 0);
-  assert.ok(source(".qmd/index.yml").length > 0);
+  const settings = JSON.parse(source(".pi/settings.json"));
+  assert.ok(
+    settings.packages.includes(
+      "npm:@vectorize-io/hindsight-coding-agents@0.8.7",
+    ),
+  );
+  assert.ok(
+    settings.packages.includes("npm:@langfuse/pi-observability-plugin@0.1.2"),
+  );
+  assert.ok(
+    settings.extensions.includes(
+      "./npm/node_modules/@vectorize-io/hindsight-coding-agents/dist/pi.js",
+    ),
+  );
+  assert.doesNotMatch(JSON.stringify(settings), /pi-memory/);
+  const config = JSON.parse(source(".pi/hindsight.json"));
+  assert.equal(config.bankId, "quantile-co--github");
+  assert.equal(config.apiUrl, "https://api.hindsight.vectorize.io");
+  assert.equal(config.dynamicBankId, false);
+  assert.equal(config.optInOnly, true);
+  assert.equal(config.resolveWorktrees, true);
+  assert.equal(config.autoSeed, false);
+  assert.equal(config.gitIngest, "none");
+  assert.equal(config.codebaseSurvey, false);
+  assert.equal(config.observationScopes, "shared");
+  assert.equal(config.recallOptions.max_tokens, 2000);
+  assert.equal(config.apiToken, undefined);
+  assert.equal(config.apiKey, undefined);
+  for (const retired of [".pi/memory/MEMORY.md", ".qmd/index.yml"]) {
+    assert.equal(
+      existsSync(new URL(`../../${retired}`, import.meta.url)),
+      false,
+    );
+  }
+  assert.doesNotMatch(
+    source("flake.nix"),
+    /factory\.qmd|factory\.pi\.shellHook/,
+  );
+  assert.match(source("flake.nix"), /factory\.hindsight\.shellHook/);
+  assert.match(source("package.json"), /@quantile-co\/factory-pi#hindsight/);
 });

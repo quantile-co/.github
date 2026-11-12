@@ -6,7 +6,7 @@
   "scripts": {
     "prepare": "husky",
     "build": "TURBO_CACHE=\"${TURBO_CACHE:-local:rw}\" turbo run build",
-    "skills:sync": "skills experimental_sync --agent pi --copy --yes --include @quantile-co/factory-pi#deploy @quantile-co/factory-pi#day-zero-deploy @quantile-co/factory-pi#terraform-style-guide",
+    "skills:sync": "skills experimental_sync --agent pi --copy --yes --include @quantile-co/factory-pi#hindsight @quantile-co/factory-pi#deploy @quantile-co/factory-pi#day-zero-deploy @quantile-co/factory-pi#terraform-style-guide",
     "check": "pnpm run build && TURBO_CACHE=\"${TURBO_CACHE:-local:rw}\" turbo run check",
     "fix": "pnpm --filter @quantile-co/github-repo-cli fix",
     "test": "pnpm run check && TURBO_CACHE=\"${TURBO_CACHE:-local:rw}\" turbo run test",
@@ -18,7 +18,7 @@
   "devDependencies": {
     "@biomejs/biome": "2.5.15",
     "@quantile-co/factory-otel": "0.1.0",
-    "@quantile-co/factory-pi": "0.1.0",
+    "@quantile-co/factory-pi": "0.1.4",
     "@types/node": "26.6.5",
     "husky": "9.1.7",
     "skills": "1.7.4",
