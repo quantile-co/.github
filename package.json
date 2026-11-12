@@ -10,6 +10,7 @@
     "check": "pnpm run build && TURBO_CACHE=\"${TURBO_CACHE:-local:rw}\" turbo run check",
     "fix": "pnpm --filter @quantile-co/github-repo-cli fix",
     "test": "pnpm run check && TURBO_CACHE=\"${TURBO_CACHE:-local:rw}\" turbo run test",
+    "amp": "tsx apps/amp/cli.ts",
     "otel": "factory-otel",
     "github:test": "pnpm test",
     "github:plan": "tsx apps/github/cli.ts plan",

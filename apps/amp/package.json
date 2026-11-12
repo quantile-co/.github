@@ -1,0 +1,17 @@
+{
+  "name": "@quantile-co/github-amp-cli",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "tsc --noEmit && pnpm test",
+    "test": "node --experimental-test-module-mocks --test cli.test.ts hooks.test.ts"
+  },
+  "dependencies": {
+    "@quantile-co/factory-amp": "0.1.1",
+    "commander": "15.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.5",
+    "typescript": "7.0.2"
+  }
+}

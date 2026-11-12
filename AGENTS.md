@@ -19,6 +19,7 @@ duplicating policies, runbooks or session notes here.
 - [package.json](package.json): workspace tasks and explicit skill synchronization.
 - [apps/repo/](apps/repo/): repository checks, fixes and tests.
 - [apps/github/](apps/github/): protected saved-plan workflow entry points.
+- [apps/amp/](apps/amp/) and [.agents/](.agents/): Amp CLI and orb lifecycle hooks.
 - [tf/](tf/): this repository's deployment root.
 - [.github/workflows/](.github/workflows/): CI and protected deployment workflows.
 

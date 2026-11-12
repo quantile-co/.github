@@ -95,7 +95,7 @@
                 agents.amp
                 agents.hunk
                 pkgs.clickhouse
-                pkgs.tailscale
+                inputs.factory.packages.${pkgs.stdenv.hostPlatform.system}.tailscale
                 factory.clickhousectl.package
                 factory.otelcol-contrib.package
                 factory.langfuse.package
