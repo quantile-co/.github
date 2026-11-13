@@ -2,7 +2,7 @@
   description = "Quantile organization profile";
 
   inputs = {
-    factory.url = "github:quantile-co/factory/56273aa858643e0be4be593b245f120ca312d95a";
+    factory.url = "github:quantile-co/factory/136c0975625d5246dbbaca59e9a123e33e30b789";
     nixpkgs.follows = "factory/nixpkgs";
   };
 
