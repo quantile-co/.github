@@ -35,19 +35,27 @@ fs.appendFileSync(${JSON.stringify(log)}, JSON.stringify({
 if (${JSON.stringify(tool)} === "nix") {
   if (args[0] === "store") console.log('{"trusted":true}');
   if (args[0] === "print-dev-env") console.log("export SHELL_READY=1");
+  if (args[0] === "develop") {
+    const command = args.indexOf("--command") + 1;
+    const child = require("node:child_process").spawnSync(args[command], args.slice(command + 1), { stdio: "inherit" });
+    if (child.error) throw child.error;
+    process.exit(child.status ?? 1);
+  }
 }
+if (${JSON.stringify(tool)} === "pnpm" && args.join(" ") === process.env.FAIL_COMMAND) process.exit(17);
 `,
       );
       chmodSync(path, 0o755);
     }
     for (const phase of ["setup", "resume"]) {
-      const invoke = (orb: string) =>
+      const invoke = (orb: string, failCommand = "") =>
         spawnSync("bash", [join(root, ".agents", phase)], {
           encoding: "utf8",
           env: {
             PATH: `${temporary}:${process.env.PATH}`,
             HOME: temporary,
             AMP_ORB: orb,
+            FAIL_COMMAND: failCommand,
             CLICKSTACK_OTLP_ENDPOINT: "https://ingest.example.invalid",
             CLICKSTACK_API_KEY: "fixture",
             OTEL_DOCKER_STATS: "1",
@@ -80,8 +88,35 @@ if (${JSON.stringify(tool)} === "nix") {
         assert.ok(last.endpoint && last.key && last.docker);
         assert.equal(last.shell, "1");
       } else {
-        assert.match(nix.at(-1).args.at(-1), /pnpm install --frozen-lockfile/);
-        assert.match(nix.at(-1).args.at(-1), /pnpm amp setup/);
+        const expected = [
+          ["install", "--frozen-lockfile"],
+          ["run", "skills:sync"],
+          ["amp", "setup"],
+        ];
+        const commands = () =>
+          readFileSync(log, "utf8")
+            .trim()
+            .split("\n")
+            .map((line) => JSON.parse(line))
+            .filter((call) => call.tool === "pnpm");
+        assert.deepEqual(
+          commands().map((call) => call.args),
+          expected,
+        );
+        assert.ok(
+          commands().every(
+            (call) => !call.endpoint && !call.key && !call.docker,
+          ),
+        );
+        for (const [index, args] of expected.slice(0, -1).entries()) {
+          writeFileSync(log, "");
+          const failed = invoke("1", args.join(" "));
+          assert.equal(failed.status, 17, failed.stderr);
+          assert.deepEqual(
+            commands().map((call) => call.args),
+            expected.slice(0, index + 1),
+          );
+        }
       }
     }
   } finally {

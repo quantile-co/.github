@@ -46,17 +46,17 @@
         "tailscale-nixpkgs": "tailscale-nixpkgs"
       },
       "locked": {
-        "lastModified": 1794447195,
-        "narHash": "sha256-B7COYF5aqQJTlrSO0djVMd8LEiEuHO/UeUA0yeD7zP4=",
+        "lastModified": 1794544185,
+        "narHash": "sha256-aHni0Xknn9utAaDkcqFEbSlEdFpBgXuPx2l1pizEWuw=",
         "owner": "quantile-co",
         "repo": "factory",
-        "rev": "7d3121912d8a28a9ab85c7005f3ab7ff4ef9e481",
+        "rev": "136c0975625d5246dbbaca59e9a123e33e30b789",
         "type": "github"
       },
       "original": {
         "owner": "quantile-co",
         "repo": "factory",
-        "rev": "7d3121912d8a28a9ab85c7005f3ab7ff4ef9e481",
+        "rev": "136c0975625d5246dbbaca59e9a123e33e30b789",
         "type": "github"
       }
     },
