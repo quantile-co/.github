@@ -197,8 +197,8 @@ importers:
   apps/amp:
     dependencies:
       '@quantile-co/factory-amp':
-        specifier: 0.1.3
-        version: 0.1.3
+        specifier: 0.2.0
+        version: 0.2.0
       commander:
         specifier: 15.0.0
         version: 15.0.0
@@ -549,16 +549,16 @@ packages:
   '@oxc-project/types@0.156.0':
     resolution: {integrity: sha512-1Duyg48TdJNdyhEB8Xn1L36bT9Pv6GUtlKjHxOys8xkaF/rQq3XJE+bAurSK/AgIz5mGFsb77cn9Pb20+WCScw==}
 
-  '@quantile-co/factory-amp@0.1.3':
-    resolution: {integrity: sha512-b9GcVlEElYdFzq+MtFilXjNerg9hOtaeHekIC9SbdGoALpApsSXw4M1sX0V6uhdrQbEBq+AfWaHm2RvzEyPajg==}
+  '@quantile-co/factory-amp@0.2.0':
+    resolution: {integrity: sha512-1JhgZYWRbdUO22bwVIme0d6f08NksE3b28J8UizA+gObMqqnaguFgozfqWHi4Y2MVg39KoKLA8gmEROnhP0suA==}
     engines: {node: '>=24'}
 
   '@quantile-co/factory-github@0.1.1':
     resolution: {integrity: sha512-tZ06wsi0Xs2nBCR45uS7inL0RtxnJQwZa5BK2LzfDYoAhsh7vSj4Oc0/xTBucfzgWGV14fXsx6UxZh4u5FBrdA==}
     engines: {node: '>=24'}
 
-  '@quantile-co/factory-otel@0.2.0':
-    resolution: {integrity: sha512-OhnieLoEpctsmQnI6XdFuNgD3u+dAt5F0wA0UrGODXseiDNFSRaMMx5n1THJ49q+7Jp7FBoNzguQwk8Zvx+/Qg==}
+  '@quantile-co/factory-otel@0.3.0':
+    resolution: {integrity: sha512-5kUkJ6qISrpjCkUUaGATaC2ZiyMGoxQyy0lIcXQKhpE+8uhYB2QwpHzLYFVirTL5aVGKaLsiW7352JW5lZlSrQ==}
     engines: {node: '>=24'}
 
   '@quantile-co/factory-pi@0.1.4':
@@ -1289,13 +1289,13 @@ snapshots:
 
   '@oxc-project/types@0.156.0': {}
 
-  '@quantile-co/factory-amp@0.1.3':
+  '@quantile-co/factory-amp@0.2.0':
     dependencies:
-      '@quantile-co/factory-otel': 0.2.0
+      '@quantile-co/factory-otel': 0.3.0
 
   '@quantile-co/factory-github@0.1.1': {}
 
-  '@quantile-co/factory-otel@0.2.0':
+  '@quantile-co/factory-otel@0.3.0':
     dependencies:
       '@opentelemetry/api': 1.9.1
       '@opentelemetry/context-async-hooks': 2.12.1(@opentelemetry/api@1.9.1)

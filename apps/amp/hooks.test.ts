@@ -26,8 +26,8 @@ const fs = require("node:fs");
 const args = process.argv.slice(2);
 fs.appendFileSync(${JSON.stringify(log)}, JSON.stringify({
   tool: ${JSON.stringify(tool)}, args, cwd: process.cwd(),
-  endpoint: !!process.env.CLICKSTACK_OTLP_ENDPOINT,
-  key: !!process.env.CLICKSTACK_API_KEY,
+  endpoint: !!process.env.QUANTILE_OTLP_ENDPOINT,
+  key: !!process.env.QUANTILE_OTLP_INGEST_TOKEN,
   docker: !!process.env.OTEL_DOCKER_STATS,
   config: process.env.NIX_CONFIG,
   shell: process.env.SHELL_READY,
@@ -56,8 +56,8 @@ if (${JSON.stringify(tool)} === "pnpm" && args.join(" ") === process.env.FAIL_CO
             HOME: temporary,
             AMP_ORB: orb,
             FAIL_COMMAND: failCommand,
-            CLICKSTACK_OTLP_ENDPOINT: "https://ingest.example.invalid",
-            CLICKSTACK_API_KEY: "fixture",
+            QUANTILE_OTLP_ENDPOINT: "https://ingest.example.invalid",
+            QUANTILE_OTLP_INGEST_TOKEN: "fixture",
             OTEL_DOCKER_STATS: "1",
           },
         });
@@ -85,7 +85,7 @@ if (${JSON.stringify(tool)} === "pnpm" && args.join(" ") === process.env.FAIL_CO
           "--directory",
           root.slice(0, -1),
         ]);
-        assert.ok(last.endpoint && last.key && last.docker);
+        assert.ok(last.endpoint && !last.key && last.docker);
         assert.equal(last.shell, "1");
       } else {
         const expected = [

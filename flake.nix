@@ -2,7 +2,7 @@
   description = "Quantile organization profile";
 
   inputs = {
-    factory.url = "github:quantile-co/factory/2a0ce9668b2b355c8a9d32affddb33ea72dbfdc0";
+    factory.url = "github:quantile-co/factory/5a1f0543d5a4a66236b57f22bcc9d82fb97fcd72";
     nixpkgs.follows = "factory/nixpkgs";
   };
 
@@ -53,7 +53,7 @@
             github.workflows = {
               layers = [ "infrastructure" ];
               otelJobs = [ "test" ];
-              otelActionRef = "38aedb9583cdd78d121f949ff94f603982f39eee";
+              otelActionRef = "96b659232f4b92620433d21a6eb06f9209e5a487";
               hindsight = true;
             };
             flake.packages.direnv = pkgs.direnv;
@@ -65,6 +65,7 @@
                   export OTEL_COLLECTOR_BINARY=${lib.getExe factory.otelcol-contrib.package}
                   export OTEL_COLLECTOR_CONFIG=${factory.otelcol-contrib.hostConfigFile}
                   export OTEL_COLLECTOR_DOCKER_CONFIG=${factory.otelcol-contrib.dockerConfigFile}
+                  export OTEL_COLLECTOR_JOURNAL_CONFIG=${factory.otelcol-contrib.journalConfigFile}
                 ''
               ];
               packages = [
