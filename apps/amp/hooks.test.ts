@@ -27,8 +27,7 @@ const args = process.argv.slice(2);
 fs.appendFileSync(${JSON.stringify(log)}, JSON.stringify({
   tool: ${JSON.stringify(tool)}, args, cwd: process.cwd(),
   endpoint: !!process.env.QUANTILE_OTLP_ENDPOINT,
-  key: !!process.env.QUANTILE_OTLP_INGEST_TOKEN,
-  docker: !!process.env.OTEL_DOCKER_STATS,
+  docker: !!process.env.QUANTILE_OTELCOL_DOCKER_STATS,
   config: process.env.NIX_CONFIG,
   shell: process.env.SHELL_READY,
 }) + "\\n");
@@ -57,8 +56,7 @@ if (${JSON.stringify(tool)} === "pnpm" && args.join(" ") === process.env.FAIL_CO
             AMP_ORB: orb,
             FAIL_COMMAND: failCommand,
             QUANTILE_OTLP_ENDPOINT: "https://ingest.example.invalid",
-            QUANTILE_OTLP_INGEST_TOKEN: "fixture",
-            OTEL_DOCKER_STATS: "1",
+            QUANTILE_OTELCOL_DOCKER_STATS: "1",
           },
         });
       writeFileSync(log, "");
@@ -71,9 +69,7 @@ if (${JSON.stringify(tool)} === "pnpm" && args.join(" ") === process.env.FAIL_CO
         .split("\n")
         .map((line) => JSON.parse(line));
       const nix = calls.filter((call) => call.tool === "nix");
-      assert.ok(
-        nix.every((call) => !call.endpoint && !call.key && !call.docker),
-      );
+      assert.ok(nix.every((call) => !call.endpoint && !call.docker));
       assert.match(nix.at(-1).config, /extra-trusted-public-keys/);
       assert.doesNotMatch(nix.at(-1).config, /require-sigs\s*=\s*false/);
       if (phase === "resume") {
@@ -85,7 +81,7 @@ if (${JSON.stringify(tool)} === "pnpm" && args.join(" ") === process.env.FAIL_CO
           "--directory",
           root.slice(0, -1),
         ]);
-        assert.ok(last.endpoint && !last.key && last.docker);
+        assert.ok(last.endpoint && last.docker);
         assert.equal(last.shell, "1");
       } else {
         const expected = [
@@ -103,11 +99,7 @@ if (${JSON.stringify(tool)} === "pnpm" && args.join(" ") === process.env.FAIL_CO
           commands().map((call) => call.args),
           expected,
         );
-        assert.ok(
-          commands().every(
-            (call) => !call.endpoint && !call.key && !call.docker,
-          ),
-        );
+        assert.ok(commands().every((call) => !call.endpoint && !call.docker));
         for (const [index, args] of expected.slice(0, -1).entries()) {
           writeFileSync(log, "");
           const failed = invoke("1", args.join(" "));
