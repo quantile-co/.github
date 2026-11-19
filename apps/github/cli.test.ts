@@ -23,7 +23,7 @@ test("central metrics enrollment is explicit and preserves downstream identity",
   assert.ok(gcp);
   assert.equal(
     gcp.match(/source\s*=\s*"([^"]+)"/)?.[1],
-    "git::https://github.com/quantile-co/factory.git//tf/modules/project/gcp?ref=8aaa95a7e46377bbc6b56b5855ab38ba8d2903fa",
+    "git::https://github.com/quantile-co/factory.git//tf/modules/project/gcp?ref=dd910bf07e8f9cee0bee9f5b60e102e07fb0e82d",
   );
   assert.equal(
     gcp.match(/metrics_enrollment_member\s*=\s*"([^"]+)"/)?.[1],
