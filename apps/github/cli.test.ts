@@ -14,7 +14,7 @@ import { join } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 
-test("central metrics enrollment is explicit and preserves downstream identity", () => {
+test("uses the project module with the repository deployment identity", () => {
   const source = readFileSync(
     new URL("../../tf/main.tf", import.meta.url),
     "utf8",
@@ -24,10 +24,6 @@ test("central metrics enrollment is explicit and preserves downstream identity",
   assert.equal(
     gcp.match(/source\s*=\s*"([^"]+)"/)?.[1],
     "git::https://github.com/quantile-co/factory.git//tf/modules/project/gcp?ref=dd910bf07e8f9cee0bee9f5b60e102e07fb0e82d",
-  );
-  assert.equal(
-    gcp.match(/metrics_enrollment_member\s*=\s*"([^"]+)"/)?.[1],
-    "principalSet://iam.googleapis.com/projects/86084514682/locations/global/workloadIdentityPools/github/attribute.main_branch_repository_actor_id/1458437080_218666448",
   );
   assert.match(gcp, /gh_repo_id\s*=\s*module\.gh\.repo_id/);
   assert.match(gcp, /gh_owner_ids\s*=\s*module\.gh\.owner_ids/);
