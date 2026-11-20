@@ -23,7 +23,7 @@ module "gh" {
 
   allowed_action_patterns = [
     "quantile-co/factory/.github/workflows/*@*",
-    "quantile-co/factory/.github/actions/otel@6be9414260216afaf5315d5ec03c2f151eef14b4",
+    "quantile-co/factory/.github/actions/otel@fc58a07d1184b9216f0a27e5b36bec80cf5a6b0b",
     "cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24",
     "cachix/cachix-action@38b082610b782e7e93e209c35fd730d399dee866",
     "namespacelabs/nscloud-cache-action@1124a6f3ce44e5cf84cc22111530961f4d2a15f9",
