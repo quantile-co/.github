@@ -8,7 +8,7 @@
     "check": "node --import tsx --test cli.test.ts"
   },
   "dependencies": {
-    "@quantile-co/factory-github": "0.1.1",
+    "@quantile-co/factory-github": "0.1.3",
     "commander": "15.0.0"
   }
 }
