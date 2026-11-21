@@ -2,7 +2,7 @@
   description = "Quantile organization profile";
 
   inputs = {
-    factory.url = "github:quantile-co/factory/610bac6c2862f554cbc1cd0ed6293ced2e10a647";
+    factory.url = "github:quantile-co/factory/ebbc40b3b26c0a9e36f33b16af88c61c64450ebe";
     nixpkgs.follows = "factory/nixpkgs";
   };
 
@@ -60,6 +60,7 @@
               otelActionRef = "fc58a07d1184b9216f0a27e5b36bec80cf5a6b0b";
             };
             flake.packages.direnv = pkgs.direnv;
+            flake.packages.github-code-quality = factory.github.codeQuality.package;
             flake.devShell = {
               shellHook = lib.concatStringsSep "\n" [
                 factory.files.shellHook
@@ -197,6 +198,7 @@
               );
               ".github/actionlint.yaml" = copy factory.actionlint.configFile;
               ".github/workflows/check.yaml" = copy factory.github.workflows.check.configFile;
+              ".github/workflows/github-code-quality.yaml" = copy factory.github.workflows.codeQuality.configFile;
               ".github/workflows/test.yaml" = copy factory.github.workflows.test.configFile;
               ".github/workflows/plan.yaml" = copy (workflow "plan");
               ".github/workflows/apply.yaml" = copy (workflow "apply");
