@@ -59,8 +59,10 @@
               otelJobs = [ "test" ];
               otelActionRef = "fc58a07d1184b9216f0a27e5b36bec80cf5a6b0b";
             };
-            flake.packages.direnv = pkgs.direnv;
-            flake.packages.github-code-quality = factory.github.codeQuality.package;
+            flake.packages = {
+              direnv = pkgs.direnv;
+              github-code-quality = factory.github.codeQuality.package;
+            };
             flake.devShell = {
               shellHook = lib.concatStringsSep "\n" [
                 factory.files.shellHook
