@@ -2,7 +2,7 @@
   description = "Quantile organization profile";
 
   inputs = {
-    factory.url = "github:quantile-co/factory/ebbc40b3b26c0a9e36f33b16af88c61c64450ebe";
+    factory.url = "github:quantile-co/factory/5769b356506524ed70d81adfe7f665978dc7ec9e";
     nixpkgs.follows = "factory/nixpkgs";
   };
 
@@ -123,6 +123,7 @@
                 factory.actionlint.check.package
                 factory.semgrep.test.package
                 factory.semgrep.check.package
+                factory.sonarqube.check.package
                 factory.trivy.check.package
                 factory.typos.check.package
                 factory.vale.check.package
@@ -141,6 +142,15 @@
               ];
             };
             files.entries = {
+              ".biome/no-literal-type-assertions.grit" = copy factory.biome.literalAssertionsPluginFile;
+              ".semgrep/typescript" = copy (factory.semgrep.rulesDir + "/typescript");
+              ".semgrep/tests/typescript" = copy (factory.semgrep.test.fixturesDir + "/typescript");
+              "sonar-project.properties" = copy (
+                factory.sonarqube.withProject {
+                  projectKey = "quantile-co_.github";
+                  roots = [ "apps" ];
+                }
+              );
               "README.md" = {
                 source = factory.readme.withProject {
                   name = "Quantile organization profile";

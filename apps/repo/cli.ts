@@ -4,6 +4,8 @@ const root = execFileSync("git", ["rev-parse", "--show-toplevel"], {
   encoding: "utf8",
 }).trim();
 
+const { SONAR_HOST_URL, SONAR_TOKEN, ...repoEnv } = process.env;
+
 function run(
   command: string,
   args: string[] = [],
@@ -11,7 +13,7 @@ function run(
 ) {
   const result = spawnSync(command, args, {
     cwd: root,
-    env: { ...process.env, ...extra },
+    env: { ...repoEnv, ...extra },
     stdio: "inherit",
   });
   if (result.error) throw result.error;
@@ -69,6 +71,7 @@ switch (action) {
       "turbo.json",
       "biome.json",
     ]);
+    run("check-sonarqube", [], { SONAR_HOST_URL, SONAR_TOKEN });
     break;
   case "fix":
     run("factory-files", ["write"]);

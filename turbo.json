@@ -28,6 +28,11 @@
       "dependsOn": ["^build"],
       "cache": false
     },
+    "@quantile-co/github-repo-cli#check": {
+      "dependsOn": ["^build"],
+      "cache": false,
+      "passThroughEnv": ["SONAR_HOST_URL", "SONAR_TOKEN"]
+    },
     "fix": {
       "cache": false
     },
