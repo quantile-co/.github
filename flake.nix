@@ -2,7 +2,7 @@
   description = "Quantile organization profile";
 
   inputs = {
-    factory.url = "github:quantile-co/factory/31ab079ad923e7f2cd78eb02c950e432d25b7065";
+    factory.url = "github:quantile-co/factory/fb895afe4c87b59b1525b4ab912ca87d7e923b63";
     nixpkgs.follows = "factory/nixpkgs";
   };
 
@@ -65,12 +65,7 @@
               shellHook = lib.concatStringsSep "\n" [
                 factory.files.shellHook
                 factory.hindsight.shellHook
-                ''
-                  export QUANTILE_OTELCOL_BINARY=${lib.getExe factory.otelcol-contrib.package}
-                  export QUANTILE_OTELCOL_CONFIG=${factory.otelcol-contrib.hostConfigFile}
-                  export QUANTILE_OTELCOL_DOCKER_CONFIG=${factory.otelcol-contrib.dockerConfigFile}
-                  export QUANTILE_OTELCOL_JOURNAL_CONFIG=${factory.otelcol-contrib.journalConfigFile}
-                ''
+                factory.otelcol-contrib.shellHook
               ];
               packages = [
                 pkgs.bash
