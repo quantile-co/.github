@@ -29,6 +29,7 @@ module "gh" {
     "cachix/install-nix-action@448cde739abec1eaf0646249e3d25bb8d9bc7702",
     "cachix/install-nix-action@75c75c31ebece974e48ebc36b4ad125bd97bd97b",
     "cachix/install-nix-action@3dc140bfc76c49fbd4dd958429132e3746bcb086",
+    "quantile-co/factory/.github/actions/otel@fc58a07d1184b9216f0a27e5b36bec80cf5a6b0b",
   ]
 
   repo_name       = ".github"
