@@ -2,7 +2,7 @@
   description = "Quantile organization profile";
 
   inputs = {
-    factory.url = "github:quantile-co/factory/5769b356506524ed70d81adfe7f665978dc7ec9e";
+    factory.url = "github:quantile-co/factory/f3eb7df1d3fe21494e74e527520ff223b27981c4";
     nixpkgs.follows = "factory/nixpkgs";
   };
 
@@ -56,8 +56,6 @@
             hindsight.bankId = "quantile-co--github";
             github.workflows = {
               layers = [ "infrastructure" ];
-              otelJobs = [ "test" ];
-              otelActionRef = "fc58a07d1184b9216f0a27e5b36bec80cf5a6b0b";
             };
             flake.packages = {
               direnv = pkgs.direnv;
