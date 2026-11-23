@@ -7,7 +7,7 @@
     "test": "node --experimental-test-module-mocks --test cli.test.ts hooks.test.ts"
   },
   "dependencies": {
-    "@quantile-co/factory-amp": "0.3.1",
+    "@quantile-co/factory-amp": "0.3.2",
     "commander": "15.1.0"
   },
   "devDependencies": {
