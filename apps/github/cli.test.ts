@@ -201,9 +201,9 @@ test("Hindsight provisioning is ephemeral and protected; native memory is reposi
   assert.doesNotMatch(variable, /default\s*=/);
   assert.match(
     source("tf/providers.tf"),
-    /bearer_token\s*=\s*var\.hindsight_api_token/,
+    /token\s*=\s*var\.hindsight_api_token/,
   );
-  assert.match(source("tf/main.tf"), /restapi\s*=\s*restapi\.hindsight/);
+  assert.match(source("tf/main.tf"), /restful\s*=\s*restful\.hindsight/);
   assert.match(source("tf/main.tf"), /bank_id\s*=\s*"quantile-co--github"/);
   assert.match(source("tf/main.tf"), /name\s*=\s*"quantile-co\/\.github"/);
   for (const phase of ["plan", "apply"]) {
