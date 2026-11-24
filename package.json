@@ -17,7 +17,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.6.8",
-    "@quantile-co/factory-pi": "0.1.12",
+    "@quantile-co/factory-pi": "0.1.13",
     "@types/node": "26.6.6",
     "husky": "9.1.7",
     "skills": "1.9.0",

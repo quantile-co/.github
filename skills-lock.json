@@ -1,48 +1,50 @@
 {
-  "version": 1,
+  "version": 2,
   "skills": {
     "break-glass": {
       "source": "@quantile-co/factory-pi",
       "sourceType": "node_modules",
       "skillPath": "skills/break-glass/SKILL.md",
-      "version": "0.1.12",
-      "computedHash": "ba3f2e012250d479b81a91e5e25f240bda0c10d3200cc1a30a7cca17c4cfb831"
+      "version": "0.1.13",
+      "computedHash": "29013b98ff5eb912b7956a0b5f5779e24514f593d696a50b0c1390a243b26b59"
     },
     "day-zero-deploy": {
       "source": "@quantile-co/factory-pi",
       "sourceType": "node_modules",
       "skillPath": "skills/day-zero-deploy/SKILL.md",
-      "version": "0.1.12",
-      "computedHash": "1caf78230b8034b76478b0c70db52e2fd6007957fb9327b76d63d6fdd863422c"
+      "version": "0.1.13",
+      "computedHash": "bc4bdd9d930537ad202187f6b08fe23cfec9c87c9f5382173e7b83f36a07e402"
     },
     "deploy": {
       "source": "@quantile-co/factory-pi",
       "sourceType": "node_modules",
       "skillPath": "skills/deploy/SKILL.md",
-      "version": "0.1.12",
-      "computedHash": "a32a4a6f4f8b479ad5db763964da95187f481f6e5fe5e76f27411eeca7725b79"
+      "version": "0.1.13",
+      "computedHash": "6f133abddfb3bc7ced4ae6bbd29a9ea420d736b9fe75caf946a9515e11eddba3"
     },
     "herdr": {
       "source": "herdrdev/herdr",
       "ref": "2ecf19a92fc3a7fff75b6ce3655ef04f4625ec01",
+      "commit": "2ecf19a92fc3a7fff75b6ce3655ef04f4625ec01",
       "sourceType": "github",
       "skillPath": "skills/herdr/SKILL.md",
-      "computedHash": "72177e911f55467de8737174072ec6bb08e30bbf62bceabcb69678e944398b18",
+      "computedHash": "344ecec0a92a8e56ae86c2bc4cd30d94478a4fb85790e0c8de35cb7cd7ef48a9",
       "via": "@quantile-co/factory-pi"
     },
     "hindsight": {
       "source": "@quantile-co/factory-pi",
       "sourceType": "node_modules",
       "skillPath": "skills/hindsight/SKILL.md",
-      "version": "0.1.12",
-      "computedHash": "dea65b8c0b282058c9b3aacaec26df2625a120bfae96e0957d40219f456b886e"
+      "version": "0.1.13",
+      "computedHash": "39c134a6e3694d0a3a86f16379a4db5583417c7a56ed55373030b177f35cb598"
     },
     "terraform-style-guide": {
       "source": "hashicorp/agent-skills",
       "ref": "f706481af9b8fedb66de909f6243ad29601afa0c",
+      "commit": "f706481af9b8fedb66de909f6243ad29601afa0c",
       "sourceType": "github",
       "skillPath": "plugins/terraform/skills/terraform-style-guide/SKILL.md",
-      "computedHash": "3b914c5ae01a7101d45b5222fbc38e0be6eb7412deba5f54d471905f22af70c6",
+      "computedHash": "39a686ad7d71d99e5fbead0a5cbd666c096af8d38d152f7597eb314e5b2b622c",
       "via": "@quantile-co/factory-pi"
     }
   }
