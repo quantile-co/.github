@@ -12,7 +12,7 @@ terraform {
     }
     google = {
       source  = "registry.opentofu.org/hashicorp/google"
-      version = "8.10.0"
+      version = "8.11.0"
     }
     random = {
       source  = "registry.opentofu.org/hashicorp/random"
